@@ -18,6 +18,7 @@ from tkinter import Tk, Menu, PhotoImage, ttk, StringVar, messagebox, \
 from tkinter.filedialog import askdirectory
 from os.path import isdir, join, dirname
 from os import makedirs
+from settings import Config
 from tickets import Tickets
 
 
@@ -26,6 +27,7 @@ class Face:
         root.title(_("OTRS Client Side"))
         root.protocol("WM_DELETE_WINDOW", self.on_delete)
         self.root = root
+        self.config = Config("face.cfg")
         root.grid_columnconfigure(0, weight=1)
         root.grid_rowconfigure(0, weight=1)
         self.ufid = []
@@ -40,9 +42,9 @@ class Face:
         st_lab.grid(column=0, row=1, sticky="we")
         self.add_menu()
         self.locked = False
-        self.pages = {}
         root.tk.call("wm", "iconphoto", root._w,
                      PhotoImage(file=join(dirname(__file__), "icon.gif")))
+        root.geometry(self.config.get("geometry"))
 
     def add_menu(self):
         top = self.root.winfo_toplevel()
@@ -57,15 +59,10 @@ class Face:
         self.mfile.add_command(label=_("Quit"), command=self.on_delete,
                                accelerator="Ctrl+Q", underline=1)
         self.root.bind_all("<Control-q>", lambda x: self.on_delete())
-        self.medit.add_command(label=_("Clear"), command=self.clear_list)
-
-    def clear_list(self, evt=None):
-        for i in self.pages:
-            self.tree.delete(i)
-        self.pages.clear()
-        del self.ufid[:]
 
     def on_delete(self):
+        self.config["geometry"] = self.root.geometry()
+        del self.config
         self.root.destroy()
 
 
@@ -77,9 +74,9 @@ def start_face():
     else:
         localedir = join(dirname(__file__), "i18n", "locale")
         if isdir(localedir):
-            gettext.install("jml", localedir=localedir)
+            gettext.install("otrs_us", localedir=localedir)
         else:
-            gettext.install("jml")
+            gettext.install("otrs_us")
     root = Tk()
     f = Face(root)
     root.mainloop()
