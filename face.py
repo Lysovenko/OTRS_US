@@ -20,6 +20,7 @@ from os.path import isdir, join, dirname
 from os import makedirs
 from settings import Config
 from tickets import Tickets
+from dashboard import Dashboard
 
 
 class Face:
@@ -31,10 +32,11 @@ class Face:
         root.grid_columnconfigure(0, weight=1)
         root.grid_rowconfigure(0, weight=1)
         self.ufid = []
-        self.notebook = ttk.Notebook(root)
+        self.notebook = ntbk = ttk.Notebook(root)
         # Dashboard, Tickets, -Customers, -Admin, -Forums, Search
-        self.notebook.grid(column=0, row=0, sticky="senw")
-        self.notebook.add(Tickets(self.notebook, self), text=_("Tickets"))
+        ntbk.grid(column=0, row=0, sticky="senw")
+        ntbk.add(Dashboard(ntbk, self), text=_("Dashboard"))
+        ntbk.add(Tickets(ntbk, self), text=_("Tickets"))
         self.sz = ttk.Sizegrip(root)
         self.sz.grid(column=1, row=1, sticky="se")
         self.status = StringVar()
