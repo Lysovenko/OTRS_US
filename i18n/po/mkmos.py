@@ -1,14 +1,10 @@
-from imp import find_module, load_module
 import os
-
-pth = os.path.join(os.path.split(os.__file__)[0], 'Tools', 'i18n')
 try:
-    fptr, pth, dsc = find_module('msgfmt', [pth])
+    import Tools.i18n.msgfmt as msgfmt
 except ImportError:
-    print('ImportError: %s' % pth)
+    print('ImportError: can not import Tools.i18n.msgfmt')
     exit()
-msgfmt = load_module('msgfmt', fptr, pth, dsc)
-del fptr, pth, dsc
+
 
 if __name__ == '__main__':
     # Ensure that we are in the "po" directory

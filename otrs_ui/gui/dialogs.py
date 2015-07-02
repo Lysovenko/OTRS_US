@@ -99,27 +99,33 @@ class DlgLogin(Dialog):
     def body(self, master, cfg={}):
         "place user dialog widgets"
         self.config = cfg
+        self.site = StringVar()
+        self.site.set(cfg.get("site", ""))
         self.login = StringVar()
         self.login.set(cfg.get("login", ""))
         self.password = StringVar()
         self.password.set(cfg.get("password", ""))
+        site = Entry(master, width=15, textvariable=self.site)
+        site.grid(column=1, row=0, sticky="e")
+        Label(master, text=_("Site:")).grid(column=0, row=0, sticky="w")
         loge = Entry(master, width=15, textvariable=self.login)
-        loge.grid(column=1, row=0, sticky="e")
-        Label(master, text=_("Username:")).grid(column=0, row=0, sticky="w")
+        loge.grid(column=1, row=1, sticky="e")
+        Label(master, text=_("Username:")).grid(column=0, row=1, sticky="w")
         pase = Entry(master, width=15, textvariable=self.password, show="*")
-        pase.grid(column=1, row=1, sticky="e")
-        Label(master, text=_("Password:")).grid(column=0, row=1, sticky="w")
+        pase.grid(column=1, row=2, sticky="e")
+        Label(master, text=_("Password:")).grid(column=0, row=2, sticky="w")
         self.to_remember = IntVar()
         self.to_remember.set(cfg.get("remember_passwd", 1))
         chk1 = Checkbutton(master, text="Remember",
                            variable=self.to_remember)
-        chk1.grid(column=0, row=2, sticky="w", columnspan=2)
+        chk1.grid(column=0, row=3, sticky="w", columnspan=2)
         self.resizable(width=0, height=0)
         return loge
 
     def apply(self):
         "On ok button pressed"
         self.config["remember_passwd"] = self.to_remember.get()
+        self.config["site"] = self.site.get()
         self.config["login"] = self.login.get()
         self.config["password"] = self.password.get()
 
