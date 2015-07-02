@@ -105,7 +105,7 @@ class DlgLogin(Dialog):
         self.password.set(cfg.get("password", ""))
         loge = Entry(master, width=15, textvariable=self.login)
         loge.grid(column=1, row=0, sticky="e")
-        Label(master, text=_("Login:")).grid(column=0, row=0, sticky="w")
+        Label(master, text=_("Username:")).grid(column=0, row=0, sticky="w")
         pase = Entry(master, width=15, textvariable=self.password, show="*")
         pase.grid(column=1, row=1, sticky="e")
         Label(master, text=_("Password:")).grid(column=0, row=1, sticky="w")

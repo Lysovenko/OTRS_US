@@ -16,7 +16,7 @@
 from tkinter import Tk, Menu, PhotoImage, ttk, StringVar, messagebox, \
     BooleanVar
 from tkinter.filedialog import askdirectory
-from os.path import isdir, join, dirname
+from os.path import isdir, join, dirname, pardir
 from os import makedirs
 from ..settings import Config
 from .tickets import Tickets
@@ -74,9 +74,9 @@ def start_gui():
     except ImportError:
         __builtins__.__dict__["_"] = str
     else:
-        localedir = join(dirname(__file__), "i18n", "locale")
-        if isdir(localedir):
-            gettext.install("otrs_us", localedir=localedir)
+        ldir = join(dirname(__file__), pardir, pardir, "i18n", "locale")
+        if isdir(ldir):
+            gettext.install("otrs_us", localedir=ldir)
         else:
             gettext.install("otrs_us")
     root = Tk()
