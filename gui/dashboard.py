@@ -14,7 +14,7 @@
 "Making the Dashboard widget"
 
 from tkinter import ttk
-from tickets import autoscroll
+from .tickets import autoscroll
 
 
 class Dashboard(ttk.Frame):

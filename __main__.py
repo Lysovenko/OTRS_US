@@ -14,5 +14,5 @@
 # limitations under the License.
 
 
-import face
-face.start_face()
+import gui
+gui.start_gui()

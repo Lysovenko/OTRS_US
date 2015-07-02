@@ -19,8 +19,8 @@ from tkinter.filedialog import askdirectory
 from os.path import isdir, join, dirname
 from os import makedirs
 from settings import Config
-from tickets import Tickets
-from dashboard import Dashboard
+from .tickets import Tickets
+from .dashboard import Dashboard
 
 
 class Face:
@@ -68,7 +68,7 @@ class Face:
         self.root.destroy()
 
 
-def start_face():
+def start_gui():
     try:
         import gettext
     except ImportError:
