@@ -26,7 +26,7 @@ class Dashboard(ttk.Frame):
         pw.add(self.make_tree("Reminder"))
         pw.add(self.make_tree("New"))
         pw.add(self.make_tree("Open"))
-        pw.grid(column=0, row=0, sticky="senw")
+        pw.pack(fill="both")
 
     def make_tree(self, name):
         frame = ttk.Frame(self.pw)

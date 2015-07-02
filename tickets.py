@@ -33,7 +33,7 @@ class Tickets(ttk.Frame):
         self.pw = pw = ttk.Panedwindow(self, orient="vertical")
         pw.add(self.make_tree())
         pw.add(self.make_text_field())
-        pw.grid(column=0, row=0, sticky="senw")
+        pw.pack(fill="both")
 
     def make_tree(self):
         frame = ttk.Frame(self.pw)
