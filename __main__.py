@@ -14,5 +14,5 @@
 # limitations under the License.
 
 
-import gui
-gui.start_gui()
+from otrs_ui.gui import start_gui
+start_gui()

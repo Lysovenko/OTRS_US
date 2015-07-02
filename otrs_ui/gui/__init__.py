@@ -18,7 +18,7 @@ from tkinter import Tk, Menu, PhotoImage, ttk, StringVar, messagebox, \
 from tkinter.filedialog import askdirectory
 from os.path import isdir, join, dirname
 from os import makedirs
-from settings import Config
+from ..settings import Config
 from .tickets import Tickets
 from .dashboard import Dashboard
 
