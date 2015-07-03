@@ -46,6 +46,8 @@ class Config(dict):
         self.hash = md5(repr(self).encode()).digest()
 
     def save(self):
+        if self.hash == md5(repr(self).encode()).digest():
+            return
         with open(self.path, 'w') as fp:
             for n, v in self.items():
                 fp.write("%s=%s\n" % (n, repr(v)))
@@ -53,5 +55,4 @@ class Config(dict):
 
     def __del__(self):
         print(self.path, 'died')
-        if self.hash != md5(repr(self).encode()).digest():
-            self.save()
+        self.save()

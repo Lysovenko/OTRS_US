@@ -21,9 +21,12 @@ class Interactor(dict):
             raise KeyError("function `%s' already registred")
         self[name] = (function, data)
 
-    def call(self, name, **attrs):
+    def call(self, name, *args, **dargs):
         func, data = self[name]
-        func(name, data, **attrs)
+        if data is None:
+            func(*args, **dargs)
+        else:
+            func(data, *args, **dargs)
 
 
 def get_core():

@@ -19,31 +19,33 @@ from tkinter.filedialog import askdirectory
 from os.path import isdir, join, dirname, pardir
 from os import makedirs
 from ..core.settings import Config
+from ..core import get_core
 from .tickets import Tickets
 from .dashboard import Dashboard
 
 
 class Face:
-    def __init__(self, root):
+    def __init__(self, root, core):
         root.title(_("OTRS Client Side"))
         root.protocol("WM_DELETE_WINDOW", self.on_delete)
         self.root = root
+        self.core = core
         self.config = Config("face.cfg")
         root.grid_columnconfigure(0, weight=1)
         root.grid_rowconfigure(0, weight=1)
-        self.ufid = []
         self.notebook = ntbk = ttk.Notebook(root)
-        self.app_widgets = appw = {}
+        self.app_widgets = appw = {"core": core, "config": self.config}
         # Dashboard, Tickets, -Customers, -Admin, -Forums, Search
         ntbk.grid(column=0, row=0, sticky="senw")
-        appw["dashboard"] = Dashboard(ntbk, appw)
+        appw["dashboard"] = Dashboard(ntbk, appw, core)
         ntbk.add(appw["dashboard"], text=_("Dashboard"))
-        appw["tickets"] = Tickets(ntbk, appw)
+        appw["tickets"] = Tickets(ntbk, appw, core)
         ntbk.add(appw["tickets"], text=_("Tickets"))
         self.sz = ttk.Sizegrip(root)
         self.sz.grid(column=1, row=1, sticky="se")
         self.status = StringVar()
         st_lab = ttk.Label(root, textvariable=self.status)
+        core.register("print_status", self.status.set)
         st_lab.grid(column=0, row=1, sticky="we")
         self.add_menu()
         self.locked = False
@@ -67,7 +69,7 @@ class Face:
 
     def on_delete(self):
         self.config["geometry"] = self.root.geometry()
-        del self.config
+        self.config.save()
         self.root.destroy()
 
 
@@ -83,5 +85,5 @@ def start_gui():
         else:
             gettext.install("otrs_us")
     root = Tk()
-    f = Face(root)
+    f = Face(root, get_core())
     root.mainloop()
