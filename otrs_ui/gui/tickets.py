@@ -27,9 +27,9 @@ def autoscroll(sbar, first, last):
 
 
 class Tickets(ttk.Frame):
-    def __init__(self, parent, faco):
+    def __init__(self, parent, appw):
         ttk.Frame.__init__(self, parent)
-        self.face_obj = faco
+        self.app_widgets = appw
         self.pw = pw = ttk.Panedwindow(self, orient="vertical")
         pw.add(self.make_tree())
         pw.add(self.make_text_field())
@@ -40,7 +40,6 @@ class Tickets(ttk.Frame):
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_rowconfigure(0, weight=1)
         self.tree = tree = ttk.Treeview(frame, selectmode="extended")
-        self.treef = frame
         tree.grid(column=0, row=0, sticky="nwes")
         vsb = ttk.Scrollbar(frame, command=tree.yview, orient="vertical")
         vsb.grid(column=1, row=0, sticky="ns")

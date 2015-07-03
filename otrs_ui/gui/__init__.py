@@ -11,14 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"Making the face of the application"
+"Making the GUI of the application"
 
 from tkinter import Tk, Menu, PhotoImage, ttk, StringVar, messagebox, \
     BooleanVar
 from tkinter.filedialog import askdirectory
 from os.path import isdir, join, dirname, pardir
 from os import makedirs
-from ..settings import Config
+from ..core.settings import Config
 from .tickets import Tickets
 from .dashboard import Dashboard
 
@@ -33,10 +33,13 @@ class Face:
         root.grid_rowconfigure(0, weight=1)
         self.ufid = []
         self.notebook = ntbk = ttk.Notebook(root)
+        self.app_widgets = appw = {}
         # Dashboard, Tickets, -Customers, -Admin, -Forums, Search
         ntbk.grid(column=0, row=0, sticky="senw")
-        ntbk.add(Dashboard(ntbk, self), text=_("Dashboard"))
-        ntbk.add(Tickets(ntbk, self), text=_("Tickets"))
+        appw["dashboard"] = Dashboard(ntbk, appw)
+        ntbk.add(appw["dashboard"], text=_("Dashboard"))
+        appw["tickets"] = Tickets(ntbk, appw)
+        ntbk.add(appw["tickets"], text=_("Tickets"))
         self.sz = ttk.Sizegrip(root)
         self.sz.grid(column=1, row=1, sticky="se")
         self.status = StringVar()
@@ -82,7 +85,3 @@ def start_gui():
     root = Tk()
     f = Face(root)
     root.mainloop()
-
-
-if __name__ == "__main__":
-    start_face()

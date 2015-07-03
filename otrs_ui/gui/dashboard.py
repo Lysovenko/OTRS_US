@@ -18,9 +18,9 @@ from .tickets import autoscroll
 
 
 class Dashboard(ttk.Frame):
-    def __init__(self, parent, faco):
+    def __init__(self, parent, appw):
         ttk.Frame.__init__(self, parent)
-        self.face_obj = faco
+        self.app_widgets = appw
         self.tree = {}
         self.pw = pw = ttk.Panedwindow(self, orient="vertical")
         pw.add(self.make_tree("Reminder"))
