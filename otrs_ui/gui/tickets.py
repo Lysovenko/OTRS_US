@@ -67,4 +67,4 @@ class Tickets(ttk.Frame):
         text["yscrollcommand"] = lambda f, l: autoscroll(vsb, f, l)
         self.text_curinfo = None
         text.tag_configure("h1", font="Times 16 bold", relief="raised")
-        return frame        
+        return frame
