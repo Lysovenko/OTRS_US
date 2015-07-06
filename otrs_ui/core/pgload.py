@@ -12,25 +12,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"interactor"
-from .settings import Config
+"Page loader"
+from urllib.parse import urlparse, parse_qsl, urlencode
+from urllib.request import Request, urlopen
 
 
-class Interactor(dict):
-    def register(self, name, function, data=None):
-        if name in self:
-            raise KeyError("function `%s' already registred")
-        self[name] = (function, data)
-
-    def call(self, name, *args, **dargs):
-        func, data = self[name]
-        if data is None:
-            func(*args, **dargs)
-        else:
-            func(data, *args, **dargs)
-
-
-def get_core():
-    actor = Interactor()
-    actor.register("core cfg", lambda x: x, Config("core.cfg"))
-    return actor
+_REQUESTS = {}
+class Page:
+    def __init__(self, location, request):
+        r = Request(ZZlocation
