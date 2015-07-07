@@ -19,5 +19,21 @@ from urllib.request import Request, urlopen
 
 _REQUESTS = {}
 class Page:
-    def __init__(self, location, request):
-        r = Request(ZZlocation
+    def load(self, location):
+        r = Request(location)
+        try:
+            pg = urlopen(r)
+        except Exception:
+            return
+        pd = pg.read()
+        
+    def login(self):
+        r=Request(
+            "https://otrs.hvosting.ua/otrs/index.pl",
+            urlencode([("Action","Login"),
+                       ("RequestedURL",""),
+                       ("Lang","en"),
+                       ("TimeOffset",""),
+                       ("User",user),
+                       ("Password",passwd),
+                       ("login","Login")]).encode())
