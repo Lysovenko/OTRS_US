@@ -28,12 +28,10 @@ class Page:
         pd = pg.read()
         
     def login(self):
-        r=Request(
+        r = Request(
             "https://otrs.hvosting.ua/otrs/index.pl",
-            urlencode([("Action","Login"),
-                       ("RequestedURL",""),
-                       ("Lang","en"),
-                       ("TimeOffset",""),
-                       ("User",user),
-                       ("Password",passwd),
-                       ("login","Login")]).encode())
+            urlencode(
+                [("Action", "Login"), ("RequestedURL", ""), ("Lang", "en"),
+                 ("TimeOffset", ""), ("User", user), ("Password", passwd),
+                 ("login", "Login")]).encode())
+        pg = urlopen(r)
