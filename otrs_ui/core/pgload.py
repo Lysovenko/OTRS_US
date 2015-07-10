@@ -18,6 +18,8 @@ from urllib.request import Request, urlopen
 
 
 _REQUESTS = {}
+
+
 class Page:
     def load(self, location):
         r = Request(location)
@@ -26,7 +28,9 @@ class Page:
         except Exception:
             return
         pd = pg.read()
-        
+        if not self.check_login(pd):
+            raise RuntimeError()
+
     def login(self):
         r = Request(
             "https://otrs.hvosting.ua/otrs/index.pl",
@@ -35,3 +39,5 @@ class Page:
                  ("TimeOffset", ""), ("User", user), ("Password", passwd),
                  ("login", "Login")]).encode())
         pg = urlopen(r)
+        url = pg.geturl()
+        qpl = parse_qsl(urlparse(url).query)
