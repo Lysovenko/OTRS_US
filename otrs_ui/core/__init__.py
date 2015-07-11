@@ -33,4 +33,5 @@ class Interactor(dict):
 def get_core():
     actor = Interactor()
     actor.register("core cfg", lambda x: x, Config("core.cfg"))
+    actor.register("runtime cfg", lambda x: x, dict())
     return actor

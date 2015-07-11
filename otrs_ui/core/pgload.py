@@ -21,6 +21,10 @@ _REQUESTS = {}
 
 
 class Page:
+    def __init__(self, core):
+        self.core_cfg = core.call("core cfg")
+        self.runt_cfg = core.call("runtime cfg")
+
     def load(self, location):
         r = Request(location)
         try:
@@ -32,6 +36,9 @@ class Page:
             raise RuntimeError()
 
     def login(self):
+        user = self.runt_cfg["user"]
+        passwd = self.runt_cfg["passwd"]
+        site = self.runt_cfg["site"]
         r = Request(
             "https://otrs.hvosting.ua/otrs/index.pl",
             urlencode(
@@ -41,3 +48,7 @@ class Page:
         pg = urlopen(r)
         url = pg.geturl()
         qpl = parse_qsl(urlparse(url).query)
+        dpl = dict(qpl)
+        if "Session" not in dpl:
+            raise RuntimeError()
+        self.runt_cfg["Session"] = dpl["Session"]
