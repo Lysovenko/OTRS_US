@@ -37,7 +37,7 @@ class Face:
         self.app_widgets = appw = {"core": core, "config": self.config}
         # Dashboard, Tickets, -Customers, -Admin, -Forums, Search
         ntbk.grid(column=0, row=0, sticky="senw")
-        appw["dashboard"] = Dashboard(ntbk, appw, core)
+        appw["dashboard"] = Dashboard(ntbk, appw)
         ntbk.add(appw["dashboard"], text=_("Dashboard"))
         appw["tickets"] = Tickets(ntbk, appw, core)
         ntbk.add(appw["tickets"], text=_("Tickets"))

@@ -52,3 +52,7 @@ class Page:
         if "Session" not in dpl:
             raise RuntimeError()
         self.runt_cfg["Session"] = dpl["Session"]
+
+    def check_login(self, pd):
+        print(pd)
+        return False

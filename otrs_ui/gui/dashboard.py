@@ -27,6 +27,7 @@ class Dashboard(ttk.Frame):
         pw.add(self.make_tree("New"))
         pw.add(self.make_tree("Open"))
         pw.pack(fill="both")
+        self.update()
 
     def make_tree(self, name):
         frame = ttk.Frame(self.pw)
@@ -46,3 +47,9 @@ class Dashboard(ttk.Frame):
         tree.tag_configure("bmk", foreground="red")
         tree.tag_configure("folder", font="Times 14 bold")
         return frame
+
+    def update(self):
+        from ..core.pgload import Page
+        pg = Page(self.app_widgets["core"])
+        pg.load("https://otrs.hvosting.ua/otrs/index.pl")
+        pass
