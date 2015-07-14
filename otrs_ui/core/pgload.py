@@ -32,7 +32,7 @@ class Page:
         except Exception:
             return
         pd = pg.read()
-        if not self.check_login(pd):
+        if not self.check_login(pd.decode()):
             raise RuntimeError()
 
     def login(self):
@@ -54,5 +54,8 @@ class Page:
         self.runt_cfg["Session"] = dpl["Session"]
 
     def check_login(self, pd):
-        print(pd)
-        return False
+        for i in pd.splitlines():
+            if "<title>" in i and "Login" in i:
+                print (i)
+                return False
+        return True
