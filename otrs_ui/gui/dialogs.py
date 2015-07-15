@@ -128,6 +128,7 @@ class DlgLogin(Dialog):
         self.config["site"] = self.site.get()
         self.config["login"] = self.login.get()
         self.config["password"] = self.password.get()
+        self.config["OK button"] = True
 
 
 if __name__ == "__main__":

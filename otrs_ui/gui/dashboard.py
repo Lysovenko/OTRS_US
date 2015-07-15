@@ -50,6 +50,12 @@ class Dashboard(ttk.Frame):
 
     def update(self):
         from ..core.pgload import Page
+        from .dialogs import DlgLogin
         pg = Page(self.app_widgets["core"])
-        pg.load("https://otrs.hvosting.ua/otrs/index.pl")
+        while True:
+            try:
+                pg.load("https://otrs.hvosting.ua/otrs/index.pl")
+            except RuntimeError:
+                cfg = {"login": "user", "password": "qwerty"}
+                dl = DlgLogin(self,  _("Login"), cfg=cfg)
         pass
