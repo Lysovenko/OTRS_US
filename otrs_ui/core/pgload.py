@@ -35,12 +35,11 @@ class Page:
         if not self.check_login(pd.decode()):
             raise RuntimeError()
 
-    def login(self):
-        user = self.runt_cfg["user"]
-        passwd = self.runt_cfg["passwd"]
-        site = self.runt_cfg["site"]
-        r = Request(
-            "https://otrs.hvosting.ua/otrs/index.pl",
+    def login(self, who):
+        user = who["user"]
+        passwd = who["passwd"]
+        site = who["site"]
+        r = Request(site,
             urlencode(
                 [("Action", "Login"), ("RequestedURL", ""), ("Lang", "en"),
                  ("TimeOffset", ""), ("User", user), ("Password", passwd),

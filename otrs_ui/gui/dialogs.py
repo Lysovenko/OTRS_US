@@ -99,6 +99,7 @@ class DlgLogin(Dialog):
     def body(self, master, cfg={}):
         "place user dialog widgets"
         self.config = cfg
+        self.config["OK button"] = False
         self.site = StringVar()
         self.site.set(cfg.get("site", ""))
         self.login = StringVar()
