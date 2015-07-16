@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"Page loader"
+"Page loader parrent"
 from urllib.parse import urlparse, parse_qsl, urlencode
 from urllib.request import Request, urlopen
 
