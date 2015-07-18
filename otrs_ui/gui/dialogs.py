@@ -103,7 +103,7 @@ class DlgLogin(Dialog):
         self.site = StringVar()
         self.site.set(cfg.get("site", ""))
         self.login = StringVar()
-        self.login.set(cfg.get("login", ""))
+        self.login.set(cfg.get("user", ""))
         self.password = StringVar()
         self.password.set(cfg.get("password", ""))
         site = Entry(master, width=15, textvariable=self.site)
@@ -127,7 +127,7 @@ class DlgLogin(Dialog):
         "On ok button pressed"
         self.config["remember_passwd"] = self.to_remember.get()
         self.config["site"] = self.site.get()
-        self.config["login"] = self.login.get()
+        self.config["user"] = self.login.get()
         self.config["password"] = self.password.get()
         self.config["OK button"] = True
 
@@ -136,6 +136,6 @@ if __name__ == "__main__":
     from tkinter import Tk, Button
     _ = str
     root = Tk()
-    cfg = {"login": "user", "password": "qwerty"}
+    cfg = {"user": "user", "password": "qwerty"}
     d = DlgLogin(root, _("Login"), cfg=cfg)
     print(cfg)

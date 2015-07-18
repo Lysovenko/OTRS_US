@@ -37,7 +37,7 @@ class Page:
 
     def login(self, who):
         user = who["user"]
-        passwd = who["passwd"]
+        passwd = who["password"]
         site = who["site"]
         r = Request(site,
             urlencode(

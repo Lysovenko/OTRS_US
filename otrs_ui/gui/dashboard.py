@@ -55,9 +55,13 @@ class Dashboard(ttk.Frame):
         while True:
             try:
                 pg.load("https://otrs.hvosting.ua/otrs/index.pl")
+                break
             except RuntimeError:
-                cfg = {"login": "user", "password": "qwerty",
+                cfg = {"user": "user", "password": "qwerty",
                        "site": "https://otrs.hvosting.ua/otrs/index.pl"}
                 dl = DlgLogin(self,  _("Login"), cfg=cfg)
                 if cfg["OK button"]:
-        pass
+                    print(cfg)
+                    pg.login(cfg)
+                else:
+                    break

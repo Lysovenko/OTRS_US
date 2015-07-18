@@ -25,9 +25,9 @@ class Interactor(dict):
     def call(self, name, *args, **dargs):
         func, data = self[name]
         if data is None:
-            func(*args, **dargs)
+            return func(*args, **dargs)
         else:
-            func(data, *args, **dargs)
+            return func(data, *args, **dargs)
 
 
 def get_core():
