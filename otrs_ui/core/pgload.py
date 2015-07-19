@@ -26,7 +26,11 @@ class Page:
         self.runt_cfg = core.call("runtime cfg")
 
     def load(self, location):
-        r = Request(location)
+        try:
+            session = self.runt_cfg["Session"]
+        except KeyError:
+            raise RuntimeError()
+        r = Request("%s?%s" % (location, urlencode([("Session", session)])))
         try:
             pg = urlopen(r)
         except Exception:

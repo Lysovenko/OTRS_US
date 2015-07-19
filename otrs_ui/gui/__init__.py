@@ -39,7 +39,7 @@ class Face:
         ntbk.grid(column=0, row=0, sticky="senw")
         appw["dashboard"] = Dashboard(ntbk, appw)
         ntbk.add(appw["dashboard"], text=_("Dashboard"))
-        appw["tickets"] = Tickets(ntbk, appw, core)
+        appw["tickets"] = Tickets(ntbk, appw)
         ntbk.add(appw["tickets"], text=_("Tickets"))
         self.sz = ttk.Sizegrip(root)
         self.sz.grid(column=1, row=1, sticky="se")
