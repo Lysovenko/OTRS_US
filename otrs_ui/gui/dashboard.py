@@ -51,17 +51,25 @@ class Dashboard(ttk.Frame):
     def update(self):
         from ..core.pgload import Page
         from .dialogs import DlgLogin
-        pg = Page(self.app_widgets["core"])
+        core = self.app_widgets["core"]
+        core_cfg = core.call("core cfg")
+        runt_cfg = core.call("runtime cfg")
+        pg = Page(core)
         while True:
             try:
-                pg.load("https://otrs.hvosting.ua/otrs/index.pl")
+                pg.load(runt_cfg.get("site", ""))
                 break
             except RuntimeError:
-                cfg = {"user": "user", "password": "qwerty",
-                       "site": "https://otrs.hvosting.ua/otrs/index.pl"}
+                cfg = {"user": core_cfg.get("user",""),
+                       "password": core_cfg.get("password", ""),
+                       "site": core_cfg.get("site", "https://otrs.hvosting.ua/otrs/index.pl")}
                 dl = DlgLogin(self,  _("Login"), cfg=cfg)
                 if cfg["OK button"]:
-                    print(cfg)
+                    runt_cfg["site"] = cfg["site"]
+                    if cfg["remember_passwd"]:
+                        core_cfg["user"] = cfg["user"]
+                        core_cfg["site"] = cfg["site"]
+                        core_cfg["password"] = cfg["password"]
                     pg.login(cfg)
                 else:
                     break
