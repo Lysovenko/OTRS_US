@@ -70,6 +70,7 @@ class Face:
     def on_delete(self):
         self.config["geometry"] = self.root.geometry()
         self.config.save()
+        self.core.call("core cfg").save()
         self.root.destroy()
 
 

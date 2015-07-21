@@ -60,9 +60,9 @@ class Dashboard(ttk.Frame):
                 pg.load(runt_cfg.get("site", ""))
                 break
             except RuntimeError:
-                cfg = {"user": core_cfg.get("user",""),
+                cfg = {"user": core_cfg.get("user", ""),
                        "password": core_cfg.get("password", ""),
-                       "site": core_cfg.get("site", "https://otrs.hvosting.ua/otrs/index.pl")}
+                       "site": core_cfg.get("site", "")}
                 dl = DlgLogin(self,  _("Login"), cfg=cfg)
                 if cfg["OK button"]:
                     runt_cfg["site"] = cfg["site"]

@@ -40,11 +40,13 @@ class Page:
             raise RuntimeError()
 
     def login(self, who):
+        if who is None:
+            who = self.runt_cfg
         user = who["user"]
         passwd = who["password"]
         site = who["site"]
-        r = Request(site,
-            urlencode(
+        r = Request(
+            site, urlencode(
                 [("Action", "Login"), ("RequestedURL", ""), ("Lang", "en"),
                  ("TimeOffset", ""), ("User", user), ("Password", passwd),
                  ("login", "Login")]).encode())
@@ -59,6 +61,5 @@ class Page:
     def check_login(self, pd):
         for i in pd.splitlines():
             if "<title>" in i and "Login" in i:
-                print (i)
                 return False
         return True
