@@ -38,6 +38,7 @@ class Page:
         pd = pg.read()
         if not self.check_login(pd.decode()):
             raise RuntimeError()
+        print(pd.decode())
 
     def login(self, who):
         if who is None:
