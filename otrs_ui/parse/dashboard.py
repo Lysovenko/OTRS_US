@@ -14,6 +14,7 @@
 # limitations under the License.
 "paese dashboard page"
 from html.parser import HTMLParser
+from sys import hexversion
 
 
 class DashboardParser(HTMLParser):
@@ -22,5 +23,32 @@ class DashboardParser(HTMLParser):
         if hexversion >= 0x030200f0:
             di["strict"] = False
         HTMLParser.__init__(self, **di)
+        self.tickets = {"New": [], "Open": [], "Reminder": []}
+        self.cur_array = None
+        self.cur_append = None
         # self.feed(data)
         # self.close()
+
+    def handle_starttag(self, tag, attrs):
+        dattrs = dict(attrs)
+        if tag == "div":
+            if dattrs.get("id") == "Dashboard0120-TicketNew":
+                self.cur_array = self.tickets["New"]
+                del self.cur_array[:]
+            if dattrs.get("id") == "Dashboard0130-TicketOpen":
+                self.cur_array = self.tickets["Open"]
+                del self.cur_array[:]
+            if dattrs.get("id") == "Dashboard0100-TicketPendingReminder":
+                self.cur_array = self.tickets["Reminder"]
+                del self.cur_array[:]
+        if tag == "a" and dattrs.get("class") == "AsBlock MasterActionLink":
+            self.cur_append = (dattrs["href"], dattrs["title"])
+
+    def handle_data(self, data):
+        if self.cur_append is not None:
+            self.cur_append += (data,)
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self.cur_append is not None:
+            self.cur_array.append(self.cur_append)
+            self.cur_append = None

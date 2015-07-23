@@ -15,7 +15,7 @@
 "Page loader parrent"
 from urllib.parse import urlparse, parse_qsl, urlencode
 from urllib.request import Request, urlopen
-
+from ..parse.dashboard import DashboardParser
 
 _REQUESTS = {}
 
@@ -24,6 +24,10 @@ class Page:
     def __init__(self, core):
         self.core_cfg = core.call("core cfg")
         self.runt_cfg = core.call("runtime cfg")
+
+    def parse(self, data):
+        "Dummy method to be replaced"
+        print(data)
 
     def load(self, location):
         try:
@@ -38,7 +42,7 @@ class Page:
         pd = pg.read()
         if not self.check_login(pd.decode()):
             raise RuntimeError()
-        print(pd.decode())
+        return self.parse(pd.decode())
 
     def login(self, who):
         if who is None:
@@ -64,3 +68,10 @@ class Page:
             if "<title>" in i and "Login" in i:
                 return False
         return True
+
+
+class DashboardPage(Page):
+    def parse(self, data):
+        parser = DashboardParser()
+        parser.feed(data)
+        return parser.tickets

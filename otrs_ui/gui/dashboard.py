@@ -49,15 +49,16 @@ class Dashboard(ttk.Frame):
         return frame
 
     def update(self):
-        from ..core.pgload import Page
+        from ..core.pgload import DashboardPage
         from .dialogs import DlgLogin
         core = self.app_widgets["core"]
         core_cfg = core.call("core cfg")
         runt_cfg = core.call("runtime cfg")
-        pg = Page(core)
+        pg = DashboardPage(core)
         while True:
             try:
-                pg.load(runt_cfg.get("site", ""))
+                pgl = pg.load(runt_cfg.get("site", ""))
+                print(pgl)
                 break
             except RuntimeError:
                 cfg = {"user": core_cfg.get("user", ""),
