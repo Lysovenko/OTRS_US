@@ -27,7 +27,16 @@ class Dashboard(ttk.Frame):
         pw.add(self.make_tree("New"))
         pw.add(self.make_tree("Open"))
         pw.pack(fill="both")
+        pw.bind("<Expose>", self.pw_expose)
+        s0, s1 = appw["config"].get("dashboard_sashes", (None, None))
+        pw.sashpos(1, s1)
+        pw.sashpos(0, s0)
         self.update()
+
+    def pw_expose(self, evt):
+        s0 = self.pw.sashpos(0)
+        s1 = self.pw.sashpos(1)
+        self.app_widgets["config"]["dashboard_sashes"] = (s0, s1)
 
     def make_tree(self, name):
         frame = ttk.Frame(self.pw)
