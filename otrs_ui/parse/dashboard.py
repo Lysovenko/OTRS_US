@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 "paese dashboard page"
+from urllib.parse import urlparse, parse_qsl
 from html.parser import HTMLParser
 from sys import hexversion
 
@@ -42,7 +43,8 @@ class DashboardParser(HTMLParser):
                 self.cur_array = self.tickets["Reminder"]
                 del self.cur_array[:]
         if tag == "a" and dattrs.get("class") == "AsBlock MasterActionLink":
-            self.cur_append = (dattrs["href"], dattrs["title"])
+            self.cur_append = (
+                parse_qsl(urlparse(dattrs["href"]).query), dattrs["title"])
 
     def handle_data(self, data):
         if self.cur_append is not None:

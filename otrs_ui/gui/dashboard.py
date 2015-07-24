@@ -42,10 +42,6 @@ class Dashboard(ttk.Frame):
             frame, command=tree.xview, orient="horizontal")
         hsb.grid(column=0, row=1, sticky="ew")
         tree["xscrollcommand"] = lambda f, l: autoscroll(hsb, f, l)
-        tree.tag_configure("page", background="gray")
-        tree.tag_configure("file", foreground="blue", font="Monospace 12")
-        tree.tag_configure("bmk", foreground="red")
-        tree.tag_configure("folder", font="Times 14 bold")
         return frame
 
     def update(self):
@@ -58,7 +54,7 @@ class Dashboard(ttk.Frame):
         while True:
             try:
                 pgl = pg.load(runt_cfg.get("site", ""))
-                print(pgl)
+                self.fill_trees(pgl)
                 break
             except RuntimeError:
                 cfg = {"user": core_cfg.get("user", ""),
@@ -74,3 +70,10 @@ class Dashboard(ttk.Frame):
                     pg.login(cfg)
                 else:
                     break
+
+    def fill_trees(self, pgl):
+        for name in ("Reminder", "New", "Open"):
+            data = pgl[name]
+            tree = self.tree[name]
+            for item in data:
+                tree.insert("", "end", item[2], text=item[1])
