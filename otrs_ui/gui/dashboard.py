@@ -22,6 +22,8 @@ class Dashboard(ttk.Frame):
         ttk.Frame.__init__(self, parent)
         self.app_widgets = appw
         self.tree = {}
+        self.tree_data = {}
+        self.ticket_range = {}
         self.pw = pw = ttk.Panedwindow(self, orient="vertical")
         pw.add(self.make_tree("Reminder"))
         pw.add(self.make_tree("New"))
@@ -29,8 +31,8 @@ class Dashboard(ttk.Frame):
         pw.pack(fill="both")
         pw.bind("<Expose>", self.pw_expose)
         s0, s1 = appw["config"].get("dashboard_sashes", (None, None))
-        pw.sashpos(1, s1)
         pw.sashpos(0, s0)
+        pw.sashpos(1, s1)
         self.update()
 
     def pw_expose(self, evt):
@@ -81,8 +83,17 @@ class Dashboard(ttk.Frame):
                     break
 
     def fill_trees(self, pgl):
+        result = {}
         for name in ("Reminder", "New", "Open"):
             data = pgl[name]
             tree = self.tree[name]
+            try:
+                result[name] = data[0][2] \
+                               not in self.ticket_range.get(name, ())
+            except IndexError:
+                result[name] = False
+            self.tree_data[name] = dict(((i[2], i[:2]) for i in data))
+            self.ticket_range[name] = [i[2] for i in data]
             for item in data:
                 tree.insert("", "end", item[2], text=item[1])
+        return result
