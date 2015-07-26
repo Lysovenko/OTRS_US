@@ -138,7 +138,7 @@ class DlgSettings(Dialog):
         self.config = cfg
         self.config["OK button"] = False
         self.time = StringVar()
-        self.time.set(cfg.get("refresh_time", ""))
+        self.time.set(str(cfg.get("refresh_time", 0)))
         self.etime = Entry(master, width=15, textvariable=self.time)
         self.etime.grid(column=1, row=0, sticky="e")
         lab = Label(master, text=_("Refresh time:"))

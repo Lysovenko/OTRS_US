@@ -21,6 +21,7 @@ class Dashboard(ttk.Frame):
     def __init__(self, parent, appw):
         ttk.Frame.__init__(self, parent)
         self.app_widgets = appw
+        self.root = appw["root"]
         self.tree = {}
         self.tree_data = {}
         self.ticket_range = {}
@@ -81,12 +82,18 @@ class Dashboard(ttk.Frame):
                     pg.login(cfg)
                 else:
                     break
+        refresh = core_cfg.get("refresh_time", 0)
+        if refresh > 10000:
+            self.root.after(refresh, self.update)
+        print('refresh done')
 
     def fill_trees(self, pgl):
         result = {}
         for name in ("Reminder", "New", "Open"):
             data = pgl[name]
             tree = self.tree[name]
+            for i in self.ticket_range.get(name, ()):
+                tree.delete(i)
             try:
                 result[name] = (
                     data[0][2] not in self.ticket_range.get(name, ()))
