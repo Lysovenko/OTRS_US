@@ -15,6 +15,7 @@
 
 from tkinter import ttk
 from .tickets import autoscroll
+from os import system
 
 
 class Dashboard(ttk.Frame):
@@ -63,10 +64,11 @@ class Dashboard(ttk.Frame):
         core_cfg = core.call("core cfg")
         runt_cfg = core.call("runtime cfg")
         pg = DashboardPage(core)
+        felt_trees = None
         while True:
             try:
                 pgl = pg.load(runt_cfg.get("site", ""))
-                self.fill_trees(pgl)
+                felt_trees = self.fill_trees(pgl)
                 break
             except RuntimeError:
                 cfg = {"user": core_cfg.get("user", ""),
@@ -85,7 +87,11 @@ class Dashboard(ttk.Frame):
         refresh = core_cfg.get("refresh_time", 0)
         if refresh > 10000:
             self.root.after(refresh, self.update)
-        print('refresh done')
+        print('#refresh done', felt_trees)
+        if felt_trees is not None and any(felt_trees.values()):
+            snd_cmd = core_cfg.get("snd_cmd")
+            if snd_cmd:
+                system(snd_cmd)
 
     def fill_trees(self, pgl):
         result = {}

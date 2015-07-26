@@ -138,16 +138,22 @@ class DlgSettings(Dialog):
         self.config = cfg
         self.config["OK button"] = False
         self.time = StringVar()
+        self.snd_cmd = StringVar()
         self.time.set(str(cfg.get("refresh_time", 0)))
         self.etime = Entry(master, width=15, textvariable=self.time)
         self.etime.grid(column=1, row=0, sticky="e")
+        self.esnd_cmd = Entry(master, width=15, textvariable=self.snd_cmd)
+        self.esnd_cmd.grid(column=1, row=1, sticky="e")
         lab = Label(master, text=_("Refresh time:"))
         lab.grid(column=0, row=0, sticky="w")
+        lab = Label(master, text=_("Sound command:"))
+        lab.grid(column=0, row=1, sticky="w")
         return self.etime
 
     def apply(self):
         "On ok button pressed"
         self.config["refresh_time"] = int(self.time.get())
+        self.config["snd_cmd"] = self.snd_cmd.get()
         self.config["OK button"] = True
 
     def validate(self):

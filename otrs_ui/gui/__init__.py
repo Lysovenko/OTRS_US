@@ -80,8 +80,10 @@ class Face:
         core_cfg = self.core.call("core cfg")
         cfg = {}
         cfg["refresh_time"] = irt = core_cfg.get("refresh_time", 0)
+        cfg["snd_cmd"] = core_cfg["snd_cmd"]
         DlgSettings(self.root, _("Settings"), cfg=cfg)
         if cfg["OK button"]:
+            core_cfg["snd_cmd"] = cfg["snd_cmd"]
             core_cfg["refresh_time"] = cfg["refresh_time"]
             if not irt and core_cfg["refresh_time"]:
                 self.root.after(
