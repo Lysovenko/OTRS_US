@@ -132,10 +132,36 @@ class DlgLogin(Dialog):
         self.config["OK button"] = True
 
 
+class DlgSettings(Dialog):
+    def body(self, master, cfg={}):
+        "place user dialog widgets"
+        self.config = cfg
+        self.config["OK button"] = False
+        self.time = StringVar()
+        self.time.set(cfg.get("refresh_time", ""))
+        self.etime = Entry(master, width=15, textvariable=self.time)
+        self.etime.grid(column=1, row=0, sticky="e")
+        lab = Label(master, text=_("Refresh time:"))
+        lab.grid(column=0, row=0, sticky="w")
+        return self.etime
+
+    def apply(self):
+        "On ok button pressed"
+        self.config["refresh_time"] = int(self.time.get())
+        self.config["OK button"] = True
+
+    def validate(self):
+        try:
+            int(self.time.get())
+        except ValueError:
+            return self.etime
+        return None
+
+
 if __name__ == "__main__":
     from tkinter import Tk, Button
     _ = str
     root = Tk()
-    cfg = {"user": "user", "password": "qwerty"}
-    d = DlgLogin(root, _("Login"), cfg=cfg)
+    cfg = {"refresh_time": "1000"}
+    d = DlgSettings(root, _("Login"), cfg=cfg)
     print(cfg)

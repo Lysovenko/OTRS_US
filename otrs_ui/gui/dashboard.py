@@ -88,8 +88,8 @@ class Dashboard(ttk.Frame):
             data = pgl[name]
             tree = self.tree[name]
             try:
-                result[name] = data[0][2] \
-                               not in self.ticket_range.get(name, ())
+                result[name] = (
+                    data[0][2] not in self.ticket_range.get(name, ()))
             except IndexError:
                 result[name] = False
             self.tree_data[name] = dict(((i[2], i[:2]) for i in data))
