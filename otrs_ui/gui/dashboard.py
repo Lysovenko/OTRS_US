@@ -55,6 +55,7 @@ class Dashboard(ttk.Frame):
             frame, command=tree.xview, orient="horizontal")
         hsb.grid(column=0, row=1, sticky="ew")
         tree["xscrollcommand"] = lambda f, l: autoscroll(hsb, f, l)
+        tree.bind("<Button-1>", self.activate)
         return frame
 
     def update(self):
@@ -110,3 +111,14 @@ class Dashboard(ttk.Frame):
             for item in data:
                 tree.insert("", "end", item[2], text=item[1])
         return result
+
+    def activate(self, evt):
+        "make selection jumps between trees"
+        selt = evt.widget
+        for opt in self.tree.values():
+            if opt is not selt:
+                sel = opt.selection()
+                if sel:
+                    opt.selection_remove(*sel)
+        selt.selection_add(selt.focus())
+        selt.focus_set()
