@@ -14,6 +14,7 @@
 "Making the Dashboard widget"
 
 from tkinter import ttk
+from tkinter.messagebox import showerror
 from .tickets import autoscroll
 from os import system
 
@@ -56,6 +57,8 @@ class Dashboard(ttk.Frame):
         hsb.grid(column=0, row=1, sticky="ew")
         tree["xscrollcommand"] = lambda f, l: autoscroll(hsb, f, l)
         tree.bind("<Button-1>", self.activate)
+        tree.bind("<Return>", self.enter_ticket)
+        tree.bind("<Double-Button-1>", self.enter_ticket)
         return frame
 
     def update(self):
@@ -82,7 +85,11 @@ class Dashboard(ttk.Frame):
                         core_cfg["user"] = cfg["user"]
                         core_cfg["site"] = cfg["site"]
                         core_cfg["password"] = cfg["password"]
-                    pg.login(cfg)
+                    try:
+                        pg.login(cfg)
+                    except RuntimeError:
+                        showerror(_("Error"), _("Login attempt failed"))
+                        continue
                 else:
                     break
         refresh = core_cfg.get("refresh_time", 0)
@@ -122,3 +129,8 @@ class Dashboard(ttk.Frame):
                     opt.selection_remove(*sel)
         selt.selection_add(selt.focus())
         selt.focus_set()
+
+    def enter_ticket(self, evt):
+        tree = evt.widget
+        iid = tree.focus()
+        print(iid)
