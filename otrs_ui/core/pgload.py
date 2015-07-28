@@ -44,7 +44,7 @@ class Page:
             raise RuntimeError()
         return self.parse(pd.decode())
 
-    def login(self, who):
+    def login(self, who, req=""):
         if who is None:
             who = self.runt_cfg
         user = who["user"]
@@ -52,7 +52,7 @@ class Page:
         site = who["site"]
         r = Request(
             site, urlencode(
-                [("Action", "Login"), ("RequestedURL", ""), ("Lang", "en"),
+                [("Action", "Login"), ("RequestedURL", req), ("Lang", "en"),
                  ("TimeOffset", ""), ("User", user), ("Password", passwd),
                  ("login", "Login")]).encode())
         pg = urlopen(r)
@@ -72,6 +72,7 @@ class Page:
 
 class DashboardPage(Page):
     def parse(self, data):
-        parser = DashboardParser()
+        parser = DashboardParser(self.runt_cfg)
         parser.feed(data)
+        parser.close()
         return parser.tickets

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 "Making the Dashboard widget"
-
+from urllib.parse import urlsplit, urlunsplit
 from tkinter import ttk
 from tkinter.messagebox import showerror
 from .tickets import autoscroll
@@ -36,6 +36,7 @@ class Dashboard(ttk.Frame):
         s0, s1 = appw["config"].get("dashboard_sashes", (None, None))
         pw.sashpos(0, s0)
         pw.sashpos(1, s1)
+        self.urlbegin = ("", "")
         self.update()
 
     def pw_expose(self, evt):
@@ -80,11 +81,12 @@ class Dashboard(ttk.Frame):
                        "site": core_cfg.get("site", "")}
                 dl = DlgLogin(self,  _("Login"), cfg=cfg)
                 if cfg["OK button"]:
-                    runt_cfg["site"] = cfg["site"]
+                    for i in ("site", "user", "password"):
+                        runt_cfg[i] = cfg[i]
+                    self.urlbegin = urlsplit(cfg["site"])[:2]
                     if cfg["remember_passwd"]:
-                        core_cfg["user"] = cfg["user"]
-                        core_cfg["site"] = cfg["site"]
-                        core_cfg["password"] = cfg["password"]
+                        for i in ("site", "user", "password"):
+                            core_cfg[i] = cfg[i]
                     try:
                         pg.login(cfg)
                     except RuntimeError:
@@ -92,6 +94,11 @@ class Dashboard(ttk.Frame):
                         continue
                 else:
                     break
+            except ConnectionError:
+                try:
+                    pg.login(runt_cfg)
+                except (RuntimeError, KeyError):
+                    continue
         refresh = core_cfg.get("refresh_time", 0)
         if refresh > 10000:
             self.root.after(refresh, self.update)
@@ -102,7 +109,10 @@ class Dashboard(ttk.Frame):
                 system(snd_cmd)
 
     def fill_trees(self, pgl):
+        if pgl is None:
+            raise ConnectionError()
         result = {}
+        self.tree_data.clear()
         for name in ("Reminder", "New", "Open"):
             data = pgl[name]
             tree = self.tree[name]
@@ -113,7 +123,7 @@ class Dashboard(ttk.Frame):
                     data[0][2] not in self.ticket_range.get(name, ()))
             except IndexError:
                 result[name] = False
-            self.tree_data[name] = dict(((i[2], i[:2]) for i in data))
+            self.tree_data.update((i[2], i[:2]) for i in data)
             self.ticket_range[name] = [i[2] for i in data]
             for item in data:
                 tree.insert("", "end", item[2], text=item[1])
@@ -133,4 +143,5 @@ class Dashboard(ttk.Frame):
     def enter_ticket(self, evt):
         tree = evt.widget
         iid = tree.focus()
-        print(iid)
+        print(iid, self.tree_data[iid])
+        print(urlunsplit(self.urlbegin + urlsplit(self.tree_data[iid][0])[2:]))
