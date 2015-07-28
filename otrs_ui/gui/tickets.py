@@ -29,6 +29,7 @@ def autoscroll(sbar, first, last):
 class Tickets(ttk.Frame):
     def __init__(self, parent, appw):
         ttk.Frame.__init__(self, parent)
+        self.__glock = appw["gui lock"]
         self.app_widgets = appw
         self.pw = pw = ttk.Panedwindow(self, orient="vertical")
         pw.add(self.make_tree())
@@ -68,3 +69,6 @@ class Tickets(ttk.Frame):
         self.text_curinfo = None
         text.tag_configure("h1", font="Times 16 bold", relief="raised")
         return frame
+
+    def load_ticket(self, url):
+        print("loading", url, "...")

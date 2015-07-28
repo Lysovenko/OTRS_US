@@ -12,17 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 "Making the Dashboard widget"
+from os import system
+from threading import Thread, Lock
 from urllib.parse import urlsplit, urlunsplit
 from tkinter import ttk
 from tkinter.messagebox import showerror
 from .tickets import autoscroll
-from os import system
+from ..core.pgload import DashboardPage
+from .dialogs import DlgLogin
 
 
 class Dashboard(ttk.Frame):
     def __init__(self, parent, appw):
         ttk.Frame.__init__(self, parent)
         self.app_widgets = appw
+        self.__glock = appw["gui lock"]
         self.root = appw["root"]
         self.tree = {}
         self.tree_data = {}
@@ -32,17 +36,18 @@ class Dashboard(ttk.Frame):
         pw.add(self.make_tree("New"))
         pw.add(self.make_tree("Open"))
         pw.pack(fill="both")
-        pw.bind("<Expose>", self.pw_expose)
+        # pw.bind("<Expose>", self.pw_expose)
         s0, s1 = appw["config"].get("dashboard_sashes", (None, None))
         pw.sashpos(0, s0)
         pw.sashpos(1, s1)
         self.urlbegin = ("", "")
-        self.update()
 
     def pw_expose(self, evt):
+        self.__glock.acquire()
         s0 = self.pw.sashpos(0)
         s1 = self.pw.sashpos(1)
         self.app_widgets["config"]["dashboard_sashes"] = (s0, s1)
+        self.__glock.release()
 
     def make_tree(self, name):
         frame = ttk.Frame(self.pw)
@@ -63,8 +68,15 @@ class Dashboard(ttk.Frame):
         return frame
 
     def update(self):
-        from ..core.pgload import DashboardPage
-        from .dialogs import DlgLogin
+        if True:
+            self.__update()
+        else:
+            t = Thread(target=self.__update)
+            t.daemon = True
+            t.start()
+
+    def __update(self):
+        self.__glock.acquire()
         core = self.app_widgets["core"]
         core_cfg = core.call("core cfg")
         runt_cfg = core.call("runtime cfg")
@@ -76,24 +88,9 @@ class Dashboard(ttk.Frame):
                 felt_trees = self.fill_trees(pgl)
                 break
             except RuntimeError:
-                cfg = {"user": core_cfg.get("user", ""),
-                       "password": core_cfg.get("password", ""),
-                       "site": core_cfg.get("site", "")}
-                dl = DlgLogin(self,  _("Login"), cfg=cfg)
-                if cfg["OK button"]:
-                    for i in ("site", "user", "password"):
-                        runt_cfg[i] = cfg[i]
-                    self.urlbegin = urlsplit(cfg["site"])[:2]
-                    if cfg["remember_passwd"]:
-                        for i in ("site", "user", "password"):
-                            core_cfg[i] = cfg[i]
-                    try:
-                        pg.login(cfg)
-                    except RuntimeError:
-                        showerror(_("Error"), _("Login attempt failed"))
-                        continue
-                else:
-                    break
+                if self.login_dialog(pg):
+                    continue
+                break
             except ConnectionError:
                 try:
                     pg.login(runt_cfg)
@@ -101,22 +98,26 @@ class Dashboard(ttk.Frame):
                     continue
         refresh = core_cfg.get("refresh_time", 0)
         if refresh > 10000:
+            # self.__glock.acquire()
             self.root.after(refresh, self.update)
+            # self.__glock.release()
         print('#refresh done', felt_trees)
         if felt_trees is not None and any(felt_trees.values()):
             snd_cmd = core_cfg.get("snd_cmd")
             if snd_cmd:
                 system(snd_cmd)
+        self.__glock.release()
 
     def fill_trees(self, pgl):
         if pgl is None:
             raise ConnectionError()
         result = {}
+        # self.__glock.acquire()
         self.tree_data.clear()
         for name in ("Reminder", "New", "Open"):
             data = pgl[name]
             tree = self.tree[name]
-            for i in self.ticket_range.get(name, ()):
+            for i in reversed(self.ticket_range.get(name, ())):
                 tree.delete(i)
             try:
                 result[name] = (
@@ -127,10 +128,12 @@ class Dashboard(ttk.Frame):
             self.ticket_range[name] = [i[2] for i in data]
             for item in data:
                 tree.insert("", "end", item[2], text=item[1])
+        # self.__glock.release()
         return result
 
     def activate(self, evt):
         "make selection jumps between trees"
+        self.__glock.acquire()
         selt = evt.widget
         for opt in self.tree.values():
             if opt is not selt:
@@ -139,9 +142,39 @@ class Dashboard(ttk.Frame):
                     opt.selection_remove(*sel)
         selt.selection_add(selt.focus())
         selt.focus_set()
+        self.__glock.release()
 
     def enter_ticket(self, evt):
-        tree = evt.widget
-        iid = tree.focus()
-        print(iid, self.tree_data[iid])
-        print(urlunsplit(self.urlbegin + urlsplit(self.tree_data[iid][0])[2:]))
+        self.__glock.acquire()
+        iid = evt.widget.focus()
+        if iid:
+            self.app_widgets["tickets"].load_ticket(
+                urlunsplit(
+                    self.urlbegin + urlsplit(self.tree_data[iid][0])[2:]))
+        self.__glock.release()
+
+    def login_dialog(self, page):
+        core = self.app_widgets["core"]
+        core_cfg = core.call("core cfg")
+        runt_cfg = core.call("runtime cfg")
+        cfg = {"user": core_cfg.get("user", ""),
+               "password": core_cfg.get("password", ""),
+               "site": core_cfg.get("site", "")}
+        # self.__glock.acquire()
+        DlgLogin(self,  _("Login"), cfg=cfg)
+        # self.__glock.release()
+        if cfg["OK button"]:
+            for i in ("site", "user", "password"):
+                runt_cfg[i] = cfg[i]
+            self.urlbegin = urlsplit(cfg["site"])[:2]
+            if cfg["remember_passwd"]:
+                for i in ("site", "user", "password"):
+                    core_cfg[i] = cfg[i]
+            try:
+                page.login(cfg)
+            except RuntimeError:
+                # self.__glock.acquire()
+                showerror(_("Error"), _("Login attempt failed"))
+                # self.__glock.release()
+            return True
+        return False
