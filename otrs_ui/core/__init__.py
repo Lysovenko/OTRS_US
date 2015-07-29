@@ -29,6 +29,12 @@ class Interactor(dict):
         else:
             return func(data, *args, **dargs)
 
+    def echo(self, *args, **dargs):
+        try:
+            if self["core cfg"][1].get("echo"):
+                print(*args, **dargs)
+        except Exception:
+            return
 
 def get_core():
     actor = Interactor()

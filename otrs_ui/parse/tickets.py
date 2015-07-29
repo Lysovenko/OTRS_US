@@ -17,3 +17,24 @@ from html.parser import HTMLParser
 from sys import hexversion
 
 
+class TicketsParser(HTMLParser):
+    def __init__(self, rtcfg):
+        di = {}
+        if hexversion >= 0x030200f0:
+            di["strict"] = False
+        HTMLParser.__init__(self, **di)
+        self.articles = []
+        self.cur_array = None
+        self.cur_append = None
+
+    def handle_starttag(self, tag, attrs):
+        dattrs = dict(attrs)
+        if tag == "input":
+            if dattrs.get("class") == "ArticleInfo":
+                self.articles.append(dattrs["value"])
+
+    def handle_data(self, data):
+        pass
+
+    def handle_endtag(self, tag):
+        pass

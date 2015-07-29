@@ -26,8 +26,8 @@ class Dashboard(ttk.Frame):
     def __init__(self, parent, appw):
         ttk.Frame.__init__(self, parent)
         self.app_widgets = appw
-        self.__glock = appw["gui lock"]
         self.root = appw["root"]
+        self.echo = appw["core"].echo
         self.tree = {}
         self.tree_data = {}
         self.ticket_range = {}
@@ -43,11 +43,9 @@ class Dashboard(ttk.Frame):
         self.urlbegin = ("", "")
 
     def pw_expose(self, evt):
-        self.__glock.acquire()
         s0 = self.pw.sashpos(0)
         s1 = self.pw.sashpos(1)
         self.app_widgets["config"]["dashboard_sashes"] = (s0, s1)
-        self.__glock.release()
 
     def make_tree(self, name):
         frame = ttk.Frame(self.pw)
@@ -68,15 +66,6 @@ class Dashboard(ttk.Frame):
         return frame
 
     def update(self):
-        if True:
-            self.__update()
-        else:
-            t = Thread(target=self.__update)
-            t.daemon = True
-            t.start()
-
-    def __update(self):
-        self.__glock.acquire()
         core = self.app_widgets["core"]
         core_cfg = core.call("core cfg")
         runt_cfg = core.call("runtime cfg")
@@ -98,21 +87,17 @@ class Dashboard(ttk.Frame):
                     continue
         refresh = core_cfg.get("refresh_time", 0)
         if refresh > 10000:
-            # self.__glock.acquire()
             self.root.after(refresh, self.update)
-            # self.__glock.release()
-        print('#refresh done', felt_trees)
+        self.echo('#refresh done', felt_trees)
         if felt_trees is not None and any(felt_trees.values()):
             snd_cmd = core_cfg.get("snd_cmd")
             if snd_cmd:
                 system(snd_cmd)
-        self.__glock.release()
 
     def fill_trees(self, pgl):
         if pgl is None:
             raise ConnectionError()
         result = {}
-        # self.__glock.acquire()
         self.tree_data.clear()
         for name in ("Reminder", "New", "Open"):
             data = pgl[name]
@@ -128,12 +113,10 @@ class Dashboard(ttk.Frame):
             self.ticket_range[name] = [i[2] for i in data]
             for item in data:
                 tree.insert("", "end", item[2], text=item[1])
-        # self.__glock.release()
         return result
 
     def activate(self, evt):
         "make selection jumps between trees"
-        self.__glock.acquire()
         selt = evt.widget
         for opt in self.tree.values():
             if opt is not selt:
@@ -142,16 +125,13 @@ class Dashboard(ttk.Frame):
                     opt.selection_remove(*sel)
         selt.selection_add(selt.focus())
         selt.focus_set()
-        self.__glock.release()
 
     def enter_ticket(self, evt):
-        self.__glock.acquire()
         iid = evt.widget.focus()
         if iid:
             self.app_widgets["tickets"].load_ticket(
                 urlunsplit(
                     self.urlbegin + urlsplit(self.tree_data[iid][0])[2:]))
-        self.__glock.release()
 
     def login_dialog(self, page):
         core = self.app_widgets["core"]
@@ -160,9 +140,7 @@ class Dashboard(ttk.Frame):
         cfg = {"user": core_cfg.get("user", ""),
                "password": core_cfg.get("password", ""),
                "site": core_cfg.get("site", "")}
-        # self.__glock.acquire()
         DlgLogin(self,  _("Login"), cfg=cfg)
-        # self.__glock.release()
         if cfg["OK button"]:
             for i in ("site", "user", "password"):
                 runt_cfg[i] = cfg[i]
@@ -173,8 +151,6 @@ class Dashboard(ttk.Frame):
             try:
                 page.login(cfg)
             except RuntimeError:
-                # self.__glock.acquire()
                 showerror(_("Error"), _("Login attempt failed"))
-                # self.__glock.release()
             return True
         return False

@@ -32,14 +32,12 @@ class Face:
         root.protocol("WM_DELETE_WINDOW", self.on_delete)
         self.root = root
         self.core = core
-        self.__glock = Lock()
         self.config = Config("face.cfg")
         root.grid_columnconfigure(0, weight=1)
         root.grid_rowconfigure(0, weight=1)
         self.notebook = ntbk = ttk.Notebook(root)
         self.app_widgets = appw = {
-            "core": core, "config": self.config, "root": root,
-            "gui lock": self.__glock}
+            "core": core, "config": self.config, "root": root}
         # Dashboard, Tickets, -Customers, -Admin, -Forums, Search
         ntbk.grid(column=0, row=0, sticky="senw")
         appw["dashboard"] = Dashboard(ntbk, appw)
@@ -78,16 +76,13 @@ class Face:
         self.config["geometry"] = self.root.geometry()
         self.config.save()
         self.core.call("core cfg").save()
-        self.__glock.acquire()
         self.root.destroy()
-        self.__glock.release()
 
     def ask_settings(self):
         core_cfg = self.core.call("core cfg")
         cfg = {}
         cfg["refresh_time"] = irt = core_cfg.get("refresh_time", 0)
         cfg["snd_cmd"] = core_cfg["snd_cmd"]
-        self.__glock.acquire()
         DlgSettings(self.root, _("Settings"), cfg=cfg)
         if cfg["OK button"]:
             core_cfg["snd_cmd"] = cfg["snd_cmd"]
@@ -96,7 +91,6 @@ class Face:
                 self.root.after(
                     core_cfg["refresh_time"],
                     self.app_widgets["dashboard"].update)
-        self.__glock.release()
 
 
 def start_gui():
