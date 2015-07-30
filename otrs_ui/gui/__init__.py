@@ -13,7 +13,6 @@
 # limitations under the License.
 "Making the GUI of the application"
 
-from threading import Lock
 from tkinter import Tk, Menu, PhotoImage, ttk, StringVar, messagebox, \
     BooleanVar
 from tkinter.filedialog import askdirectory

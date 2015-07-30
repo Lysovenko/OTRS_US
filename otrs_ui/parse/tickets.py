@@ -26,9 +26,16 @@ class TicketsParser(HTMLParser):
         self.articles = []
         self.cur_array = None
         self.cur_append = None
+        self.in_table = False
+        self.in_tbody = False
 
     def handle_starttag(self, tag, attrs):
         dattrs = dict(attrs)
+        if tag == "table":
+            if dattrs.get("id") == "FixedTable":
+                self.in_table = True
+        if tag == "tbody" and self.in_table:
+            self.in_tbody = True
         if tag == "input":
             if dattrs.get("class") == "ArticleInfo":
                 self.articles.append(dattrs["value"])
@@ -37,4 +44,7 @@ class TicketsParser(HTMLParser):
         pass
 
     def handle_endtag(self, tag):
-        pass
+        if tag == "table":
+            self.in_table = False
+        if tag == "tbody":
+            self.in_tbody = False

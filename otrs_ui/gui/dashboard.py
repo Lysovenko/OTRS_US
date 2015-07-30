@@ -13,7 +13,6 @@
 # limitations under the License.
 "Making the Dashboard widget"
 from os import system
-from threading import Thread, Lock
 from urllib.parse import urlsplit, urlunsplit
 from tkinter import ttk
 from tkinter.messagebox import showerror
