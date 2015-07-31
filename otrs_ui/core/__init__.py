@@ -36,6 +36,7 @@ class Interactor(dict):
         except Exception:
             return
 
+
 def get_core():
     actor = Interactor()
     actor.register("core cfg", lambda x: x, Config("core.cfg"))

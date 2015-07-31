@@ -13,7 +13,7 @@
 # limitations under the License.
 "Settings"
 
-
+import atexit
 from os import makedirs, name
 from os.path import isdir, expanduser, join
 from hashlib import md5
@@ -44,6 +44,7 @@ class Config(dict):
             pass
         dict.__init__(self, cfgl)
         self.hash = md5(repr(self).encode()).digest()
+        atexit.register(self.save)
 
     def save(self):
         if self.hash == md5(repr(self).encode()).digest():
@@ -52,7 +53,3 @@ class Config(dict):
             for n, v in self.items():
                 fp.write("%s=%s\n" % (n, repr(v)))
         self.hash = md5(repr(self).encode()).digest()
-
-    def __del__(self):
-        print(self.path, 'died')
-        self.save()

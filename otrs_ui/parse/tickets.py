@@ -24,7 +24,8 @@ class TicketsParser(HTMLParser):
             di["strict"] = False
         HTMLParser.__init__(self, **di)
         self.articles = []
-        self.cur_array = None
+        self.row = None
+        self.td_class = None
         self.cur_append = None
         self.in_table = False
         self.in_tbody = False
@@ -37,8 +38,12 @@ class TicketsParser(HTMLParser):
         if tag == "tbody" and self.in_table:
             self.in_tbody = True
         if tag == "input":
-            if dattrs.get("class") == "ArticleInfo":
-                self.articles.append(dattrs["value"])
+            if dattrs.get("class") == "ArticleInfo" and self.row is not None:
+                self.row += dattrs["value"]
+        if tag == "tr" and self.in_tbody:
+            self.row = ()
+        if tag == "td":
+            self.td_class = dattrs.get("class")
 
     def handle_data(self, data):
         pass
@@ -48,3 +53,8 @@ class TicketsParser(HTMLParser):
             self.in_table = False
         if tag == "tbody":
             self.in_tbody = False
+        if tag == "tr" and self.row is not None:
+            self.articles.append(self.row)
+            self.row = None
+        if tag == "td":
+            self.td_class = None
