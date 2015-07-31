@@ -63,20 +63,20 @@ class Dashboard(ttk.Frame):
         runt_cfg = core.call("runtime cfg")
         pg = DashboardPage(core)
         felt_trees = None
+        show_dlg = False
         while True:
             try:
                 pgl = pg.load(runt_cfg.get("site", ""))
                 felt_trees = self.fill_trees(pgl)
                 break
             except RuntimeError:
-                if self.login_dialog(pg):
+                if self.login(pg, show_dlg):
+                    show_dlg = True
                     continue
                 break
             except ConnectionError:
-                try:
-                    pg.login(runt_cfg)
-                except (RuntimeError, KeyError):
-                    continue
+                self.login(pg, False)
+                continue
             except URLError as err:
                 self.echo("URLError: {0}".format(err))
                 break
@@ -128,14 +128,18 @@ class Dashboard(ttk.Frame):
                 urlunsplit(
                     self.urlbegin + urlsplit(self.tree_data[iid][0])[2:]))
 
-    def login_dialog(self, page):
+    def login(self, page, dialog=True):
         core = self.app_widgets["core"]
         core_cfg = core.call("core cfg")
         runt_cfg = core.call("runtime cfg")
         cfg = {"user": core_cfg.get("user", ""),
                "password": core_cfg.get("password", ""),
                "site": core_cfg.get("site", "")}
-        DlgLogin(self,  _("Login"), cfg=cfg)
+        if dialog:
+            DlgLogin(self,  _("Login"), cfg=cfg)
+        else:
+            cfg["OK button"] = True
+            cfg["remember_passwd"] = False
         if cfg["OK button"]:
             for i in ("site", "user", "password"):
                 runt_cfg[i] = cfg[i]
@@ -146,6 +150,7 @@ class Dashboard(ttk.Frame):
             try:
                 page.login(cfg)
             except RuntimeError:
-                showerror(_("Error"), _("Login attempt failed"))
+                if dialog:
+                    showerror(_("Error"), _("Login attempt failed"))
             return True
         return False

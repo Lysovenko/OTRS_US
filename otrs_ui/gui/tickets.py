@@ -85,7 +85,7 @@ class Tickets(ttk.Frame):
                 # felt_trees = self.fill_trees(pgl)
                 break
             except RuntimeError:
-                if self.app_widgets["dashboard"].login_dialog(pg):
+                if self.app_widgets["dashboard"].login(pg):
                     continue
                 break
             except ConnectionError:
