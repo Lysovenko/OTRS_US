@@ -14,6 +14,7 @@
 "Making the Tickets widget"
 
 from tkinter import ttk, Text
+from ..core.pgload import TicketsPage
 
 
 def autoscroll(sbar, first, last):
@@ -72,3 +73,23 @@ class Tickets(ttk.Frame):
 
     def load_ticket(self, url):
         self.echo("loading", url, "...")
+        core = self.app_widgets["core"]
+        core_cfg = core.call("core cfg")
+        runt_cfg = core.call("runtime cfg")
+        pg = TicketsPage(core)
+        felt_trees = None
+        while True:
+            try:
+                pgl = pg.load(url)
+                self.echo(pgl)
+                # felt_trees = self.fill_trees(pgl)
+                break
+            except RuntimeError:
+                if self.app_widgets["dashboard"].login_dialog(pg):
+                    continue
+                break
+            except ConnectionError:
+                try:
+                    pg.login(runt_cfg)
+                except (RuntimeError, KeyError):
+                    continue

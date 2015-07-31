@@ -32,6 +32,7 @@ class Face:
         self.root = root
         self.core = core
         self.config = Config("face.cfg")
+        root.geometry(self.config.get("geometry"))
         root.grid_columnconfigure(0, weight=1)
         root.grid_rowconfigure(0, weight=1)
         self.notebook = ntbk = ttk.Notebook(root)
@@ -53,8 +54,7 @@ class Face:
         self.locked = False
         root.tk.call("wm", "iconphoto", root._w,
                      PhotoImage(file=join(dirname(__file__), "icon.gif")))
-        root.geometry(self.config.get("geometry"))
-        root.after(1000, appw["dashboard"].update)
+        appw["dashboard"].update()
 
     def add_menu(self):
         top = self.root.winfo_toplevel()

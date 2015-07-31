@@ -18,7 +18,7 @@ from sys import hexversion
 
 
 class TicketsParser(HTMLParser):
-    def __init__(self, rtcfg):
+    def __init__(self):
         di = {}
         if hexversion >= 0x030200f0:
             di["strict"] = False
@@ -26,24 +26,30 @@ class TicketsParser(HTMLParser):
         self.articles = []
         self.row = None
         self.td_class = None
-        self.cur_append = None
         self.in_table = False
         self.in_tbody = False
 
     def handle_starttag(self, tag, attrs):
         dattrs = dict(attrs)
+        if tag == "input":
+            cls = dattrs.get("class")
+            if cls == "ArticleInfo" and self.row is not None:
+                self.row["article info"] = dattrs["value"]
+            if cls == "SortData" and self.row is not None:
+                self.row[self.td_class] = dattrs["value"]
+            return
+        if tag == "td":
+            self.td_class = dattrs.get("class")
+            return
+        if tag == "tr" and self.in_tbody:
+            self.row = {"row": dattrs.get("class")}
+            return
         if tag == "table":
             if dattrs.get("id") == "FixedTable":
                 self.in_table = True
+            return
         if tag == "tbody" and self.in_table:
             self.in_tbody = True
-        if tag == "input":
-            if dattrs.get("class") == "ArticleInfo" and self.row is not None:
-                self.row += dattrs["value"]
-        if tag == "tr" and self.in_tbody:
-            self.row = ()
-        if tag == "td":
-            self.td_class = dattrs.get("class")
 
     def handle_data(self, data):
         pass

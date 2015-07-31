@@ -14,6 +14,7 @@
 "Making the Dashboard widget"
 from os import system
 from urllib.parse import urlsplit, urlunsplit
+from urllib.error import URLError
 from tkinter import ttk
 from tkinter.messagebox import showerror
 from .tickets import autoscroll
@@ -31,20 +32,12 @@ class Dashboard(ttk.Frame):
         self.tree_data = {}
         self.ticket_range = {}
         self.pw = pw = ttk.Panedwindow(self, orient="vertical")
-        pw.add(self.make_tree("Reminder"))
-        pw.add(self.make_tree("New"))
-        pw.add(self.make_tree("Open"))
+        for i in ("Reminder", "New", "Open"):
+            frame = self.make_tree(i)
+            pw.add(frame)
+            pw.pane(frame, weight=1)
         pw.pack(fill="both")
-        # pw.bind("<Expose>", self.pw_expose)
-        s0, s1 = appw["config"].get("dashboard_sashes", (None, None))
-        pw.sashpos(0, s0)
-        pw.sashpos(1, s1)
         self.urlbegin = ("", "")
-
-    def pw_expose(self, evt):
-        s0 = self.pw.sashpos(0)
-        s1 = self.pw.sashpos(1)
-        self.app_widgets["config"]["dashboard_sashes"] = (s0, s1)
 
     def make_tree(self, name):
         frame = ttk.Frame(self.pw)
@@ -84,6 +77,9 @@ class Dashboard(ttk.Frame):
                     pg.login(runt_cfg)
                 except (RuntimeError, KeyError):
                     continue
+            except URLError as err:
+                self.echo("URLError: {0}".format(err))
+                break
         refresh = core_cfg.get("refresh_time", 0)
         if refresh > 10000:
             self.root.after(refresh, self.update)

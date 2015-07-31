@@ -16,6 +16,7 @@
 from urllib.parse import urlparse, parse_qsl, urlencode
 from urllib.request import Request, urlopen
 from ..parse.dashboard import DashboardParser
+from ..parse.tickets import TicketsParser
 
 _REQUESTS = {}
 
@@ -72,7 +73,14 @@ class Page:
 
 class DashboardPage(Page):
     def parse(self, data):
-        parser = DashboardParser(self.runt_cfg)
+        parser = DashboardParser()
         parser.feed(data)
         parser.close()
         return parser.tickets
+
+class TicketsPage(Page):
+    def parse(self, data):
+        parser = TicketsParser()
+        parser.feed(data)
+        parser.close()
+        return parser.articles

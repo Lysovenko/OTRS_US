@@ -18,7 +18,7 @@ from sys import hexversion
 
 
 class DashboardParser(HTMLParser):
-    def __init__(self, rtcfg):
+    def __init__(self):
         di = {}
         if hexversion >= 0x030200f0:
             di["strict"] = False
