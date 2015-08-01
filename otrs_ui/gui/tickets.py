@@ -14,9 +14,9 @@
 "Making the Tickets widget"
 
 from tkinter import ttk, Text
-from urllib.parse import urlsplit, urlunsplit, parse_qsl
+from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
-from ..core.pgload import TicketsPage
+from ..core.pgload import TicketsPage, MailPage
 
 
 def autoscroll(sbar, first, last):
@@ -34,6 +34,7 @@ class Tickets(ttk.Frame):
         ttk.Frame.__init__(self, parent)
         self.app_widgets = appw
         self.echo = appw["core"].echo
+        self.runt_cfg = appw["core"].call("runtime cfg")
         self.pw = pw = ttk.Panedwindow(self, orient="vertical")
         frame = self.make_tree()
         pw.add(frame)
@@ -44,13 +45,14 @@ class Tickets(ttk.Frame):
         pw.pack(fill="both")
         self.articles_range = []
         self.tree_data = {}
-        self.url_path = ""
+        self.url_begin = None
 
     def make_tree(self):
         frame = ttk.Frame(self.pw)
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_rowconfigure(0, weight=1)
-        self.tree = tree = ttk.Treeview(frame, selectmode="extended")
+        self.tree = tree = ttk.Treeview(
+            frame, selectmode="extended", columns=("from", "created", "mode"))
         tree.grid(column=0, row=0, sticky="nwes")
         vsb = ttk.Scrollbar(frame, command=tree.yview, orient="vertical")
         vsb.grid(column=1, row=0, sticky="ns")
@@ -59,10 +61,10 @@ class Tickets(ttk.Frame):
             frame, command=tree.xview, orient="horizontal")
         hsb.grid(column=0, row=1, sticky="ew")
         tree["xscrollcommand"] = lambda f, l: autoscroll(hsb, f, l)
-        tree.tag_configure("page", background="gray")
-        tree.tag_configure("file", foreground="blue", font="Monospace 12")
-        tree.tag_configure("bmk", foreground="red")
-        tree.tag_configure("folder", font="Times 14 bold")
+        tree.column("from", width=170, anchor="center")
+        tree.column("created", width=70, anchor="center")
+        tree.column("mode", width=70, anchor="center")
+        tree.bind("<Double-Button-1>", self.enter_article)
         return frame
 
     def make_text_field(self):
@@ -82,10 +84,7 @@ class Tickets(ttk.Frame):
 
     def load_ticket(self, url):
         self.echo("loading", url, "...")
-        core = self.app_widgets["core"]
-        core_cfg = core.call("core cfg")
-        runt_cfg = core.call("runtime cfg")
-        pg = TicketsPage(core)
+        pg = TicketsPage(self.app_widgets["core"])
         felt_trees = None
         while True:
             try:
@@ -99,7 +98,7 @@ class Tickets(ttk.Frame):
                 break
             except ConnectionError:
                 try:
-                    pg.login(runt_cfg)
+                    pg.login(self.runt_cfg)
                 except (RuntimeError, KeyError):
                     continue
 
@@ -107,7 +106,8 @@ class Tickets(ttk.Frame):
         if articles is None:
             raise ConnectionError()
         self.tree_data.clear()
-        self.url_path = urlsplit(articles[0]["article info"]).path
+        self.url_begin = (urlsplit(self.runt_cfg["site"])[:2] +
+                          (urlsplit(articles[0]["article info"])[2],))
         tree = self.tree
         for i in reversed(self.articles_range):
             tree.delete(i)
@@ -118,4 +118,41 @@ class Tickets(ttk.Frame):
             no = qd["ArticleID"]
             self.tree_data[no] = item
             self.articles_range.append(no)
-            tree.insert("", "end", no, text=item["From"])
+            tree.insert(
+                "", "end", no, text=item["Subject"],
+                values=(item["From"], item["Created"], item["Type"]))
+        self.app_widgets["notebook"].select(self)
+
+    def enter_article(self, evt):
+        iid = evt.widget.focus()
+        if iid:
+            params = [("Action", "AgentTicketPlain"),
+                      ("Subaction", "Download")]
+            for i in ("ArticleID", "TicketID"):
+                params.append((i, self.tree_data[iid]["article info"][i]))
+            params.append(("Session", self.runt_cfg["Session"]))
+            url = urlunsplit(
+                self.url_begin + (urlencode(params), ""))
+            self.echo(url)
+            pg = MailPage(self.app_widgets["core"])
+            msg = pg.load(url)
+            text = self.text
+            text["state"] = "normal"
+            text.delete("1.0", "end")
+            for part in msg.walk():
+                # multipart/* are just containers
+                if part.get_content_maintype() == 'multipart':
+                    continue
+                # Applications should really sanitize the given filename so that an
+                # email message can't be used to overwrite important files
+                filename = part.get_filename()
+                if not filename:
+                    ext = (part.get_content_type())
+                if not ext:
+                # Use a generic bag-of-bits extension
+                    ext = '.bin'
+                print(filename)
+                print(ext)
+                if ext == 'text/plain':
+                    text.insert("end", part.get_payload(decode=True).decode())
+            text["state"] = "disabled"

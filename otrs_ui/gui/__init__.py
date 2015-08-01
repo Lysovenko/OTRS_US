@@ -37,7 +37,8 @@ class Face:
         root.grid_rowconfigure(0, weight=1)
         self.notebook = ntbk = ttk.Notebook(root)
         self.app_widgets = appw = {
-            "core": core, "config": self.config, "root": root}
+            "core": core, "config": self.config, "root": root,
+            "notebook": ntbk}
         # Dashboard, Tickets, -Customers, -Admin, -Forums, Search
         ntbk.grid(column=0, row=0, sticky="senw")
         appw["dashboard"] = Dashboard(ntbk, appw)

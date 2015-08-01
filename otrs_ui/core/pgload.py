@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 "Page loader parrent"
+from email import message_from_string
 from urllib.parse import urlparse, parse_qsl, urlencode
 from urllib.request import Request, urlopen
 from ..parse.dashboard import DashboardParser
@@ -35,7 +36,11 @@ class Page:
             session = self.runt_cfg["Session"]
         except KeyError:
             raise RuntimeError()
-        r = Request("%s?%s" % (location, urlencode([("Session", session)])))
+        if "?" not in location:
+            r = Request(
+                "%s?%s" % (location, urlencode([("Session", session)])))
+        else:
+            r = Request(location)
         try:
             pg = urlopen(r)
         except Exception:
@@ -85,3 +90,8 @@ class TicketsPage(Page):
         parser.feed(data)
         parser.close()
         return parser.articles
+
+
+class MailPage(Page):
+    def parse(self, data):
+        return message_from_string(data)
