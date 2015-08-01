@@ -78,6 +78,7 @@ class DashboardPage(Page):
         parser.close()
         return parser.tickets
 
+
 class TicketsPage(Page):
     def parse(self, data):
         parser = TicketsParser()

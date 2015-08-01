@@ -14,6 +14,8 @@
 "Making the Tickets widget"
 
 from tkinter import ttk, Text
+from urllib.parse import urlsplit, urlunsplit, parse_qsl
+from urllib.error import URLError
 from ..core.pgload import TicketsPage
 
 
@@ -33,9 +35,16 @@ class Tickets(ttk.Frame):
         self.app_widgets = appw
         self.echo = appw["core"].echo
         self.pw = pw = ttk.Panedwindow(self, orient="vertical")
-        pw.add(self.make_tree())
-        pw.add(self.make_text_field())
+        frame = self.make_tree()
+        pw.add(frame)
+        pw.pane(frame, weight=1)
+        frame = self.make_text_field()
+        pw.add(frame)
+        pw.pane(frame, weight=2)
         pw.pack(fill="both")
+        self.articles_range = []
+        self.tree_data = {}
+        self.url_path = ""
 
     def make_tree(self):
         frame = ttk.Frame(self.pw)
@@ -82,7 +91,7 @@ class Tickets(ttk.Frame):
             try:
                 pgl = pg.load(url)
                 self.echo(pgl)
-                # felt_trees = self.fill_trees(pgl)
+                self.fill_tree(pgl)
                 break
             except RuntimeError:
                 if self.app_widgets["dashboard"].login(pg):
@@ -93,3 +102,20 @@ class Tickets(ttk.Frame):
                     pg.login(runt_cfg)
                 except (RuntimeError, KeyError):
                     continue
+
+    def fill_tree(self, articles):
+        if articles is None:
+            raise ConnectionError()
+        self.tree_data.clear()
+        self.url_path = urlsplit(articles[0]["article info"]).path
+        tree = self.tree
+        for i in reversed(self.articles_range):
+            tree.delete(i)
+        del self.articles_range[:]
+        for item in articles:
+            qd = dict(parse_qsl(urlsplit(item["article info"]).query))
+            item["article info"] = qd
+            no = qd["ArticleID"]
+            self.tree_data[no] = item
+            self.articles_range.append(no)
+            tree.insert("", "end", no, text=item["From"])

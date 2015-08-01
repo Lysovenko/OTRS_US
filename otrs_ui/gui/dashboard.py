@@ -132,9 +132,14 @@ class Dashboard(ttk.Frame):
         core = self.app_widgets["core"]
         core_cfg = core.call("core cfg")
         runt_cfg = core.call("runtime cfg")
-        cfg = {"user": core_cfg.get("user", ""),
-               "password": core_cfg.get("password", ""),
-               "site": core_cfg.get("site", "")}
+        cfg = {}
+        for i in ("site", "user", "password"):
+            cfg[i] = runt_cfg.get(i, core_cfg.get(i))
+        if None in cfg.values():
+            dialog = True
+            for i, v in cfg.items():
+                if v is None:
+                    cfg[i] = ""
         if dialog:
             DlgLogin(self,  _("Login"), cfg=cfg)
         else:
