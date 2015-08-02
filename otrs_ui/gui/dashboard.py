@@ -31,7 +31,8 @@ class Dashboard(ttk.Frame):
         self.tree = {}
         self.tree_data = {}
         self.ticket_range = {}
-        self.pw = pw = ttk.Panedwindow(self, orient="vertical")
+        self.pw = pw = ttk.Panedwindow(
+            self, orient="vertical", takefocus=False)
         for i in ("Reminder", "New", "Open"):
             frame = self.make_tree(i)
             pw.add(frame)
@@ -40,7 +41,7 @@ class Dashboard(ttk.Frame):
         self.urlbegin = ("", "")
 
     def make_tree(self, name):
-        frame = ttk.Frame(self.pw)
+        frame = ttk.Frame(self.pw, takefocus=False)
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_rowconfigure(0, weight=1)
         self.tree[name] = tree = ttk.Treeview(frame, selectmode="extended")
@@ -52,7 +53,7 @@ class Dashboard(ttk.Frame):
             frame, command=tree.xview, orient="horizontal")
         hsb.grid(column=0, row=1, sticky="ew")
         tree["xscrollcommand"] = lambda f, l: autoscroll(hsb, f, l)
-        tree.bind("<Button-1>", self.activate)
+        tree.bind("<FocusIn>", self.activate)
         tree.bind("<Return>", self.enter_ticket)
         tree.bind("<Double-Button-1>", self.enter_ticket)
         return frame
@@ -97,6 +98,7 @@ class Dashboard(ttk.Frame):
         for name in ("Reminder", "New", "Open"):
             data = pgl[name]
             tree = self.tree[name]
+            old_focus = tree.focus()
             for i in reversed(self.ticket_range.get(name, ())):
                 tree.delete(i)
             try:
@@ -108,6 +110,13 @@ class Dashboard(ttk.Frame):
             self.ticket_range[name] = [i[2] for i in data]
             for item in data:
                 tree.insert("", "end", item[2], text=item[1])
+            if old_focus in self.ticket_range[name]:
+                tree.focus(old_focus)
+            else:
+                try:
+                    tree.focus(self.ticket_range[name][0])
+                except IndexError:
+                    pass
         return result
 
     def activate(self, evt):
@@ -119,7 +128,6 @@ class Dashboard(ttk.Frame):
                 if sel:
                     opt.selection_remove(*sel)
         selt.selection_add(selt.focus())
-        selt.focus_set()
 
     def enter_ticket(self, evt):
         iid = evt.widget.focus()

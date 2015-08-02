@@ -35,7 +35,7 @@ class Face:
         root.geometry(self.config.get("geometry"))
         root.grid_columnconfigure(0, weight=1)
         root.grid_rowconfigure(0, weight=1)
-        self.notebook = ntbk = ttk.Notebook(root)
+        self.notebook = ntbk = ttk.Notebook(root, takefocus=False)
         self.app_widgets = appw = {
             "core": core, "config": self.config, "root": root,
             "notebook": ntbk}
@@ -62,11 +62,8 @@ class Face:
         top["menu"] = self.menubar = Menu(top)
         self.mfile = Menu(self.menubar)
         self.medit = Menu(self.menubar)
-        self.msites = Menu(self.menubar)
         self.menubar.add_cascade(menu=self.mfile, label=_("File"))
         self.menubar.add_cascade(menu=self.medit, label=_("Edit"))
-        self.menubar.add_cascade(menu=self.msites, label=_("Sites"))
-        self.mfile.add_command(label=_("Search"))
         self.mfile.add_command(label=_("Quit"), command=self.on_delete,
                                accelerator="Ctrl+Q", underline=1)
         self.root.bind_all("<Control-q>", lambda x: self.on_delete())
@@ -80,7 +77,7 @@ class Face:
         core_cfg = self.core.call("core cfg")
         cfg = {}
         cfg["refresh_time"] = irt = core_cfg.get("refresh_time", 0)
-        cfg["snd_cmd"] = core_cfg["snd_cmd"]
+        cfg["snd_cmd"] = core_cfg.get("snd_cmd", "")
         DlgSettings(self.root, _("Settings"), cfg=cfg)
         if cfg["OK button"]:
             core_cfg["snd_cmd"] = cfg["snd_cmd"]

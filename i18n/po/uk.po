@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.0.3 \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-27 18:02+0300\n"
-"PO-Revision-Date: 2015-07-27 18:04+0300\n"
+"POT-Creation-Date: 2015-08-02 17:48+0300\n"
+"PO-Revision-Date: 2015-08-02 17:49+0300\n"
 "Last-Translator: Serhiy Lysovenko <EMAIL@ADDRESS>\n"
 "Language-Team: UKRAINIAN <nospam@gmail.com>\n"
 "Language: Ukrainian\n"
@@ -33,15 +33,15 @@ msgstr "Користувач:"
 msgid "Password:"
 msgstr "Пароль:"
 
-#: ../../otrs_ui/gui/dialogs.py:147
+#: ../../otrs_ui/gui/dialogs.py:148
 msgid "Refresh time:"
 msgstr "Інтервал оновлення:"
 
-#: ../../otrs_ui/gui/dialogs.py:149
+#: ../../otrs_ui/gui/dialogs.py:150
 msgid "Sound command:"
 msgstr "Команда звуку:"
 
-#: ../../otrs_ui/gui/dialogs.py:172 ../../otrs_ui/gui/dashboard.py:81
+#: ../../otrs_ui/gui/dialogs.py:173 ../../otrs_ui/gui/dashboard.py:152
 msgid "Login"
 msgstr "Вхід"
 
@@ -49,42 +49,34 @@ msgstr "Вхід"
 msgid "OTRS Client Side"
 msgstr "OTRS з боку клієнта"
 
-#: ../../otrs_ui/gui/__init__.py:43
+#: ../../otrs_ui/gui/__init__.py:45
 msgid "Dashboard"
 msgstr "Головна"
 
-#: ../../otrs_ui/gui/__init__.py:45
+#: ../../otrs_ui/gui/__init__.py:47
 msgid "Tickets"
 msgstr "Заявки"
 
-#: ../../otrs_ui/gui/__init__.py:64
+#: ../../otrs_ui/gui/__init__.py:65
 msgid "File"
 msgstr "Файл"
 
-#: ../../otrs_ui/gui/__init__.py:65
+#: ../../otrs_ui/gui/__init__.py:66
 msgid "Edit"
 msgstr "Редагувати"
 
-#: ../../otrs_ui/gui/__init__.py:66
-msgid "Sites"
-msgstr "Місця"
-
 #: ../../otrs_ui/gui/__init__.py:67
-msgid "Search"
-msgstr "Пошук"
-
-#: ../../otrs_ui/gui/__init__.py:68
 msgid "Quit"
 msgstr "Вихід"
 
-#: ../../otrs_ui/gui/__init__.py:71 ../../otrs_ui/gui/__init__.py:84
+#: ../../otrs_ui/gui/__init__.py:70 ../../otrs_ui/gui/__init__.py:81
 msgid "Settings"
 msgstr "Налаштування"
 
-#: ../../otrs_ui/gui/dashboard.py:91
+#: ../../otrs_ui/gui/dashboard.py:167
 msgid "Error"
 msgstr "Помилка"
 
-#: ../../otrs_ui/gui/dashboard.py:91
+#: ../../otrs_ui/gui/dashboard.py:167
 msgid "Login attempt failed"
 msgstr "Невдала спроба входу"

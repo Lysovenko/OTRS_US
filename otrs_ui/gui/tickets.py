@@ -65,7 +65,13 @@ class Tickets(ttk.Frame):
         tree.column("created", width=70, anchor="center")
         tree.column("mode", width=70, anchor="center")
         tree.bind("<Double-Button-1>", self.enter_article)
+        tree.bind("<Return>", self.enter_article)
+        frame.bind_all("<Escape>", self.go_dasboard)
         return frame
+
+    def go_dasboard(self, evt):
+        self.app_widgets["notebook"].select(0)
+        self.app_widgets["dashboard"].tree["New"].focus_set()
 
     def make_text_field(self):
         frame = ttk.Frame(self.pw)
@@ -83,7 +89,7 @@ class Tickets(ttk.Frame):
         return frame
 
     def load_ticket(self, url):
-        self.echo("loading", url, "...")
+        self.echo("load ticket:", url)
         pg = TicketsPage(self.app_widgets["core"])
         felt_trees = None
         while True:
@@ -122,6 +128,8 @@ class Tickets(ttk.Frame):
                 "", "end", no, text=item["Subject"],
                 values=(item["From"], item["Created"], item["Type"]))
         self.app_widgets["notebook"].select(self)
+        self.tree.focus(item=self.articles_range[0])
+        self.tree.focus_set()
 
     def enter_article(self, evt):
         iid = evt.widget.focus()
@@ -133,7 +141,7 @@ class Tickets(ttk.Frame):
             params.append(("Session", self.runt_cfg["Session"]))
             url = urlunsplit(
                 self.url_begin + (urlencode(params), ""))
-            self.echo(url)
+            self.echo("enter article:", url)
             pg = MailPage(self.app_widgets["core"])
             msg = pg.load(url)
             text = self.text
@@ -143,16 +151,14 @@ class Tickets(ttk.Frame):
                 # multipart/* are just containers
                 if part.get_content_maintype() == 'multipart':
                     continue
-                # Applications should really sanitize the given filename so that an
-                # email message can't be used to overwrite important files
-                filename = part.get_filename()
-                if not filename:
-                    ext = (part.get_content_type())
-                if not ext:
-                # Use a generic bag-of-bits extension
-                    ext = '.bin'
-                print(filename)
-                print(ext)
+                ext = part.get_content_type()
+                charset = part.get_param("charset")
+                self.echo(ext, charset)
+                if charset is None:
+                    charset = "utf-8"
                 if ext == 'text/plain':
-                    text.insert("end", part.get_payload(decode=True).decode())
+                    text.insert(
+                        "end",
+                        part.get_payload(decode=True).decode(
+                            encoding=charset, errors="ignore"))
             text["state"] = "disabled"

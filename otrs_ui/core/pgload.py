@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 "Page loader parrent"
-from email import message_from_string
+from email import message_from_bytes
 from urllib.parse import urlparse, parse_qsl, urlencode
 from urllib.request import Request, urlopen
 from ..parse.dashboard import DashboardParser
@@ -46,9 +46,9 @@ class Page:
         except Exception:
             return
         pd = pg.read()
-        if not self.check_login(pd.decode()):
+        if not self.check_login(pd.decode(errors="ignore")):
             raise RuntimeError()
-        return self.parse(pd.decode())
+        return self.parse(pd)
 
     def login(self, who, req=""):
         if who is None:
@@ -79,7 +79,7 @@ class Page:
 class DashboardPage(Page):
     def parse(self, data):
         parser = DashboardParser()
-        parser.feed(data)
+        parser.feed(data.decode())
         parser.close()
         return parser.tickets
 
@@ -87,11 +87,11 @@ class DashboardPage(Page):
 class TicketsPage(Page):
     def parse(self, data):
         parser = TicketsParser()
-        parser.feed(data)
+        parser.feed(data.decode())
         parser.close()
         return parser.articles
 
 
 class MailPage(Page):
     def parse(self, data):
-        return message_from_string(data)
+        return message_from_bytes(data)

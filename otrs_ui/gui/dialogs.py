@@ -140,6 +140,7 @@ class DlgSettings(Dialog):
         self.time = StringVar()
         self.snd_cmd = StringVar()
         self.time.set(str(cfg.get("refresh_time", 0)))
+        self.snd_cmd.set(str(cfg.get("snd_cmd", "")))
         self.etime = Entry(master, width=15, textvariable=self.time)
         self.etime.grid(column=1, row=0, sticky="e")
         self.esnd_cmd = Entry(master, width=15, textvariable=self.snd_cmd)
