@@ -13,6 +13,7 @@
 # limitations under the License.
 "Making the Dashboard widget"
 from os import system
+from time import strftime
 from urllib.parse import urlsplit, urlunsplit
 from urllib.error import URLError
 from tkinter import ttk
@@ -84,9 +85,20 @@ class Dashboard(ttk.Frame):
         refresh = core_cfg.get("refresh_time", 0)
         if refresh > 10000:
             self.root.after(refresh, self.update)
-        self.echo('#refresh done', felt_trees)
-        if felt_trees is not None and any(felt_trees.values()):
-            snd_cmd = core_cfg.get("snd_cmd")
+        self.show_status(felt_trees)
+
+    def show_status(self, trees):
+        if trees is None:
+            return
+        ding = any(trees.values())
+        if ding:
+            message = "%s: %s" % (
+                strftime("%H:%M:%S"), " ".join(i for i in trees if trees[i]))
+        else:
+            message = strftime("%H:%M:%S")
+        self.app_widgets["core"].call("print_status", message)
+        if ding:
+            snd_cmd = self.app_widgets["core"].call("core cfg").get("snd_cmd")
             if snd_cmd:
                 system(snd_cmd)
 
