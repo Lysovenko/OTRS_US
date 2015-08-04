@@ -94,7 +94,7 @@ class Tickets(ttk.Frame):
         felt_trees = None
         while True:
             try:
-                pgl = pg.load(url)
+                pgl = pg.load(url)[0]
                 self.echo(pgl)
                 self.fill_tree(pgl)
                 break
@@ -134,31 +134,19 @@ class Tickets(ttk.Frame):
     def enter_article(self, evt):
         iid = evt.widget.focus()
         if iid:
-            params = [("Action", "AgentTicketPlain"),
-                      ("Subaction", "Download")]
-            for i in ("ArticleID", "TicketID"):
+            params = [("Action", "AgentTicketZoom"),
+                      ("Subaction", "ArticleUpdate")]
+            for i in ("Count", "ArticleID", "TicketID"):
                 params.append((i, self.tree_data[iid]["article info"][i]))
             params.append(("Session", self.runt_cfg["Session"]))
             url = urlunsplit(
                 self.url_begin + (urlencode(params), ""))
             self.echo("enter article:", url)
-            pg = MailPage(self.app_widgets["core"])
-            msg = pg.load(url)
+            pg = TicketsPage(self.app_widgets["core"])
+            msg = pg.load(url)[1]
             text = self.text
             text["state"] = "normal"
             text.delete("1.0", "end")
-            for part in msg.walk():
-                # multipart/* are just containers
-                if part.get_content_maintype() == 'multipart':
-                    continue
-                ext = part.get_content_type()
-                charset = part.get_param("charset")
-                self.echo(ext, charset)
-                if charset is None:
-                    charset = "utf-8"
-                if ext == 'text/plain':
-                    text.insert(
-                        "end",
-                        part.get_payload(decode=True).decode(
-                            encoding=charset, errors="ignore"))
+            for i in msg:
+                text.insert("end", i)
             text["state"] = "disabled"

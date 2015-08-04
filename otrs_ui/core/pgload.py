@@ -47,7 +47,7 @@ class Page:
             return
         pd = pg.read()
         if not self.check_login(pd.decode(errors="ignore")):
-            raise RuntimeError()
+            raise RuntimeError(r.get_full_url())
         return self.parse(pd)
 
     def login(self, who, req=""):
@@ -89,7 +89,7 @@ class TicketsPage(Page):
         parser = TicketsParser()
         parser.feed(data.decode())
         parser.close()
-        return parser.articles
+        return parser.articles, parser.message_text
 
 
 class MailPage(Page):
