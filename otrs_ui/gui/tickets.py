@@ -16,7 +16,7 @@
 from tkinter import ttk, Text
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
-from ..core.pgload import TicketsPage, MailPage
+from ..core.pgload import TicketsPage, MessagePage
 
 
 def autoscroll(sbar, first, last):
@@ -94,7 +94,13 @@ class Tickets(ttk.Frame):
         felt_trees = None
         while True:
             try:
-                pgl = pg.load(url)[0]
+                pgl, msg = pg.load(url)
+                text = self.text
+                text["state"] = "normal"
+                text.delete("1.0", "end")
+                for i in msg:
+                    text.insert("end", i)
+                text["state"] = "disabled"
                 self.echo(pgl)
                 self.fill_tree(pgl)
                 break
@@ -134,16 +140,16 @@ class Tickets(ttk.Frame):
     def enter_article(self, evt):
         iid = evt.widget.focus()
         if iid:
-            params = [("Action", "AgentTicketZoom"),
-                      ("Subaction", "ArticleUpdate")]
-            for i in ("Count", "ArticleID", "TicketID"):
+            params = [("Action", "AgentTicketAttachment"),
+                      ("Subaction", "HTMLView"), ("FileID", "1")]
+            for i in ("ArticleID",):
                 params.append((i, self.tree_data[iid]["article info"][i]))
             params.append(("Session", self.runt_cfg["Session"]))
             url = urlunsplit(
                 self.url_begin + (urlencode(params), ""))
             self.echo("enter article:", url)
-            pg = TicketsPage(self.app_widgets["core"])
-            msg = pg.load(url)[1]
+            pg = MessagePage(self.app_widgets["core"])
+            msg = pg.load(url)
             text = self.text
             text["state"] = "normal"
             text.delete("1.0", "end")

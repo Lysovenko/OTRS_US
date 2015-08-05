@@ -124,3 +124,15 @@ class TicketsParser(HTMLParser):
         if tag == "h2":
             self.str_to_info = False
             return
+
+
+class MessageParser(HTMLParser):
+    def __init__(self):
+        di = {}
+        if hexversion >= 0x030200f0:
+            di["strict"] = False
+        HTMLParser.__init__(self, **di)
+        self.message_text = []
+
+    def handle_data(self, data):
+        self.message_text.append(data)

@@ -13,11 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 "Page loader parrent"
-from email import message_from_bytes
 from urllib.parse import urlparse, parse_qsl, urlencode
 from urllib.request import Request, urlopen
 from ..parse.dashboard import DashboardParser
-from ..parse.tickets import TicketsParser
+from ..parse.tickets import TicketsParser, MessageParser
 
 _REQUESTS = {}
 
@@ -92,6 +91,9 @@ class TicketsPage(Page):
         return parser.articles, parser.message_text
 
 
-class MailPage(Page):
+class MessagePage(Page):
     def parse(self, data):
-        return message_from_bytes(data)
+        parser = MessageParser()
+        parser.feed(data.decode())
+        parser.close()
+        return parser.message_text
