@@ -31,7 +31,8 @@ class TicketsParser(HTMLParser):
         self.ArticleMailHeader = 0
         self.ArticleBody = 0
         self.str_to_info = False
-        self.label = None
+        self.in_label = False
+        self.label = ""
         self.message_text = []
         self.articles = []
         self.info = []
@@ -78,7 +79,8 @@ class TicketsParser(HTMLParser):
             self.str_to_info = True
             return
         if tag == "label":
-            self.label = True
+            self.label = ""
+            self.in_label = True
             return
         if tag == "p":
             if dattrs.get("class") == "Value":
@@ -86,14 +88,13 @@ class TicketsParser(HTMLParser):
                     self.info.append((self.label, dattrs.get("title")))
                 if self.ArticleMailHeader:
                     self.mail_header.append((self.label, dattrs.get("title")))
-                self.label = None
 
     def handle_data(self, data):
         if self.str_to_info:
             self.info.append(data)
             return
-        if self.label is not None:
-            self.label = data
+        if self.in_label:
+            self.label += data
             return
         if self.ArticleBody:
             self.message_text.append(data)
@@ -123,6 +124,9 @@ class TicketsParser(HTMLParser):
             return
         if tag == "h2":
             self.str_to_info = False
+            return
+        if tag == "label":
+            self.in_label = False
             return
 
 

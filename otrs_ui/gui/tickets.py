@@ -94,15 +94,18 @@ class Tickets(ttk.Frame):
         felt_trees = None
         while True:
             try:
-                pgl, msg = pg.load(url)
+                lres = pg.load(url)
                 text = self.text
                 text["state"] = "normal"
                 text.delete("1.0", "end")
-                for i in msg:
+                for i in lres.get("mail_header", ()):
+                    text.insert("end", "%s\t%s\n" % i)
+                text.insert("end", "\n")
+                for i in lres.get("message_text", ()):
                     text.insert("end", i)
                 text["state"] = "disabled"
-                self.echo(pgl)
-                self.fill_tree(pgl)
+                self.echo(lres["articles"])
+                self.fill_tree(lres["articles"])
                 break
             except RuntimeError:
                 if self.app_widgets["dashboard"].login(pg):
@@ -140,19 +143,35 @@ class Tickets(ttk.Frame):
     def enter_article(self, evt):
         iid = evt.widget.focus()
         if iid:
-            params = [("Action", "AgentTicketAttachment"),
-                      ("Subaction", "HTMLView"), ("FileID", "1")]
-            for i in ("ArticleID",):
+            params = [("Action", "AgentTicketZoom"),
+                      ("Subaction", "ArticleUpdate")]
+            for i in ("Count", "TicketID", "ArticleID"):
                 params.append((i, self.tree_data[iid]["article info"][i]))
             params.append(("Session", self.runt_cfg["Session"]))
             url = urlunsplit(
                 self.url_begin + (urlencode(params), ""))
-            self.echo("enter article:", url)
-            pg = MessagePage(self.app_widgets["core"])
-            msg = pg.load(url)
+            pg = TicketsPage(self.app_widgets["core"])
+            lres = pg.load(url)
+            mhead = lres["mail_header"]
+            if "message_text" in lres:
+                msg = lres["message_text"]
+            else:
+                params = [("Action", "AgentTicketAttachment"),
+                          ("Subaction", "HTMLView"), ("FileID", "1")]
+                for i in ("ArticleID",):
+                    params.append((i, self.tree_data[iid]["article info"][i]))
+                params.append(("Session", self.runt_cfg["Session"]))
+                url = urlunsplit(
+                    self.url_begin + (urlencode(params), ""))
+                self.echo("enter article:", url)
+                pg = MessagePage(self.app_widgets["core"])
+                msg = pg.load(url)
             text = self.text
             text["state"] = "normal"
             text.delete("1.0", "end")
+            for i in mhead:
+                text.insert("end", "%s\t%s\n" % i)
+            text.insert("end", "\n")
             for i in msg:
                 text.insert("end", i)
             text["state"] = "disabled"
