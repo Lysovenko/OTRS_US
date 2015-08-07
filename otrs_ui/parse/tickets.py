@@ -100,8 +100,6 @@ class TicketsParser(HTMLParser):
         self.WidgetSimple = 0
         self.ArticleMailHeader = 0
         self.ArticleBody = 0
-        # self.str_to_info = False
-        # self.in_label = False
         self.data_handler = None
         self.label = ""
         self.message_text = []
@@ -148,12 +146,10 @@ class TicketsParser(HTMLParser):
                 self.ArticleBody += 1
             return
         if tag == "h2" and self.WidgetSimple:
-            # self.str_to_info = True
             self.data_handler = []
             return
         if tag == "label":
             self.label = ""
-            # self.in_label = True
             self.data_handler = []
             return
         if tag == "p":
@@ -166,15 +162,6 @@ class TicketsParser(HTMLParser):
     def handle_data(self, data):
         if self.data_handler is not None:
             self.data_handler.append(data)
-        # if self.str_to_info:
-        #     self.info.append(data)
-        #     return
-        # if self.in_label:
-        #     self.label += data
-        #     return
-        # if self.ArticleBody:
-        #     self.message_text.append(data)
-        #     return
 
     def handle_endtag(self, tag):
         if tag == "table":
@@ -198,18 +185,16 @@ class TicketsParser(HTMLParser):
             if self.ArticleBody:
                 self.ArticleBody -= 1
             return
-        if tag == "h2":
-            # self.str_to_info = False
+        if tag == "h2" and self.WidgetSimple:
             self.info.append("".join(self.data_handler))
             self.data_handler = None
             return
         if tag == "label":
-            # self.in_label = False
             self.label = "".join(self.data_handler)
             return
 
     def handle_entityref(self, name):
-        if self.data_handler in not None:
+        if self.data_handler is not None:
             if name in SPEC_ENTS:
                 self.data_handler.append(SPEC_ENTS[name])
             else:
