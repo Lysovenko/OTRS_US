@@ -78,7 +78,7 @@ class Page:
 class DashboardPage(Page):
     def parse(self, data):
         parser = DashboardParser()
-        parser.feed(data.decode())
+        parser.feed(data.decode(errors="ignore"))
         parser.close()
         return parser.tickets
 
@@ -86,7 +86,7 @@ class DashboardPage(Page):
 class TicketsPage(Page):
     def parse(self, data):
         parser = TicketsParser()
-        parser.feed(data.decode())
+        parser.feed(data.decode(errors="ignore"))
         parser.close()
         res = {}
         for i in ("message_text", "articles", "info", "mail_header"):
@@ -99,6 +99,6 @@ class TicketsPage(Page):
 class MessagePage(Page):
     def parse(self, data):
         parser = MessageParser()
-        parser.feed(data.decode())
+        parser.feed(data.decode(errors="ignore"))
         parser.close()
         return parser.message_text
