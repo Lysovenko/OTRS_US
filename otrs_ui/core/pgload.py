@@ -15,6 +15,7 @@
 "Page loader parrent"
 from urllib.parse import urlparse, parse_qsl, urlencode
 from urllib.request import Request, urlopen
+from gzip import decompress
 from ..parse.dashboard import DashboardParser
 from ..parse.tickets import TicketsParser, MessageParser
 
@@ -35,16 +36,20 @@ class Page:
             session = self.runt_cfg["Session"]
         except KeyError:
             raise RuntimeError()
+        heads = {"Accept-Encoding": "gzip, deflate"}
         if "?" not in location:
             r = Request(
-                "%s?%s" % (location, urlencode([("Session", session)])))
+                "%s?%s" % (location, urlencode([("Session", session)])),
+                headers=heads)
         else:
-            r = Request(location)
+            r = Request(location, headers=heads)
         try:
             pg = urlopen(r)
         except Exception:
             return
         pd = pg.read()
+        if pg.getheader("Content-Encoding") == "gzip":
+            pd = decompress(pd)
         if not self.check_login(pd.decode(errors="ignore")):
             raise RuntimeError(r.get_full_url())
         return self.parse(pd)

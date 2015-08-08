@@ -113,9 +113,10 @@ class Tickets(ttk.Frame):
                 break
             except ConnectionError:
                 try:
+                    self.echo("Login in Tickets.load_ticket")
                     pg.login(self.runt_cfg)
                 except (RuntimeError, KeyError):
-                    continue
+                    self.go_dasboard(None)
 
     def fill_tree(self, articles):
         if articles is None:

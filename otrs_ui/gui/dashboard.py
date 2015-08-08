@@ -173,6 +173,7 @@ class Dashboard(ttk.Frame):
                 for i in ("site", "user", "password"):
                     core_cfg[i] = cfg[i]
             try:
+                self.echo("Login in Dashboard.login")
                 page.login(cfg)
             except RuntimeError:
                 if dialog:

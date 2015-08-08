@@ -95,8 +95,10 @@ class TicketsParser(HTMLParser):
         HTMLParser.__init__(self, **di)
         self.row = None
         self.td_class = None
+        self.p_title = None
         self.in_table = False
         self.in_tbody = False
+        self.p_value = False
         self.WidgetSimple = 0
         self.ArticleMailHeader = 0
         self.ArticleBody = 0
@@ -154,10 +156,9 @@ class TicketsParser(HTMLParser):
             return
         if tag == "p":
             if dattrs.get("class") == "Value":
-                if self.WidgetSimple:
-                    self.info.append((self.label, dattrs.get("title")))
-                if self.ArticleMailHeader:
-                    self.mail_header.append((self.label, dattrs.get("title")))
+                self.p_value = True
+                self.data_handler = []
+                self.p_title = dattrs.get("title")
 
     def handle_data(self, data):
         if self.data_handler is not None:
@@ -192,6 +193,17 @@ class TicketsParser(HTMLParser):
         if tag == "label":
             self.label = "".join(self.data_handler)
             return
+        if tag == "p" and self.p_value:
+            self.p_value = False
+            if self.p_title is None:
+                title = "".join(self.data_handler)
+            else:
+                title = self.p_title
+            self.data_handler = None
+            if self.WidgetSimple:
+                self.info.append((self.label, title))
+            if self.ArticleMailHeader:
+                self.mail_header.append((self.label, title))
 
     def handle_entityref(self, name):
         if self.data_handler is not None:
