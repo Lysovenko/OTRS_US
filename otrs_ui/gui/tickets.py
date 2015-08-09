@@ -46,6 +46,7 @@ class Tickets(ttk.Frame):
         self.articles_range = []
         self.tree_data = {}
         self.url_begin = None
+        self.my_tab = None
 
     def make_tree(self):
         frame = ttk.Frame(self.pw)
@@ -71,7 +72,9 @@ class Tickets(ttk.Frame):
 
     def go_dasboard(self, evt):
         self.app_widgets["notebook"].select(0)
+        self.app_widgets["notebook"].hide(self)
         self.app_widgets["dashboard"].tree["New"].focus_set()
+        self.set_menu_active()
 
     def make_text_field(self):
         frame = ttk.Frame(self.pw)
@@ -117,6 +120,7 @@ class Tickets(ttk.Frame):
                     pg.login(self.runt_cfg)
                 except (RuntimeError, KeyError):
                     self.go_dasboard(None)
+        self.set_menu_active()
 
     def fill_tree(self, articles):
         if articles is None:
@@ -138,6 +142,7 @@ class Tickets(ttk.Frame):
                 "", "end", no, text=item["Subject"],
                 values=(item["From"], item["Created"], item["Type"]))
         self.app_widgets["notebook"].select(self)
+        self.my_tab = self.app_widgets["notebook"].select()
         self.tree.focus(item=self.articles_range[0])
         self.tree.focus_set()
 
@@ -176,3 +181,31 @@ class Tickets(ttk.Frame):
             for i in msg:
                 text.insert("end", i)
             text["state"] = "disabled"
+
+    def set_menu_active(self):
+        econ = self.app_widgets["menubar"].entryconfig
+        if self.my_tab == self.app_widgets["notebook"].select():
+            econ(_("Ticket"), state="normal")
+        else:
+            econ(_("Ticket"), state="disabled")
+
+    def menu_lock(self):
+        self.echo("Lock the ticket ;-)")
+
+    def menu_answer(self):
+        self.echo("Answer the ticket ;-)")
+
+    def menu_note(self):
+        self.echo("Note the ticket ;-)")
+
+    def menu_owner(self):
+        self.echo("Shange the ticket's owner ;-)")
+
+    def menu_close(self):
+        self.echo("Close the ticket ;-)")
+
+    def menu_info(self):
+        self.echo("The ticket's information ;-)")
+
+    def menu_forward(self):
+        self.echo("Forward the ticket ;-)")

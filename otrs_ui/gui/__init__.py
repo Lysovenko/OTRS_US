@@ -44,7 +44,8 @@ class Face:
         appw["dashboard"] = Dashboard(ntbk, appw)
         ntbk.add(appw["dashboard"], text=_("Dashboard"))
         appw["tickets"] = Tickets(ntbk, appw)
-        ntbk.add(appw["tickets"], text=_("Tickets"))
+        ntbk.add(appw["tickets"], text=_("Ticket"))
+        ntbk.hide(appw["tickets"])
         self.sz = ttk.Sizegrip(root)
         self.sz.grid(column=1, row=1, sticky="se")
         self.status = StringVar()
@@ -59,15 +60,33 @@ class Face:
 
     def add_menu(self):
         top = self.root.winfo_toplevel()
-        top["menu"] = self.menubar = Menu(top)
-        self.mfile = Menu(self.menubar)
-        self.medit = Menu(self.menubar)
-        self.menubar.add_cascade(menu=self.mfile, label=_("File"))
-        self.menubar.add_cascade(menu=self.medit, label=_("Edit"))
-        self.mfile.add_command(label=_("Quit"), command=self.on_delete,
-                               accelerator="Ctrl+Q", underline=1)
+        top["menu"] = menubar = Menu(top)
+        mfile = Menu(menubar)
+        medit = Menu(menubar)
+        self.mticket = Menu(menubar)
+        menubar.add_cascade(menu=mfile, label=_("File"))
+        menubar.add_cascade(menu=medit, label=_("Edit"))
+        menubar.add_cascade(
+            menu=self.mticket, label=_("Ticket"), state="disabled")
+        mfile.add_command(label=_("Quit"), command=self.on_delete,
+                          accelerator="Ctrl+Q", underline=1)
         self.root.bind_all("<Control-q>", lambda x: self.on_delete())
-        self.medit.add_command(label=_("Settings"), command=self.ask_settings)
+        medit.add_command(label=_("Settings"), command=self.ask_settings)
+        self.app_widgets["menubar"] = menubar
+        tcts = self.app_widgets["tickets"]
+        add_cmd = self.mticket.add_command
+        add_cmd(label=_("Lock"), command=tcts.menu_lock, accelerator="Ctrl+L")
+        add_cmd(label=_("Answer"), command=tcts.menu_answer,
+                accelerator="Ctrl+A")
+        add_cmd(label=_("Forward"), command=tcts.menu_forward,
+                accelerator="Ctrl+W")
+        add_cmd(label=_("Note"), command=tcts.menu_note, accelerator="Ctrl+T")
+        add_cmd(label=_("Owner"), command=tcts.menu_owner,
+                accelerator="Ctrl+O")
+        add_cmd(label=_("Close"), command=tcts.menu_close,
+                accelerator="Ctrl+E")
+        add_cmd(label=_("Information"), command=tcts.menu_info,
+                accelerator="Ctrl+I")
 
     def on_delete(self):
         self.config["geometry"] = self.root.geometry()
