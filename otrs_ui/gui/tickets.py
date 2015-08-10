@@ -17,6 +17,7 @@ from tkinter import ttk, Text
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
 from ..core.pgload import TicketsPage, MessagePage
+from .dialogs import AboutBox
 
 
 def autoscroll(sbar, first, last):
@@ -47,6 +48,7 @@ class Tickets(ttk.Frame):
         self.tree_data = {}
         self.url_begin = None
         self.my_tab = None
+        self.my_url = None
         self.ticket_info = None
 
     def make_tree(self):
@@ -68,7 +70,9 @@ class Tickets(ttk.Frame):
         tree.column("mode", width=70, anchor="center")
         tree.bind("<Double-Button-1>", self.enter_article)
         tree.bind("<Return>", self.enter_article)
-        frame.bind_all("<Escape>", self.go_dasboard)
+        frame.bind_all("<Control-Escape>", self.go_dasboard)
+        frame.bind_all("<Control-i>", self.menu_info)
+        frame.bind_all("<Control-r>", self.menu_reload)
         return frame
 
     def go_dasboard(self, evt):
@@ -94,6 +98,7 @@ class Tickets(ttk.Frame):
 
     def load_ticket(self, url):
         self.echo("load ticket:", url)
+        self.my_url = url
         pg = TicketsPage(self.app_widgets["core"])
         felt_trees = None
         while True:
@@ -206,9 +211,22 @@ class Tickets(ttk.Frame):
     def menu_close(self):
         self.echo("Close the ticket ;-)")
 
-    def menu_info(self):
-        self.echo("The ticket's information ;-)")
-        self.echo(self.ticket_info)
+    def menu_info(self, evt=None):
+        if self.my_tab != self.app_widgets["notebook"].select():
+            return
+        res = []
+        for item in self.ticket_info:
+            if type(item) == str:
+                res.append(item.strip() + "\n")
+            else:
+                res.append("%s\t%s\n" % tuple(i.strip() for i in item[:2]))
+        AboutBox(self, title=_("Ticket Info"), text="".join(res))
 
     def menu_forward(self):
         self.echo("Forward the ticket ;-)")
+
+    def menu_reload(self, evt=None):
+        if self.my_tab != self.app_widgets["notebook"].select():
+            return
+        if self.my_url:
+            self.load_ticket(self.my_url)

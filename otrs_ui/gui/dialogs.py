@@ -13,6 +13,7 @@
 # limitations under the License.
 """ """
 from tkinter.ttk import Button, Checkbutton, Separator, Frame, Entry, Label
+from tkinter.scrolledtext import ScrolledText
 from tkinter import IntVar, StringVar, Toplevel
 
 
@@ -165,10 +166,38 @@ class DlgSettings(Dialog):
         return None
 
 
+class AboutBox(Toplevel):
+    "an AboutBox emmulation in tkinter"
+    def __init__(self, parent, title=None, text=None):
+        self.had_focus = parent.focus_get()
+        Toplevel.__init__(self, parent)
+        if title:
+            self.title(title)
+        stext = ScrolledText(self, background="gray")
+        stext.pack(padx=5, pady=5)
+        if text is not None:
+            stext.insert("end", text)
+        stext["state"] = "disabled"
+        separ = Separator(self, orient="horizontal")
+        separ.pack(expand=1, fill="x")
+        b = Button(self, text=_("OK"), width=10,
+                   command=self.destroy, default="active")
+        self.bind("<Escape>", self.destroy)
+        b.pack()
+        self.protocol("WM_DELETE_WINDOW", self.destroy)
+        b.focus_set()
+        self.grab_set()
+        self.wait_window()
+
+    def destroy(self, event=None):
+        "Put the focus back to the parent window and destroy the dialod"
+        if self.had_focus is not None:
+            self.had_focus.focus_set()
+        Toplevel.destroy(self)
+
+
 if __name__ == "__main__":
     from tkinter import Tk, Button
     _ = str
     root = Tk()
-    cfg = {"refresh_time": "1000"}
-    d = DlgSettings(root, _("Login"), cfg=cfg)
-    print(cfg)
+    abb = AboutBox(root, title="about hello", text="hello world!")
