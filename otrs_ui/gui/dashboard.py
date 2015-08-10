@@ -77,8 +77,9 @@ class Dashboard(ttk.Frame):
                     continue
                 break
             except ConnectionError:
-                self.login(pg, False)
-                continue
+                if self.login(pg, False):
+                    continue
+                break
             except URLError as err:
                 self.echo("URLError: {0}".format(err))
                 break
@@ -178,5 +179,8 @@ class Dashboard(ttk.Frame):
             except RuntimeError:
                 if dialog:
                     showerror(_("Error"), _("Login attempt failed"))
+            except URLError as err:
+                self.echo("URLError: {0}".format(err))
+                return False
             return True
         return False

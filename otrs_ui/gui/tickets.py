@@ -47,6 +47,7 @@ class Tickets(ttk.Frame):
         self.tree_data = {}
         self.url_begin = None
         self.my_tab = None
+        self.ticket_info = None
 
     def make_tree(self):
         frame = ttk.Frame(self.pw)
@@ -98,6 +99,7 @@ class Tickets(ttk.Frame):
         while True:
             try:
                 lres = pg.load(url)
+                self.ticket_info = lres.get("info")
                 text = self.text
                 text["state"] = "normal"
                 text.delete("1.0", "end")
@@ -206,6 +208,7 @@ class Tickets(ttk.Frame):
 
     def menu_info(self):
         self.echo("The ticket's information ;-)")
+        self.echo(self.ticket_info)
 
     def menu_forward(self):
         self.echo("Forward the ticket ;-)")
