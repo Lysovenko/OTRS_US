@@ -26,6 +26,7 @@ class Page:
     def __init__(self, core):
         self.core_cfg = core.call("core cfg")
         self.runt_cfg = core.call("runtime cfg")
+        self.echo = core.echo
 
     def parse(self, data):
         "Dummy method to be replaced"
@@ -45,7 +46,8 @@ class Page:
             r = Request(location, headers=heads)
         try:
             pg = urlopen(r)
-        except Exception:
+        except Exception as err:
+            self.echo(repr(err))
             return
         pd = pg.read()
         if pg.getheader("Content-Encoding") == "gzip":
