@@ -63,18 +63,19 @@ class Face:
         top["menu"] = menubar = Menu(top)
         mfile = Menu(menubar)
         medit = Menu(menubar)
-        self.mticket = Menu(menubar)
+        mticket = Menu(menubar)
         menubar.add_cascade(menu=mfile, label=_("File"))
         menubar.add_cascade(menu=medit, label=_("Edit"))
         menubar.add_cascade(
-            menu=self.mticket, label=_("Ticket"), state="disabled")
+            menu=mticket, label=_("Ticket"), state="disabled")
         mfile.add_command(label=_("Quit"), command=self.on_delete,
                           accelerator="Ctrl+Q", underline=1)
         self.root.bind_all("<Control-q>", lambda x: self.on_delete())
         medit.add_command(label=_("Settings"), command=self.ask_settings)
         self.app_widgets["menubar"] = menubar
+        self.app_widgets["menu_ticket"] = mticket
         tcts = self.app_widgets["tickets"]
-        add_cmd = self.mticket.add_command
+        add_cmd = mticket.add_command
         add_cmd(label=_("Lock"), command=tcts.menu_lock, accelerator="Ctrl+L")
         add_cmd(label=_("Answer"), command=tcts.menu_answer,
                 accelerator="Ctrl+A")

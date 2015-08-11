@@ -100,26 +100,17 @@ class Tickets(ttk.Frame):
         self.echo("load ticket:", url)
         self.my_url = url
         pg = TicketsPage(self.app_widgets["core"])
-        felt_trees = None
+        lres = None
         while True:
             try:
                 lres = pg.load(url)
-                self.ticket_info = lres.get("info")
-                text = self.text
-                text["state"] = "normal"
-                text.delete("1.0", "end")
-                for i in lres.get("mail_header", ()):
-                    text.insert("end", "%s\t%s\n" % i)
-                text.insert("end", "\n")
-                for i in lres.get("message_text", ()):
-                    text.insert("end", i)
-                text["state"] = "disabled"
                 self.echo(lres["articles"])
                 self.fill_tree(lres["articles"])
                 break
             except RuntimeError:
                 if self.app_widgets["dashboard"].login(pg):
                     continue
+                lres = None
                 break
             except ConnectionError:
                 try:
@@ -127,7 +118,41 @@ class Tickets(ttk.Frame):
                     pg.login(self.runt_cfg)
                 except (RuntimeError, KeyError):
                     self.go_dasboard(None)
+                    lres = None
+        if lres is not None:
+            self.ticket_info = lres.get("info")
+            self.show_email(lres.get("mail_header", ()),
+                            lres.get("message_text", ()))
+            self.detect_allowed_actions(lres.get("action_hrefs", ()))
         self.set_menu_active()
+
+    def show_email(self, header, message):
+        text = self.text
+        text["state"] = "normal"
+        text.delete("1.0", "end")
+        for i in header:
+            text.insert("end", "%s\t%s\n" % i)
+        text.insert("end", "\n")
+        for i in message:
+            text.insert("end", i)
+        text["state"] = "disabled"
+
+    def detect_allowed_actions(self, act_hrefs):
+        total = {}
+        allowed = {"AgentTicketLock": False}
+        for href in act_hrefs:
+            qd = dict(parse_qsl(urlsplit(href).query))
+            total.update(qd)
+            if qd.get("Action") in allowed:
+                allowed[qd["Action"]] = True
+        for i in ("Session", "ChallengeToken"):
+            if i in total:
+                self.runt_cfg[i] = total[i]
+        econ = self.app_widgets["menu_ticket"].entryconfig
+        if allowed["AgentTicketLock"]:
+            econ(_("Lock"), state="normal")
+        else:
+            econ(_("Lock"), state="disabled")
 
     def fill_tree(self, articles):
         if articles is None:
@@ -179,15 +204,7 @@ class Tickets(ttk.Frame):
                 self.echo("enter article:", url)
                 pg = MessagePage(self.app_widgets["core"])
                 msg = pg.load(url)
-            text = self.text
-            text["state"] = "normal"
-            text.delete("1.0", "end")
-            for i in mhead:
-                text.insert("end", "%s\t%s\n" % i)
-            text.insert("end", "\n")
-            for i in msg:
-                text.insert("end", i)
-            text["state"] = "disabled"
+            self.show_email(mhead, msg)
 
     def set_menu_active(self):
         econ = self.app_widgets["menubar"].entryconfig

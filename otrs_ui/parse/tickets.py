@@ -106,9 +106,11 @@ class TicketsParser(HTMLParser):
         self.articles = []
         self.info = []
         self.mail_header = []
+        self.action_hrefs = []
 
     def handle_starttag(self, tag, attrs):
         dattrs = dict(attrs)
+        div_cls = self.div_classes
         if tag == "input":
             cls = dattrs.get("class")
             if cls == "ArticleInfo" and self.row is not None:
@@ -131,7 +133,6 @@ class TicketsParser(HTMLParser):
             return
         if tag == "div":
             cls = dattrs.get("class")
-            div_cls = self.div_classes
             for k in div_cls:
                 div_cls[k] += 1
             if cls:
@@ -145,7 +146,7 @@ class TicketsParser(HTMLParser):
             if cls == "ArticleBody":
                 self.data_handler = self.message_text
             return
-        if tag == "h2" and "WidgetSimple" in self.div_classes:
+        if tag == "h2" and "WidgetSimple" in div_cls:
             self.data_handler = []
             return
         if tag == "label":
@@ -153,16 +154,24 @@ class TicketsParser(HTMLParser):
             self.data_handler = []
             return
         if tag == "p":
-            if dattrs.get("class") == "Value":
+            if "Value" in dattrs.get("class", "").split():
                 self.p_value = True
                 self.data_handler = []
                 self.p_title = dattrs.get("title")
+            return
+        if tag == "a" and "ActionRow" in div_cls and "Scroller" not in div_cls:
+            try:
+                self.action_hrefs.append(dattrs["href"])
+            except KeyError:
+                pass
+            return
 
     def handle_data(self, data):
         if self.data_handler is not None:
             self.data_handler.append(data)
 
     def handle_endtag(self, tag):
+        div_cls = self.div_classes
         if tag == "table":
             self.in_table = False
             return
@@ -177,13 +186,12 @@ class TicketsParser(HTMLParser):
             self.td_class = None
             return
         if tag == "div":
-            div_cls = self.div_classes
             for k in list(div_cls):
                 div_cls[k] -= 1
                 if div_cls[k] == 0:
                     del div_cls[k]
             return
-        if tag == "h2" and "WidgetSimple" in self.div_classes:
+        if tag == "h2" and "WidgetSimple" in div_cls:
             self.info.append("".join(self.data_handler))
             self.data_handler = None
             return
@@ -197,9 +205,9 @@ class TicketsParser(HTMLParser):
             else:
                 title = self.p_title
             self.data_handler = None
-            if "WidgetSimple" in self.div_classes:
+            if "WidgetSimple" in div_cls:
                 self.info.append((self.label, title))
-            if "ArticleMailHeader" in self.div_classes:
+            if "ArticleMailHeader" in div_cls:
                 self.mail_header.append((self.label, title))
 
     def handle_entityref(self, name):

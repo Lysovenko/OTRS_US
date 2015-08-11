@@ -96,7 +96,8 @@ class TicketsPage(Page):
         parser.feed(data.decode(errors="ignore"))
         parser.close()
         res = {}
-        for i in ("message_text", "articles", "info", "mail_header"):
+        for i in ("message_text", "articles", "info", "mail_header",
+                  "action_hrefs"):
             attr = getattr(parser, i)
             if attr:
                 res[i] = attr
