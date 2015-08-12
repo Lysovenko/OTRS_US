@@ -50,6 +50,8 @@ class Tickets(ttk.Frame):
         self.my_tab = None
         self.my_url = None
         self.ticket_info = None
+        self.action_subaction = {}
+        self.actions_params = {}
 
     def make_tree(self):
         frame = ttk.Frame(self.pw)
@@ -73,6 +75,7 @@ class Tickets(ttk.Frame):
         frame.bind_all("<Control-Escape>", self.go_dasboard)
         frame.bind_all("<Control-i>", self.menu_info)
         frame.bind_all("<Control-r>", self.menu_reload)
+        frame.bind_all("<Control-l>", self.menu_lock)
         return frame
 
     def go_dasboard(self, evt):
@@ -140,19 +143,23 @@ class Tickets(ttk.Frame):
     def detect_allowed_actions(self, act_hrefs):
         total = {}
         allowed = {"AgentTicketLock": False}
+        ac_sub = self.action_subaction
+        ac_sub.clear()
         for href in act_hrefs:
             qd = dict(parse_qsl(urlsplit(href).query))
             total.update(qd)
+            try:
+                ac_sub[qd["Action"]] = qd.get("Subaction")
+            except KeyError:
+                pass
             if qd.get("Action") in allowed:
                 allowed[qd["Action"]] = True
-        for i in ("Session", "ChallengeToken"):
-            if i in total:
-                self.runt_cfg[i] = total[i]
+        self.actions_params = total
         econ = self.app_widgets["menu_ticket"].entryconfig
         if allowed["AgentTicketLock"]:
-            econ(_("Lock"), state="normal")
+            econ(0, state="normal")
         else:
-            econ(_("Lock"), state="disabled")
+            econ(0, state="disabled")
 
     def fill_tree(self, articles):
         if articles is None:
@@ -213,8 +220,24 @@ class Tickets(ttk.Frame):
         else:
             econ(_("Ticket"), state="disabled")
 
-    def menu_lock(self):
-        self.echo("Lock the ticket ;-)")
+    def menu_lock(self, evt=None):
+        from ..core.pgload import Page
+        if self.my_tab != self.app_widgets["notebook"].select():
+            return
+        try:
+            subact = self.action_subaction["AgentTicketLock"]
+        except KeyError:
+            self.echo("Nothing to do!!!")
+            return
+        params = [("Action", "AgentTicketLock"), ("Subaction", subact)]
+        for i in ("TicketID", "ChallengeToken", "Session"):
+            params.append((i, self.actions_params[i]))
+        url = urlunsplit(self.url_begin + (urlencode(params), ""))
+        self.echo("######## url=", url)
+        pg = TicketsPage(self.app_widgets["core"])
+        lres = pg.load(url)
+        self.detect_allowed_actions(lres.get("action_hrefs", ()))
+        self.echo("######## Lock the ticket ;-),", subact)
 
     def menu_answer(self):
         self.echo("Answer the ticket ;-)")
