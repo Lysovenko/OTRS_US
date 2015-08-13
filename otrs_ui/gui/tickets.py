@@ -14,6 +14,7 @@
 "Making the Tickets widget"
 
 from tkinter import ttk, Text
+from tkinter.messagebox import showerror, showinfo
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
 from ..core.pgload import TicketsPage, MessagePage
@@ -157,9 +158,9 @@ class Tickets(ttk.Frame):
         self.actions_params = total
         econ = self.app_widgets["menu_ticket"].entryconfig
         if allowed["AgentTicketLock"]:
-            econ(0, state="normal")
+            econ(_("Lock"), state="normal")
         else:
-            econ(0, state="disabled")
+            econ(_("Lock"), state="disabled")
 
     def fill_tree(self, articles):
         if articles is None:
@@ -237,6 +238,14 @@ class Tickets(ttk.Frame):
         pg = TicketsPage(self.app_widgets["core"])
         lres = pg.load(url)
         self.detect_allowed_actions(lres.get("action_hrefs", ()))
+        title = _("Ticket Lock")
+        if lres:
+            if subact == "Lock":
+                showinfo(title, _("The ticket was successfully locked"))
+            else:
+                showinfo(title, _("The ticket was successfully unlocked"))
+        else:
+            showerror(title, _("The operation was failed"))
         self.echo("######## Lock the ticket ;-),", subact)
 
     def menu_answer(self):
