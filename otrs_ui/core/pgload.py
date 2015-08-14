@@ -32,7 +32,7 @@ class Page:
         "Dummy method to be replaced"
         print(data)
 
-    def load(self, location):
+    def load(self, location, data=None):
         try:
             session = self.runt_cfg["Session"]
         except KeyError:
@@ -41,9 +41,9 @@ class Page:
         if "?" not in location:
             r = Request(
                 "%s?%s" % (location, urlencode([("Session", session)])),
-                headers=heads)
+                data, headers=heads)
         else:
-            r = Request(location, headers=heads)
+            r = Request(location, data, headers=heads)
         try:
             pg = urlopen(r)
         except Exception as err:
@@ -97,7 +97,7 @@ class TicketsPage(Page):
         parser.close()
         res = {}
         for i in ("message_text", "articles", "info", "mail_header",
-                  "action_hrefs"):
+                  "action_hrefs", "queues"):
             attr = getattr(parser, i)
             if attr:
                 res[i] = attr

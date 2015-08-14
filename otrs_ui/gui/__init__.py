@@ -77,6 +77,7 @@ class Face:
         tcts = self.app_widgets["tickets"]
         add_cmd = mticket.add_command
         add_cmd(label=_("Lock"), command=tcts.menu_lock, accelerator="Ctrl+L")
+        add_cmd(label=_("Move"), command=tcts.menu_move, accelerator="Ctrl+M")
         add_cmd(label=_("Answer"), command=tcts.menu_answer,
                 accelerator="Ctrl+A")
         add_cmd(label=_("Forward"), command=tcts.menu_forward,

@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """ """
-from tkinter.ttk import Button, Checkbutton, Separator, Frame, Entry, Label
+from tkinter.ttk import (
+    Button, Checkbutton, Separator, Frame, Entry, Label, Combobox)
 from tkinter.scrolledtext import ScrolledText
 from tkinter import IntVar, StringVar, Toplevel
 
@@ -166,6 +167,20 @@ class DlgSettings(Dialog):
         return None
 
 
+class DlgDropBox(Dialog):
+    def body(self, master, cfg={}):
+        "place user dialog widgets"
+        self.config = cfg
+        self.cb = Combobox(master, **cfg)
+        self.cb.pack()
+        self.config["OK button"] = False
+        return self.cb
+
+    def apply(self):
+        "On ok button pressed"
+        self.config["OK button"] = True
+
+
 class AboutBox(Toplevel):
     "an AboutBox emmulation in tkinter"
     def __init__(self, parent, title=None, text=None):
@@ -200,4 +215,7 @@ if __name__ == "__main__":
     from tkinter import Tk, Button
     _ = str
     root = Tk()
-    abb = AboutBox(root, title="about hello", text="hello world!")
+    cfg = {"values": ("hello", "world", "foo", "bar"),
+           "textvariable": StringVar(), "state": "readonly"}
+    DlgDropBox(root, title="about drop", cfg=cfg)
+    print(cfg["textvariable"].get())

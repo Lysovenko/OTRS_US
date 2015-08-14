@@ -107,6 +107,7 @@ class TicketsParser(HTMLParser):
         self.info = []
         self.mail_header = []
         self.action_hrefs = []
+        self.queues = {}
 
     def handle_starttag(self, tag, attrs):
         dattrs = dict(attrs)
@@ -165,6 +166,10 @@ class TicketsParser(HTMLParser):
             except KeyError:
                 pass
             return
+        if tag == "option" and "ActionRow" in div_cls:
+            self.queues[None] = dattrs.get("value")
+            self.data_handler = []
+            return
 
     def handle_data(self, data):
         if self.data_handler is not None:
@@ -209,6 +214,10 @@ class TicketsParser(HTMLParser):
                 self.info.append((self.label, title))
             if "ArticleMailHeader" in div_cls:
                 self.mail_header.append((self.label, title))
+        if tag == "option" and "ActionRow" in div_cls:
+            self.queues[self.queues.pop(None)] = "".join(self.data_handler)
+            self.data_handler = None
+            return
 
     def handle_entityref(self, name):
         if self.data_handler is not None:

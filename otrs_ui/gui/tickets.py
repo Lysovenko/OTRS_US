@@ -13,12 +13,12 @@
 # limitations under the License.
 "Making the Tickets widget"
 
-from tkinter import ttk, Text
+from tkinter import ttk, Text, StringVar
 from tkinter.messagebox import showerror, showinfo
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
 from ..core.pgload import TicketsPage, MessagePage
-from .dialogs import AboutBox
+from .dialogs import AboutBox, DlgDropBox
 
 
 def autoscroll(sbar, first, last):
@@ -53,6 +53,7 @@ class Tickets(ttk.Frame):
         self.ticket_info = None
         self.action_subaction = {}
         self.actions_params = {}
+        self.queues = {}
 
     def make_tree(self):
         frame = ttk.Frame(self.pw)
@@ -77,6 +78,7 @@ class Tickets(ttk.Frame):
         frame.bind_all("<Control-i>", self.menu_info)
         frame.bind_all("<Control-r>", self.menu_reload)
         frame.bind_all("<Control-l>", self.menu_lock)
+        frame.bind_all("<Control-m>", self.menu_move)
         return frame
 
     def go_dasboard(self, evt):
@@ -123,12 +125,29 @@ class Tickets(ttk.Frame):
                 except (RuntimeError, KeyError):
                     self.go_dasboard(None)
                     lres = None
-        if lres is not None:
-            self.ticket_info = lres.get("info")
-            self.show_email(lres.get("mail_header", ()),
-                            lres.get("message_text", ()))
-            self.detect_allowed_actions(lres.get("action_hrefs", ()))
+        self.get_tickets_page(lres)
         self.set_menu_active()
+
+    def get_tickets_page(self, page):
+        if page is None:
+            return
+        try:
+            self.ticket_info = page["info"]
+        except KeyError:
+            pass
+        try:
+            self.show_email(page["mail_header"], page["message_text"])
+        except KeyError:
+            pass
+        try:
+            self.detect_allowed_actions(page["action_hrefs"])
+        except KeyError:
+            pass
+        try:
+            self.queues = page["queues"]
+            self.queues.pop("0")
+        except KeyError:
+            pass
 
     def show_email(self, header, message):
         text = self.text
@@ -222,7 +241,6 @@ class Tickets(ttk.Frame):
             econ(_("Ticket"), state="disabled")
 
     def menu_lock(self, evt=None):
-        from ..core.pgload import Page
         if self.my_tab != self.app_widgets["notebook"].select():
             return
         try:
@@ -237,7 +255,7 @@ class Tickets(ttk.Frame):
         self.echo("######## url=", url)
         pg = TicketsPage(self.app_widgets["core"])
         lres = pg.load(url)
-        self.detect_allowed_actions(lres.get("action_hrefs", ()))
+        self.get_tickets_page(lres)
         title = _("Ticket Lock")
         if lres:
             if subact == "Lock":
@@ -247,6 +265,36 @@ class Tickets(ttk.Frame):
         else:
             showerror(title, _("The operation was failed"))
         self.echo("######## Lock the ticket ;-),", subact)
+
+    def menu_move(self, evt=None):
+        if not self.queues:
+            return
+        selections = []
+        for i in sorted(self.queues):
+            if i != "-":
+                selections.append(self.queues[i])
+        tv = StringVar()
+        tv.set(self.queues["-"])
+        cfg = {"values": selections,
+               "textvariable": tv, "state": "readonly"}
+        DlgDropBox(self, title=_("Change queue"), cfg=cfg)
+        if cfg["OK button"]:
+            rv = tv.get()
+            for i, v in self.queues.items():
+                if v == rv:
+                    break
+            params = [
+                ("Action", "AgentTicketMove"), ("QueueID", ""),
+                ("DestQueueID", i)]
+            for i in ("TicketID", "ChallengeToken", "Session"):
+                params.append((i, self.actions_params[i]))
+            url = urlunsplit(self.url_begin + ("", ""))
+            pg = TicketsPage(self.app_widgets["core"])
+            try:
+                lres = pg.load(url, urlencode(params).encode())
+                self.get_tickets_page(lres)
+            except RuntimeError:
+                pass
 
     def menu_answer(self):
         self.echo("Answer the ticket ;-)")
