@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 "Page loader parrent"
+import os
+from time import strftime
 from urllib.parse import urlparse, parse_qsl, urlencode
 from urllib.request import Request, urlopen
 from gzip import decompress
@@ -52,6 +54,7 @@ class Page:
         pd = pg.read()
         if pg.getheader("Content-Encoding") == "gzip":
             pd = decompress(pd)
+        self.dump_data(pg, pd)
         if not self.check_login(pd.decode(errors="ignore")):
             raise RuntimeError(r.get_full_url())
         return self.parse(pd)
@@ -80,6 +83,33 @@ class Page:
             if "<title>" in i and "Login" in i:
                 return False
         return True
+
+    def dump_data(self, page, data):
+        if "pg_dum_to" not in self.core_cfg:
+            return
+        try:
+            path = self.core_cfg["pg_dum_to"][0]
+        except Exception as err:
+            print("Exception: {0}".format(err))
+            return
+        classes = self.core_cfg["pg_dum_to"][1:]
+        cl_name = str(self.__hash__).split()[3]
+        if cl_name not in classes:
+            return
+        tdate = strftime("%b_%d_%H-%M-%S")
+        fname = "%s-%s.html" % (cl_name, tdate)
+        fname = os.path.join(path, fname)
+        try:
+            with open(fname, "wb") as fp:
+                print(repr(page.geturl()))
+                fp.write(("URL:\t%s\n" % page.geturl()).encode())
+                fp.write(("CODE:\t%d\n" % page.getcode()).encode())
+                for header in page.getheaders():
+                    fp.write(("%s:\t%s\n" % header).encode())
+                fp.write(b"\n")
+                fp.write(data)
+        except OSError as err:
+            print("OSError: {0}".format(err))
 
 
 class DashboardPage(Page):
