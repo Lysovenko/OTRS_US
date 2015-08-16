@@ -148,6 +148,15 @@ class Tickets(ttk.Frame):
             self.queues.pop("0")
         except KeyError:
             pass
+        try:
+            url = urlunsplit(
+                self.url_begin[:2] + urlsplit(page["mail_src"])[2:])
+            self.echo("Get message:", url)
+            pg = MessagePage(self.app_widgets["core"])
+            msg = pg.load(url)
+            self.show_email(page["mail_header"], msg)
+        except KeyError:
+            pass
 
     def show_email(self, header, message):
         text = self.text
@@ -213,25 +222,9 @@ class Tickets(ttk.Frame):
             for i in ("Count", "TicketID", "ArticleID"):
                 params.append((i, self.tree_data[iid]["article info"][i]))
             params.append(("Session", self.runt_cfg["Session"]))
-            url = urlunsplit(
-                self.url_begin + (urlencode(params), ""))
+            url = urlunsplit(self.url_begin + (urlencode(params), ""))
             pg = TicketsPage(self.app_widgets["core"])
-            lres = pg.load(url)
-            mhead = lres["mail_header"]
-            if "message_text" in lres:
-                msg = lres["message_text"]
-            else:
-                params = [("Action", "AgentTicketAttachment"),
-                          ("Subaction", "HTMLView"), ("FileID", "1")]
-                for i in ("ArticleID",):
-                    params.append((i, self.tree_data[iid]["article info"][i]))
-                params.append(("Session", self.runt_cfg["Session"]))
-                url = urlunsplit(
-                    self.url_begin + (urlencode(params), ""))
-                self.echo("enter article:", url)
-                pg = MessagePage(self.app_widgets["core"])
-                msg = pg.load(url)
-            self.show_email(mhead, msg)
+            self.get_tickets_page(pg.load(url))
 
     def set_menu_active(self):
         econ = self.app_widgets["menubar"].entryconfig

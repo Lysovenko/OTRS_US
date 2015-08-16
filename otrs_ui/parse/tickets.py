@@ -108,6 +108,7 @@ class TicketsParser(HTMLParser):
         self.mail_header = []
         self.action_hrefs = []
         self.queues = {}
+        self.mail_src = None
 
     def handle_starttag(self, tag, attrs):
         dattrs = dict(attrs)
@@ -169,6 +170,9 @@ class TicketsParser(HTMLParser):
         if tag == "option" and "ActionRow" in div_cls:
             self.queues[None] = dattrs.get("value")
             self.data_handler = []
+            return
+        if tag == "iframe" and "ArticleMailContent" in div_cls:
+            self.mail_src = dattrs.get("src")
             return
 
     def handle_data(self, data):
