@@ -48,6 +48,7 @@ class Tickets(ttk.Frame):
         self.articles_range = []
         self.tree_data = {}
         self.url_begin = None
+        self.cur_article = None
         self.my_tab = None
         self.my_url = None
         self.ticket_info = None
@@ -137,11 +138,13 @@ class Tickets(ttk.Frame):
         except KeyError:
             pass
         try:
-            self.show_email(page["mail_header"], page["message_text"])
+            mail_header = page["mail_header"]
+            mail_text = page["message_text"]
         except KeyError:
             pass
         try:
-            self.detect_allowed_actions(page["action_hrefs"])
+            self.detect_allowed_actions(page["action_hrefs"] +
+                                        page["art_act_hrefs"])
         except KeyError:
             pass
         try:
@@ -159,10 +162,13 @@ class Tickets(ttk.Frame):
                 self.url_begin[:2] + urlsplit(page["mail_src"])[2:])
             self.echo("Get message:", url)
             pg = MessagePage(self.app_widgets["core"])
-            msg = pg.load(url)
-            self.show_email(page["mail_header"], msg)
+            mail_text = pg.load(url)
         except KeyError:
             pass
+        self.show_email(mail_header, mail_text)
+        if self.cur_article:
+            self.cur_article["article text"] = mail_text
+            self.cur_article["article header"] = mail_header
 
     def show_email(self, header, message):
         text = self.text
@@ -195,11 +201,13 @@ class Tickets(ttk.Frame):
             econ(_("Lock"), state="normal")
         else:
             econ(_("Lock"), state="disabled")
+        self.cur_article = self.tree_data[total["ArticleID"]]
+        self.tree.focus(item=total["ArticleID"])
 
     def fill_tree(self, articles):
         if articles is None:
             raise ConnectionError()
-        self.tree_data.clear()
+        tree_data = {}
         self.url_begin = (urlsplit(self.runt_cfg["site"])[:2] +
                           (urlsplit(articles[0]["article info"])[2],))
         tree = self.tree
@@ -210,11 +218,17 @@ class Tickets(ttk.Frame):
             qd = dict(parse_qsl(urlsplit(item["article info"]).query))
             item["article info"] = qd
             no = qd["ArticleID"]
-            self.tree_data[no] = item
+            tree_data[no] = item
             self.articles_range.append(no)
             tree.insert(
                 "", "end", no, text=item["Subject"],
                 values=(item["From"], item["Created"], item["Type"]))
+        for i in list(self.tree_data.keys()):
+            if i not in tree_data:
+                del self.tree_data[i]
+        for i in tree_data:
+            if i not in self.tree_data:
+                self.tree_data[i] = tree_data[i]
         self.app_widgets["notebook"].select(self)
         self.my_tab = self.app_widgets["notebook"].select()
         self.tree.focus(item=self.articles_range[0])
@@ -223,6 +237,10 @@ class Tickets(ttk.Frame):
     def enter_article(self, evt):
         iid = evt.widget.focus()
         if iid:
+            self.cur_article = ca = self.tree_data[iid]
+            if "article text" in ca:
+                self.show_email(ca["article header"], ca["article text"])
+                return
             params = [("Action", "AgentTicketZoom"),
                       ("Subaction", "ArticleUpdate")]
             for i in ("Count", "TicketID", "ArticleID"):
