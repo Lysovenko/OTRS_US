@@ -79,6 +79,7 @@ class Tickets(ttk.Frame):
         frame.bind_all("<Control-r>", self.menu_reload)
         frame.bind_all("<Control-l>", self.menu_lock)
         frame.bind_all("<Control-m>", self.menu_move)
+        frame.bind_all("<Control-a>", self.menu_answer)
         return frame
 
     def go_dasboard(self, evt):
@@ -148,6 +149,11 @@ class Tickets(ttk.Frame):
             self.queues.pop("0")
         except KeyError:
             pass
+        try:
+            self.answers = page["answers"]
+            self.answers.pop(0)
+        except KeyError:
+            self.answers = None
         try:
             url = urlunsplit(
                 self.url_begin[:2] + urlsplit(page["mail_src"])[2:])
@@ -289,8 +295,16 @@ class Tickets(ttk.Frame):
             except RuntimeError:
                 pass
 
-    def menu_answer(self):
-        self.echo("Answer the ticket ;-)")
+    def menu_answer(self, evt=None):
+        if not self.answers:
+            return
+        selections = [i[1] for i in self.answers]
+        tv = StringVar()
+        cfg = {"values": selections,
+               "textvariable": tv, "state": "readonly"}
+        DlgDropBox(self, title=_("Change queue"), cfg=cfg)
+        if cfg["OK button"]:
+            self.echo("Answer the ticket ;-)")
 
     def menu_note(self):
         self.echo("Note the ticket ;-)")

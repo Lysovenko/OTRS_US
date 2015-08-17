@@ -101,13 +101,17 @@ class TicketsParser(HTMLParser):
         self.p_value = False
         self.div_classes = dict()
         self.data_handler = None
+        self.art_ctrl_cls = tuple(sorted(("LightRow", "Bottom")))
+        self.opt_val = None
         self.label = ""
         self.message_text = []
         self.articles = []
         self.info = []
         self.mail_header = []
         self.action_hrefs = []
+        self.art_act_hrefs = []
         self.queues = {}
+        self.answers = []
         self.mail_src = None
 
     def handle_starttag(self, tag, attrs):
@@ -161,14 +165,20 @@ class TicketsParser(HTMLParser):
                 self.data_handler = []
                 self.p_title = dattrs.get("title")
             return
-        if tag == "a" and "ActionRow" in div_cls and "Scroller" not in div_cls:
-            try:
-                self.action_hrefs.append(dattrs["href"])
-            except KeyError:
-                pass
+        if tag == "a":
+            if "ActionRow" in div_cls and "Scroller" not in div_cls:
+                try:
+                    self.action_hrefs.append(dattrs["href"])
+                except KeyError:
+                    pass
+            if self.art_ctrl_cls in div_cls:
+                try:
+                    self.art_act_hrefs.append(dattrs["href"])
+                except KeyError:
+                    pass
             return
-        if tag == "option" and "ActionRow" in div_cls:
-            self.queues[None] = dattrs.get("value")
+        if tag == "option":
+            self.opt_val = dattrs.get("value")
             self.data_handler = []
             return
         if tag == "iframe" and "ArticleMailContent" in div_cls:
@@ -218,8 +228,11 @@ class TicketsParser(HTMLParser):
                 self.info.append((self.label, title))
             if "ArticleMailHeader" in div_cls:
                 self.mail_header.append((self.label, title))
-        if tag == "option" and "ActionRow" in div_cls:
-            self.queues[self.queues.pop(None)] = "".join(self.data_handler)
+        if tag == "option":
+            if "ActionRow" in div_cls:
+                self.queues[self.opt_val] = "".join(self.data_handler)
+            if self.art_ctrl_cls in div_cls:
+                self.answers.append((self.opt_val, "".join(self.data_handler)))
             self.data_handler = None
             return
 

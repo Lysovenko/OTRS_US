@@ -127,10 +127,18 @@ class TicketsPage(Page):
         parser.close()
         res = {}
         for i in ("message_text", "articles", "info", "mail_header",
-                  "action_hrefs", "queues", "mail_src"):
+                  "action_hrefs", "queues", "mail_src", "art_act_hrefs",
+                  "answers"):
             attr = getattr(parser, i)
             if attr:
                 res[i] = attr
+        try:
+            anss = res["answers"]
+            hl = len(anss) // 2
+            if anss[hl][0] == anss[0][0]:
+                del anss[hl:]
+        except (KeyError, IndexError):
+            pass
         return res
 
 
