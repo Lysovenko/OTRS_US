@@ -48,7 +48,7 @@ class Tickets(ttk.Frame):
         self.articles_range = []
         self.tree_data = {}
         self.url_begin = None
-        self.cur_article = None
+        self.cur_article = {}
         self.my_tab = None
         self.my_url = None
         self.ticket_info = None
@@ -133,20 +133,15 @@ class Tickets(ttk.Frame):
     def get_tickets_page(self, page):
         if page is None:
             return
-        try:
+        if "info" in page:
             self.ticket_info = page["info"]
-        except KeyError:
-            pass
         try:
             mail_header = page["mail_header"]
             mail_text = page["message_text"]
         except KeyError:
             pass
-        try:
-            self.detect_allowed_actions(page["action_hrefs"] +
-                                        page["art_act_hrefs"])
-        except KeyError:
-            pass
+        self.detect_allowed_actions(page.get("action_hrefs", []) +
+                                    page.get("art_act_hrefs", []))
         try:
             self.queues = page["queues"]
             self.queues.pop("0")
@@ -155,20 +150,19 @@ class Tickets(ttk.Frame):
         try:
             self.answers = page["answers"]
             self.answers.pop(0)
-        except KeyError:
+        except (KeyError, IndexError):
             self.answers = None
-        try:
+        if "article text" in self.cur_article:
+            mail_text = self.cur_article["article text"]
+        elif "mail_src" in page:
             url = urlunsplit(
                 self.url_begin[:2] + urlsplit(page["mail_src"])[2:])
             self.echo("Get message:", url)
             pg = MessagePage(self.app_widgets["core"])
             mail_text = pg.load(url)
-        except KeyError:
-            pass
         self.show_email(mail_header, mail_text)
-        if self.cur_article:
-            self.cur_article["article text"] = mail_text
-            self.cur_article["article header"] = mail_header
+        self.cur_article["article text"] = mail_text
+        self.cur_article["article header"] = mail_header
 
     def show_email(self, header, message):
         text = self.text
