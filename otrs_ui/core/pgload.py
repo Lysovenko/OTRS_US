@@ -19,7 +19,8 @@ from urllib.parse import urlparse, parse_qsl, urlencode
 from urllib.request import Request, urlopen
 from gzip import decompress
 from ..parse.dashboard import DashboardParser
-from ..parse.tickets import TicketsParser, MessageParser
+from ..parse.tickets import TicketsParser
+from ..parse.messages import MessageParser
 
 _REQUESTS = {}
 
@@ -148,3 +149,7 @@ class MessagePage(Page):
         parser.feed(data.decode(errors="ignore"))
         parser.close()
         return parser.message_text
+
+
+class AnswerPage(Page):
+    pass

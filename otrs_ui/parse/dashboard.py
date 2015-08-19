@@ -13,16 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 "parse dashboard page"
-from html.parser import HTMLParser
-from sys import hexversion
+from .basic import BasicParser
 
 
-class DashboardParser(HTMLParser):
+class DashboardParser(BasicParser):
     def __init__(self):
-        di = {}
-        if hexversion >= 0x030200f0:
-            di["strict"] = False
-        HTMLParser.__init__(self, **di)
+        BasicParser.__init__(self)
         self.tickets = {"New": [], "Open": [], "Reminder": []}
         self.cur_array = None
         self.cur_append = None
@@ -41,12 +37,11 @@ class DashboardParser(HTMLParser):
                 del self.cur_array[:]
         if tag == "a" and dattrs.get("class") == "AsBlock MasterActionLink":
             self.cur_append = (dattrs["href"], dattrs["title"])
-
-    def handle_data(self, data):
-        if self.cur_append is not None:
-            self.cur_append += (data,)
+            self.data_handler = []
 
     def handle_endtag(self, tag):
         if tag == "a" and self.cur_append is not None:
-            self.cur_array.append(self.cur_append)
+            self.cur_array.append(
+                self.cur_append + ("".join(self.data_handler),))
+            self.data_handler = None
             self.cur_append = None

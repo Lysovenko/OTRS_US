@@ -17,7 +17,7 @@ from tkinter import ttk, Text, StringVar
 from tkinter.messagebox import showerror, showinfo
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
-from ..core.pgload import TicketsPage, MessagePage
+from ..core.pgload import TicketsPage, MessagePage, AnswerPage
 from .dialogs import AboutBox, DlgDropBox
 
 
@@ -314,8 +314,20 @@ class Tickets(ttk.Frame):
         tv = StringVar()
         cfg = {"values": selections,
                "textvariable": tv, "state": "readonly"}
-        DlgDropBox(self, title=_("Change queue"), cfg=cfg)
+        DlgDropBox(self, title=_("Answer type"), cfg=cfg)
         if cfg["OK button"]:
+            ans = tv.get()
+            for k, v in self.answers:
+                if v == ans:
+                    ans = k
+                    break
+            params = [("Action", "AgentTicketCompose"),
+                      ("ReplyAll", ""), ("ResponseID", ans)]
+            for i in ("Session", "TicketID", "ArticleID", "ChallengeToken"):
+                params.append((i, self.actions_params[i]))
+            url = urlunsplit(self.url_begin + (urlencode(params), ""))
+            pg = AnswerPage(self.app_widgets["core"])
+            mail_text = pg.load(url)
             self.echo("Answer the ticket ;-)")
 
     def menu_note(self):
