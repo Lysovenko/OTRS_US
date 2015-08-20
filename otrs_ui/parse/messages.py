@@ -26,4 +26,13 @@ class MessageParser(BasicParser):
 class AnswerParser(BasicParser):
     def __init__(self):
         BasicParser.__init__(self)
-    
+        self.inputs = []
+
+    def handle_starttag(self, tag, attrs):
+        dattrs = dict(attrs)
+        if tag == "input":
+            self.inputs.append(tuple(
+                dattrs.get(i) for i in ("type", "name", "value")))
+
+    def handle_endtag(self, tag):
+        pass

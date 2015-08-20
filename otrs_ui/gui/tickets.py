@@ -17,7 +17,7 @@ from tkinter import ttk, Text, StringVar
 from tkinter.messagebox import showerror, showinfo
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
-from ..core.pgload import TicketsPage, MessagePage, AnswerPage
+from ..core.pgload import TicketsPage, MessagePage, AnswerPage, AnswerSender
 from .dialogs import AboutBox, DlgDropBox
 
 
@@ -254,10 +254,11 @@ class Tickets(ttk.Frame):
     def menu_lock(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
             return
+        title = _("Ticket Lock")
         try:
             subact = self.action_subaction["AgentTicketLock"]
         except KeyError:
-            self.echo("Nothing to do!!!")
+            showerror(title, _("You are late. Sorry."))
             return
         params = [("Action", "AgentTicketLock"), ("Subaction", subact)]
         for i in ("TicketID", "ChallengeToken", "Session"):
@@ -267,7 +268,6 @@ class Tickets(ttk.Frame):
         pg = TicketsPage(self.app_widgets["core"])
         lres = pg.load(url)
         self.get_tickets_page(lres)
-        title = _("Ticket Lock")
         if lres:
             if subact == "Lock":
                 showinfo(title, _("The ticket was successfully locked"))
@@ -327,7 +327,12 @@ class Tickets(ttk.Frame):
                 params.append((i, self.actions_params[i]))
             url = urlunsplit(self.url_begin + (urlencode(params), ""))
             pg = AnswerPage(self.app_widgets["core"])
-            mail_text = pg.load(url)
+            inputs = pg.load(url)
+            for i in inputs:
+                self.echo(*i)
+            pg = AnswerSender(self.app_widgets["core"])
+            url = urlunsplit(self.url_begin + ("", ""))
+            pg.send(url, [i[1:] for i in inputs if None not in i])
             self.echo("Answer the ticket ;-)")
 
     def menu_note(self):

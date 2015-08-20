@@ -20,7 +20,8 @@ from urllib.request import Request, urlopen
 from gzip import decompress
 from ..parse.dashboard import DashboardParser
 from ..parse.tickets import TicketsParser
-from ..parse.messages import MessageParser
+from ..parse.messages import MessageParser, AnswerParser
+from .multipart import dump_multipart_text
 
 _REQUESTS = {}
 
@@ -35,18 +36,19 @@ class Page:
         "Dummy method to be replaced"
         print(data)
 
-    def load(self, location, data=None):
+    def load(self, location, data=None, headers={}):
         try:
             session = self.runt_cfg["Session"]
         except KeyError:
             raise RuntimeError()
         heads = {"Accept-Encoding": "gzip, deflate"}
-        if "?" not in location:
+        heads.update(headers)
+        if "?" in location or data is not None:
+            r = Request(location, data, headers=heads)
+        else:
             r = Request(
                 "%s?%s" % (location, urlencode([("Session", session)])),
                 data, headers=heads)
-        else:
-            r = Request(location, data, headers=heads)
         try:
             pg = urlopen(r)
         except Exception as err:
@@ -152,4 +154,13 @@ class MessagePage(Page):
 
 
 class AnswerPage(Page):
-    pass
+    def parse(self, data):
+        parser = AnswerParser()
+        parser.feed(data.decode(errors="ignore"))
+        parser.close()
+        return parser.inputs
+
+
+class AnswerSender(Page):
+    def send(self, location, data_list):
+        self.load(location, *dump_multipart_text(data_list))
