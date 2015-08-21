@@ -33,6 +33,13 @@ class AnswerParser(BasicParser):
         if tag == "input":
             self.inputs.append(tuple(
                 dattrs.get(i) for i in ("type", "name", "value")))
+            return
+        if tag == "textarea":
+            self.tags_name = dattrs.get("name")
+            self.data_handler = []
 
     def handle_endtag(self, tag):
-        pass
+        if tag == "textarea":
+            self.inputs.append(
+                ("text", self.tags_name, "".join(self.data_handler)))
+            self.data_handler = None

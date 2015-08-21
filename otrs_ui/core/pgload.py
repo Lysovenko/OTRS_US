@@ -17,6 +17,7 @@ import os
 from time import strftime
 from urllib.parse import urlparse, parse_qsl, urlencode
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 from gzip import decompress
 from ..parse.dashboard import DashboardParser
 from ..parse.tickets import TicketsParser
@@ -51,6 +52,9 @@ class Page:
                 data, headers=heads)
         try:
             pg = urlopen(r)
+        except HTTPError as err:
+            self.echo("HTTP Error:", err.getcode())
+            return
         except Exception as err:
             self.echo(repr(err))
             return

@@ -332,7 +332,10 @@ class Tickets(ttk.Frame):
                 self.echo(*i)
             pg = AnswerSender(self.app_widgets["core"])
             url = urlunsplit(self.url_begin + ("", ""))
-            pg.send(url, [i[1:] for i in inputs if None not in i])
+            try:
+                pg.send(url, [i[1:] for i in inputs if None not in i])
+            except RuntimeError as err:
+                self.echo("login failed {0}".format(err))
             self.echo("Answer the ticket ;-)")
 
     def menu_note(self):

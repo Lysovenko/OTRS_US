@@ -22,17 +22,16 @@ def dump_multipart_text(data):
     bsum = sha1()
     for item in data:
         bsum.update(item[1])
-    boundary = b64encode(bsum.digest())
+    boundary = b64encode(bsum.digest())[:-1]
     result = []
     for name, content in data:
         result.append(b"--" + boundary)
-        result.append(b"Content-Disposition: form-data; name={" +
-                      name.encode() + b"}")
+        result.append(b"Content-Disposition: form-data; name=" + name.encode())
         result.append(b'')
         result.append(content)
     result.append(b'--'+boundary+b'--')
     result.append(b'')
-    contentType = "multipart/form-data; boundary={%s}" % (boundary.decode())
+    contentType = "multipart/form-data; boundary=%s" % (boundary.decode())
     result = b'\r\n'.join(result)
     headers = {'Content-type': contentType}
     return result, headers
