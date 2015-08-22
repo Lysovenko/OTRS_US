@@ -26,7 +26,8 @@ def dump_multipart_text(data):
     result = []
     for name, content in data:
         result.append(b"--" + boundary)
-        result.append(b"Content-Disposition: form-data; name=" + name.encode())
+        result.append(b"Content-Disposition: form-data; name=\""
+                      + name.encode() + b'"')
         result.append(b'')
         result.append(content)
     result.append(b'--'+boundary+b'--')

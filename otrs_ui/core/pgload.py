@@ -166,5 +166,11 @@ class AnswerPage(Page):
 
 
 class AnswerSender(Page):
+    def parse(self, data):
+        return
+
     def send(self, location, data_list):
-        self.load(location, *dump_multipart_text(data_list))
+        da, di = dump_multipart_text(data_list)
+        print(da.decode())
+        print(di)
+        self.load(location, da, di)
