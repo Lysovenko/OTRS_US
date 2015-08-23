@@ -323,6 +323,8 @@ class Tickets(ttk.Frame):
                     break
             params = [("Action", "AgentTicketCompose"),
                       ("ReplyAll", ""), ("ResponseID", ans)]
+            i = "ArticleID"
+            self.actions_params[i] = self.cur_article["article info"][i]
             for i in ("Session", "TicketID", "ArticleID", "ChallengeToken"):
                 params.append((i, self.actions_params[i]))
             url = urlunsplit(self.url_begin + (urlencode(params), ""))
@@ -342,7 +344,7 @@ class Tickets(ttk.Frame):
         self.echo("Note the ticket ;-)")
 
     def menu_owner(self):
-        self.echo("Shange the ticket's owner ;-)")
+        self.echo("Change the ticket's owner ;-)")
 
     def menu_close(self):
         self.echo("Close the ticket ;-)")
