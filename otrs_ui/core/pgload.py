@@ -19,9 +19,9 @@ from urllib.parse import urlparse, parse_qsl, urlencode
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 from gzip import decompress
-from ..parse.dashboard import DashboardParser
-from ..parse.tickets import TicketsParser
-from ..parse.messages import MessageParser, AnswerParser
+from .parse.dashboard import DashboardParser
+from .parse.tickets import TicketsParser
+from .parse.messages import MessageParser, AnswerParser
 from .multipart import dump_multipart_text
 
 _REQUESTS = {}

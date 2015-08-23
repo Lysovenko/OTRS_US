@@ -238,7 +238,7 @@ class Tickets(ttk.Frame):
             params = [("Action", "AgentTicketZoom"),
                       ("Subaction", "ArticleUpdate")]
             for i in ("Count", "TicketID", "ArticleID"):
-                params.append((i, self.tree_data[iid]["article info"][i]))
+                params.append((i, ca["article info"][i]))
             params.append(("Session", self.runt_cfg["Session"]))
             url = urlunsplit(self.url_begin + (urlencode(params), ""))
             pg = TicketsPage(self.app_widgets["core"])
