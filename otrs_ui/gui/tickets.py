@@ -195,9 +195,11 @@ class Tickets(ttk.Frame):
             econ(_("Lock"), state="normal")
         else:
             econ(_("Lock"), state="disabled")
-        # sometimes rises KeyError: 'ArticleID'
-        self.cur_article = self.tree_data[total["ArticleID"]]
-        self.tree.focus(item=total["ArticleID"])
+        try:
+            self.cur_article = self.tree_data[total["ArticleID"]]
+            self.tree.focus(item=total["ArticleID"])
+        except KeyError:
+            pass
 
     def fill_tree(self, articles):
         if articles is None:
