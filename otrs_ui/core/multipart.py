@@ -11,13 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"Making the Tickets widget"
-import mimetypes, http.client
+"Making the multipart form"
+
 from hashlib import sha1
 from base64 import b64encode
 
+
 def dump_multipart_text(data):
-#boundary = 'wL36Yn8afVp8Ag7AmP8qZ0SA4n1v9T' # Randomly generated
     data = [(n, d.encode()) for n, d in data]
     bsum = sha1()
     for item in data:
@@ -30,7 +30,7 @@ def dump_multipart_text(data):
                       + name.encode() + b'"')
         result.append(b'')
         result.append(content)
-    result.append(b'--'+boundary+b'--')
+    result.append(b'--' + boundary + b'--')
     result.append(b'')
     contentType = "multipart/form-data; boundary=%s" % (boundary.decode())
     result = b'\r\n'.join(result)

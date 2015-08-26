@@ -17,7 +17,8 @@ from tkinter import ttk, Text, StringVar
 from tkinter.messagebox import showerror, showinfo
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
-from ..core.pgload import TicketsPage, MessagePage, AnswerPage, AnswerSender
+from ..core.pgload import (
+    TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError)
 from .dialogs import AboutBox, DlgDropBox
 
 
@@ -94,7 +95,7 @@ class Tickets(ttk.Frame):
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_rowconfigure(0, weight=1)
         text = Text(frame, state="disabled", wrap="word",
-                    font="Times 14")
+                    font="Times 14", takefocus=True)
         self.text = text
         text.grid(column=0, row=0, sticky="nwes")
         vsb = ttk.Scrollbar(frame, command=self.text.yview, orient="vertical")
@@ -115,7 +116,7 @@ class Tickets(ttk.Frame):
                 self.echo(lres["articles"])
                 self.fill_tree(lres["articles"])
                 break
-            except RuntimeError:
+            except LoginError:
                 if self.app_widgets["dashboard"].login(pg):
                     continue
                 lres = None
@@ -124,7 +125,7 @@ class Tickets(ttk.Frame):
                 try:
                     self.echo("Login in Tickets.load_ticket")
                     pg.login(self.runt_cfg)
-                except (RuntimeError, KeyError):
+                except (LoginError, KeyError):
                     self.go_dasboard(None)
                     lres = None
         self.get_tickets_page(lres)
@@ -307,7 +308,7 @@ class Tickets(ttk.Frame):
             try:
                 lres = pg.load(url, urlencode(params).encode())
                 self.get_tickets_page(lres)
-            except RuntimeError:
+            except LoginError:
                 pass
 
     def menu_answer(self, evt=None):
@@ -339,7 +340,7 @@ class Tickets(ttk.Frame):
             url = urlunsplit(self.url_begin + ("", ""))
             try:
                 pg.send(url, [i[1:] for i in inputs if None not in i])
-            except RuntimeError as err:
+            except LoginError as err:
                 self.echo("login failed {0}".format(err))
             self.echo("Answer the ticket ;-)")
 

@@ -24,7 +24,9 @@ from .parse.tickets import TicketsParser
 from .parse.messages import MessageParser, AnswerParser
 from .multipart import dump_multipart_text
 
-_REQUESTS = {}
+
+class LoginError(RuntimeError):
+    pass
 
 
 class Page:
@@ -41,7 +43,7 @@ class Page:
         try:
             session = self.runt_cfg["Session"]
         except KeyError:
-            raise RuntimeError()
+            raise LoginError()
         heads = {"Accept-Encoding": "gzip, deflate"}
         heads.update(headers)
         if "?" in location or data is not None:
@@ -63,7 +65,7 @@ class Page:
             pd = decompress(pd)
         self.dump_data(pg, pd)
         if not self.check_login(pd.decode(errors="ignore")):
-            raise RuntimeError(r.get_full_url())
+            raise LoginError(r.get_full_url())
         return self.parse(pd)
 
     def login(self, who, req=""):
@@ -82,7 +84,7 @@ class Page:
         qpl = parse_qsl(urlparse(url).query)
         dpl = dict(qpl)
         if "Session" not in dpl:
-            raise RuntimeError()
+            raise LoginError()
         self.runt_cfg["Session"] = dpl["Session"]
 
     def check_login(self, pd):

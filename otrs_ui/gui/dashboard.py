@@ -19,7 +19,7 @@ from urllib.error import URLError
 from tkinter import ttk
 from tkinter.messagebox import showerror
 from .tickets import autoscroll
-from ..core.pgload import DashboardPage
+from ..core.pgload import DashboardPage, LoginError
 from .dialogs import DlgLogin
 
 
@@ -71,7 +71,7 @@ class Dashboard(ttk.Frame):
                 pgl = pg.load(runt_cfg.get("site", ""))
                 felt_trees = self.fill_trees(pgl)
                 break
-            except RuntimeError:
+            except LoginError:
                 if self.login(pg, show_dlg):
                     show_dlg = True
                     continue
@@ -176,7 +176,7 @@ class Dashboard(ttk.Frame):
             try:
                 self.echo("Login in Dashboard.login")
                 page.login(cfg)
-            except RuntimeError:
+            except LoginError:
                 if dialog:
                     showerror(_("Error"), _("Login attempt failed"))
             except URLError as err:
