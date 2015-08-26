@@ -180,7 +180,9 @@ class Dashboard(ttk.Frame):
                 if dialog:
                     showerror(_("Error"), _("Login attempt failed"))
             except URLError as err:
-                self.echo("URLError: {0}".format(err))
+                message = "%s: %s" % (strftime("%H:%M:%S"),
+                                      "URLError: {0}".format(err))
+                self.app_widgets["core"].call("print_status", message)
                 return False
             return True
         return False
