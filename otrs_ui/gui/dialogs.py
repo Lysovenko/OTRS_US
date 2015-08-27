@@ -139,24 +139,42 @@ class DlgSettings(Dialog):
         "place user dialog widgets"
         self.config = cfg
         self.config["OK button"] = False
+        self.site = StringVar()
+        self.site.set(cfg.get("site", ""))
+        self.login = StringVar()
+        self.login.set(cfg.get("user", ""))
+        self.password = StringVar()
+        self.password.set(cfg.get("password", ""))
+        site = Entry(master, width=15, textvariable=self.site)
+        site.grid(column=1, row=0, sticky="e")
+        Label(master, text=_("Site:")).grid(column=0, row=0, sticky="w")
+        loge = Entry(master, width=15, textvariable=self.login)
+        loge.grid(column=1, row=1, sticky="e")
+        Label(master, text=_("Username:")).grid(column=0, row=1, sticky="w")
+        pase = Entry(master, width=15, textvariable=self.password, show="?")
+        pase.grid(column=1, row=2, sticky="e")
+        Label(master, text=_("Password:")).grid(column=0, row=2, sticky="w")
         self.time = StringVar()
         self.snd_cmd = StringVar()
         self.time.set(str(cfg.get("refresh_time", 0)))
         self.snd_cmd.set(str(cfg.get("snd_cmd", "")))
         self.etime = Entry(master, width=15, textvariable=self.time)
-        self.etime.grid(column=1, row=0, sticky="e")
+        self.etime.grid(column=1, row=3, sticky="e")
         self.esnd_cmd = Entry(master, width=15, textvariable=self.snd_cmd)
-        self.esnd_cmd.grid(column=1, row=1, sticky="e")
+        self.esnd_cmd.grid(column=1, row=4, sticky="e")
         lab = Label(master, text=_("Refresh time:"))
-        lab.grid(column=0, row=0, sticky="w")
+        lab.grid(column=0, row=3, sticky="w")
         lab = Label(master, text=_("Sound command:"))
-        lab.grid(column=0, row=1, sticky="w")
+        lab.grid(column=0, row=4, sticky="w")
         return self.etime
 
     def apply(self):
         "On ok button pressed"
         self.config["refresh_time"] = int(self.time.get())
         self.config["snd_cmd"] = self.snd_cmd.get()
+        self.config["site"] = self.site.get()
+        self.config["user"] = self.login.get()
+        self.config["password"] = self.password.get()
         self.config["OK button"] = True
 
     def validate(self):
