@@ -128,6 +128,9 @@ class Tickets(ttk.Frame):
                 except (LoginError, KeyError):
                     self.go_dasboard(None)
                     lres = None
+            except KeyError:
+                showerror(_("Error"), _("Wrong Ticket"))
+                return
         self.get_tickets_page(lres)
         self.set_menu_active()
 
@@ -136,8 +139,8 @@ class Tickets(ttk.Frame):
             return
         if "info" in page:
             self.ticket_info = page["info"]
+        mail_header = page.get("mail_header", [])
         try:
-            mail_header = page["mail_header"]
             mail_text = page["message_text"]
         except KeyError:
             pass

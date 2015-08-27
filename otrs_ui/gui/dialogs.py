@@ -162,16 +162,23 @@ class DlgSettings(Dialog):
         self.etime.grid(column=1, row=3, sticky="e")
         self.esnd_cmd = Entry(master, width=15, textvariable=self.snd_cmd)
         self.esnd_cmd.grid(column=1, row=4, sticky="e")
+        self.snd_err = StringVar()
+        self.snd_err.set(str(cfg.get("snd_err", "")))
+        self.esnd_err = Entry(master, width=15, textvariable=self.snd_err)
+        self.esnd_err.grid(column=1, row=5, sticky="e")
         lab = Label(master, text=_("Refresh time:"))
         lab.grid(column=0, row=3, sticky="w")
         lab = Label(master, text=_("Sound command:"))
         lab.grid(column=0, row=4, sticky="w")
+        lab = Label(master, text=_("Error sound command:"))
+        lab.grid(column=0, row=5, sticky="w")
         return self.etime
 
     def apply(self):
         "On ok button pressed"
         self.config["refresh_time"] = int(self.time.get())
         self.config["snd_cmd"] = self.snd_cmd.get()
+        self.config["snd_err"] = self.snd_err.get()
         self.config["site"] = self.site.get()
         self.config["user"] = self.login.get()
         self.config["password"] = self.password.get()

@@ -81,7 +81,7 @@ class Dashboard(ttk.Frame):
                     continue
                 break
             except URLError as err:
-                self.echo("URLError: {0}".format(err))
+                self.on_url_error(err)
                 break
         refresh = core_cfg.get("refresh_time", 0)
         if refresh > 10000:
@@ -180,9 +180,15 @@ class Dashboard(ttk.Frame):
                 if dialog:
                     showerror(_("Error"), _("Login attempt failed"))
             except URLError as err:
-                message = "%s: %s" % (strftime("%H:%M:%S"),
-                                      "URLError: {0}".format(err))
-                self.app_widgets["core"].call("print_status", message)
+                self.on_url_error(err)
                 return False
             return True
         return False
+
+    def on_url_error(self, error):
+        message = "%s: %s" % (strftime("%H:%M:%S"),
+                              "URLError: {0}".format(error))
+        self.app_widgets["core"].call("print_status", message)
+        snd_cmd = self.app_widgets["core"].call("core cfg").get("snd_err")
+        if snd_cmd:
+            system(snd_cmd)
