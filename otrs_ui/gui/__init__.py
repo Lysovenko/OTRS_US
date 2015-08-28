@@ -56,7 +56,7 @@ class Face:
         self.locked = False
         root.tk.call("wm", "iconphoto", root._w,
                      PhotoImage(file=join(dirname(__file__), "icon.gif")))
-        appw["dashboard"].update()
+        root.after(500, appw["dashboard"].update)
 
     def add_menu(self):
         top = self.root.winfo_toplevel()
