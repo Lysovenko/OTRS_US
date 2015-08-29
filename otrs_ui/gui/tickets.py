@@ -337,14 +337,13 @@ class Tickets(ttk.Frame):
             url = urlunsplit(self.url_begin + (urlencode(params), ""))
             pg = AnswerPage(self.app_widgets["core"])
             inputs = pg.load(url)
+            txt = ""
             for i in inputs:
-                self.echo(*i)
-            pg = AnswerSender(self.app_widgets["core"])
-            url = urlunsplit(self.url_begin + ("", ""))
-            try:
-                pg.send(url, [i[1:] for i in inputs if None not in i])
-            except LoginError as err:
-                self.echo("login failed {0}".format(err))
+                if i[1] == "Body":
+                    txt = i[2]
+                    break
+            self.tree.insert("", "end", "editable", text=_("Edit"))
+            self.tree_data["editable"] = {}
             self.echo("Answer the ticket ;-)")
 
     def menu_note(self):
