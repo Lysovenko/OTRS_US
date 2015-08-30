@@ -168,7 +168,7 @@ class Tickets(ttk.Frame):
         self.cur_article["article text"] = mail_text
         self.cur_article["article header"] = mail_header
 
-    def show_email(self, header, message):
+    def show_email(self, header, message, editable=False):
         text = self.text
         text["state"] = "normal"
         text.delete("1.0", "end")
@@ -177,7 +177,7 @@ class Tickets(ttk.Frame):
         text.insert("end", "\n")
         for i in message:
             text.insert("end", i)
-        text["state"] = "disabled"
+        text["state"] = "normal" if editable else "disabled"
 
     def detect_allowed_actions(self, act_hrefs):
         total = {}
@@ -218,6 +218,7 @@ class Tickets(ttk.Frame):
         for item in articles:
             qd = dict(parse_qsl(urlsplit(item["article info"]).query))
             item["article info"] = qd
+            item["editable"] = False
             no = qd["ArticleID"]
             tree_data[no] = item
             self.articles_range.append(no)
@@ -240,7 +241,8 @@ class Tickets(ttk.Frame):
         if iid:
             self.cur_article = ca = self.tree_data[iid]
             if "article text" in ca:
-                self.show_email(ca["article header"], ca["article text"])
+                self.show_email(
+                    ca["article header"], ca["article text"], ca["editable"])
                 return
             params = [("Action", "AgentTicketZoom"),
                       ("Subaction", "ArticleUpdate")]
@@ -342,8 +344,11 @@ class Tickets(ttk.Frame):
                 if i[1] == "Body":
                     txt = i[2]
                     break
+            ca = {"editable": True}
+            ca["article header"] = []
+            ca["article text"] = txt
             self.tree.insert("", "end", "editable", text=_("Edit"))
-            self.tree_data["editable"] = {}
+            self.tree_data["editable"] = ca
             self.echo("Answer the ticket ;-)")
 
     def menu_note(self):
