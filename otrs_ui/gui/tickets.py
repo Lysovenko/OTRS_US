@@ -347,6 +347,7 @@ class Tickets(ttk.Frame):
             ca = {"editable": True}
             ca["article header"] = []
             ca["article text"] = txt
+            self.articles_range.append("editable")
             self.tree.insert("", "end", "editable", text=_("Edit"))
             self.tree_data["editable"] = ca
             self.echo("Answer the ticket ;-)")
