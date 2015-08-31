@@ -168,15 +168,19 @@ class Tickets(ttk.Frame):
         self.cur_article["article text"] = mail_text
         self.cur_article["article header"] = mail_header
 
-    def show_email(self, header, message, editable=False):
+    def show_email(self, header, message, editable=False, variable=None):
         text = self.text
         text["state"] = "normal"
-        text.delete("1.0", "end")
-        for i in header:
-            text.insert("end", "%s\t%s\n" % i)
-        text.insert("end", "\n")
-        for i in message:
-            text.insert("end", i)
+        if variable is not None:
+            print('var:', variable.get())
+        if variable is None or not variable.get():
+            text.delete("1.0", "end")
+            for i in header:
+                text.insert("end", "%s\t%s\n" % i)
+            text.insert("end", "\n")
+            for i in message:
+                text.insert("end", i)
+        print(text.configure())#textvariable=variable)
         text["state"] = "normal" if editable else "disabled"
 
     def detect_allowed_actions(self, act_hrefs):
@@ -242,7 +246,8 @@ class Tickets(ttk.Frame):
             self.cur_article = ca = self.tree_data[iid]
             if "article text" in ca:
                 self.show_email(
-                    ca["article header"], ca["article text"], ca["editable"])
+                    ca["article header"], ca["article text"], ca["editable"],
+                    ca.get("variable"))
                 return
             params = [("Action", "AgentTicketZoom"),
                       ("Subaction", "ArticleUpdate")]
@@ -344,7 +349,7 @@ class Tickets(ttk.Frame):
                 if i[1] == "Body":
                     txt = i[2]
                     break
-            ca = {"editable": True}
+            ca = {"editable": True, "variable": StringVar()}
             ca["article header"] = []
             ca["article text"] = txt
             self.articles_range.append("editable")
