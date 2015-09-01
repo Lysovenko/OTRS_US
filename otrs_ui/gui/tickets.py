@@ -164,24 +164,26 @@ class Tickets(ttk.Frame):
             self.echo("Get message:", url)
             pg = MessagePage(self.app_widgets["core"])
             mail_text = pg.load(url)
-        self.show_email(mail_header, mail_text)
         self.cur_article["article text"] = mail_text
         self.cur_article["article header"] = mail_header
+        self.show_email(self.cur_article)
 
-    def show_email(self, header, message, editable=False, variable=None):
+    def show_email(self, article):
+        header = article["article header"]
+        message = article["article text"]
+        snapshot = article.get("snapshot")
         text = self.text
         text["state"] = "normal"
-        if variable is not None:
-            print('var:', variable.get())
-        if variable is None or not variable.get():
-            text.delete("1.0", "end")
+        text.delete("1.0", "end")
+        if snapshot is None:
             for i in header:
                 text.insert("end", "%s\t%s\n" % i)
             text.insert("end", "\n")
             for i in message:
                 text.insert("end", i)
-        print(text.configure())#textvariable=variable)
-        text["state"] = "normal" if editable else "disabled"
+        else:
+            text.insert("1.0", snapshot)
+        text["state"] = "normal" if article["editable"] else "disabled"
 
     def detect_allowed_actions(self, act_hrefs):
         total = {}
@@ -204,10 +206,18 @@ class Tickets(ttk.Frame):
         else:
             econ(_("Lock"), state="disabled")
         try:
-            self.cur_article = self.tree_data[total["ArticleID"]]
+            self.change_cur_article(self.tree_data[total["ArticleID"]])
             self.tree.focus(item=total["ArticleID"])
         except KeyError:
             pass
+
+    def change_cur_article(self, article):
+        ca = self.cur_article
+        if ca is article:
+            return
+        if ca.get("editable"):
+            ca["snapshot"] = self.text.get("1.0", "end")
+        self.cur_article = article
 
     def fill_tree(self, articles):
         if articles is None:
@@ -243,11 +253,10 @@ class Tickets(ttk.Frame):
     def enter_article(self, evt):
         iid = evt.widget.focus()
         if iid:
-            self.cur_article = ca = self.tree_data[iid]
+            ca = self.tree_data[iid]
+            self.change_cur_article(ca)
             if "article text" in ca:
-                self.show_email(
-                    ca["article header"], ca["article text"], ca["editable"],
-                    ca.get("variable"))
+                self.show_email(ca)
                 return
             params = [("Action", "AgentTicketZoom"),
                       ("Subaction", "ArticleUpdate")]
@@ -349,7 +358,7 @@ class Tickets(ttk.Frame):
                 if i[1] == "Body":
                     txt = i[2]
                     break
-            ca = {"editable": True, "variable": StringVar()}
+            ca = {"editable": True}
             ca["article header"] = []
             ca["article text"] = txt
             self.articles_range.append("editable")
