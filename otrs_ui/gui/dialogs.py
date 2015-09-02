@@ -206,6 +206,27 @@ class DlgDropBox(Dialog):
         self.config["OK button"] = True
 
 
+class DlgMsgDetails(Dialog):
+    def body(self, master, cfg={}):
+        "place user dialog widgets"
+        self.config = cfg
+        self.config["OK button"] = False
+        self.entries = entries = {}
+        self.stringvars = svars = {}
+        # CustomerTicketText	""
+        # ToCustomer	""
+        # CcCustomerTicketText	""
+        # CcCustomer	""
+        # BccCustomerTicketText	""
+        # BccCustomer	""
+        # Subject	"Re: [Ticket#2015082510005067] p56605"
+        # TimeUnits	""
+
+    def apply(self):
+        "On ok button pressed"
+        self.config["OK button"] = True
+
+
 class AboutBox(Toplevel):
     "an AboutBox emmulation in tkinter"
     def __init__(self, parent, title=None, text=None):
