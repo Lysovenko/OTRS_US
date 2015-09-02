@@ -113,7 +113,6 @@ class Tickets(ttk.Frame):
         while True:
             try:
                 lres = pg.load(url)
-                self.echo(lres["articles"])
                 self.fill_tree(lres["articles"])
                 break
             except LoginError:
@@ -169,17 +168,15 @@ class Tickets(ttk.Frame):
         self.show_email(self.cur_article)
 
     def show_email(self, article):
-        header = article["article header"]
-        message = article["article text"]
         snapshot = article.get("snapshot")
         text = self.text
         text["state"] = "normal"
         text.delete("1.0", "end")
         if snapshot is None:
-            for i in header:
+            for i in article["article header"]:
                 text.insert("end", "%s\t%s\n" % i)
             text.insert("end", "\n")
-            for i in message:
+            for i in article["article text"]:
                 text.insert("end", i)
         else:
             text.insert("1.0", snapshot)
@@ -287,7 +284,6 @@ class Tickets(ttk.Frame):
         for i in ("TicketID", "ChallengeToken", "Session"):
             params.append((i, self.actions_params[i]))
         url = urlunsplit(self.url_begin + (urlencode(params), ""))
-        self.echo("######## url=", url)
         pg = TicketsPage(self.app_widgets["core"])
         lres = pg.load(url)
         self.get_tickets_page(lres)
@@ -298,7 +294,6 @@ class Tickets(ttk.Frame):
                 showinfo(title, _("The ticket was successfully unlocked"))
         else:
             showerror(title, _("The operation was failed"))
-        self.echo("######## Lock the ticket ;-),", subact)
 
     def menu_move(self, evt=None):
         if not self.queues:
