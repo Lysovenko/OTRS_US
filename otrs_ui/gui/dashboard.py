@@ -13,10 +13,11 @@
 # limitations under the License.
 "Making the Dashboard widget"
 from os import system
+from os.path import dirname, join
 from time import strftime
 from urllib.parse import urlsplit, urlunsplit
 from urllib.error import URLError
-from tkinter import ttk
+from tkinter import ttk, PhotoImage
 from tkinter.messagebox import showerror
 from .tickets import autoscroll
 from ..core.pgload import DashboardPage, LoginError
@@ -40,6 +41,8 @@ class Dashboard(ttk.Frame):
             pw.pane(frame, weight=1)
         pw.pack(fill="both")
         self.urlbegin = ("", "")
+        self.important = PhotoImage(
+            file=join(dirname(__file__), "important.gif"))
 
     def make_tree(self, name):
         frame = ttk.Frame(self.pw, takefocus=False)
@@ -122,7 +125,12 @@ class Dashboard(ttk.Frame):
             self.tree_data.update((i[2], i[:2]) for i in data)
             self.ticket_range[name] = [i[2] for i in data]
             for item in data:
-                tree.insert("", "end", item[2], text=item[1])
+                if item[3]:
+                    result[name] = True
+                    image = self.important
+                else:
+                    image = ""
+                tree.insert("", "end", item[2], text=item[1], image=image)
             if old_focus in self.ticket_range[name]:
                 tree.focus(old_focus)
             else:

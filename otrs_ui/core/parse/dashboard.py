@@ -22,26 +22,32 @@ class DashboardParser(BasicParser):
         self.tickets = {"New": [], "Open": [], "Reminder": []}
         self.cur_array = None
         self.cur_append = None
+        self.importance = False
 
     def handle_starttag(self, tag, attrs):
         dattrs = dict(attrs)
         if tag == "div":
-            if dattrs.get("id") == "Dashboard0120-TicketNew":
+            div_id = dattrs.get("id")
+            if div_id == "Dashboard0120-TicketNew":
                 self.cur_array = self.tickets["New"]
-                del self.cur_array[:]
-            if dattrs.get("id") == "Dashboard0130-TicketOpen":
+            if div_id == "Dashboard0130-TicketOpen":
                 self.cur_array = self.tickets["Open"]
-                del self.cur_array[:]
-            if dattrs.get("id") == "Dashboard0100-TicketPendingReminder":
+            if div_id == "Dashboard0100-TicketPendingReminder":
                 self.cur_array = self.tickets["Reminder"]
-                del self.cur_array[:]
+            return
         if tag == "a" and dattrs.get("class") == "AsBlock MasterActionLink":
             self.cur_append = (dattrs["href"], dattrs["title"])
             self.data_handler = []
+            return
+        if tag == "span":
+            cls = dattrs.get("class", "").split()
+            if "UnreadArticles" in cls:
+                self.importance = "Important" in cls
 
     def handle_endtag(self, tag):
         if tag == "a" and self.cur_append is not None:
             self.cur_array.append(
-                self.cur_append + ("".join(self.data_handler),))
+                self.cur_append + ("".join(self.data_handler),
+                                   self.importance))
             self.data_handler = None
             self.cur_append = None
