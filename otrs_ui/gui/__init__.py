@@ -46,12 +46,12 @@ class Face:
         appw["tickets"] = Tickets(ntbk, appw)
         ntbk.add(appw["tickets"], text=_("Ticket"))
         ntbk.hide(appw["tickets"])
-        self.sz = ttk.Sizegrip(root)
-        self.sz.grid(column=1, row=1, sticky="se")
         self.status = StringVar()
         st_lab = ttk.Label(root, textvariable=self.status)
         core.register("print_status", self.status.set)
         st_lab.grid(column=0, row=1, sticky="we")
+        self.sz = ttk.Sizegrip(root)
+        self.sz.grid(column=0, row=1, sticky="se")
         self.add_menu()
         self.locked = False
         root.tk.call("wm", "iconphoto", root._w,
