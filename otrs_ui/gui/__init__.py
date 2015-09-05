@@ -91,6 +91,8 @@ class Face:
                 accelerator="Ctrl+I")
         add_cmd(label=_("Reload"), command=tcts.menu_reload,
                 accelerator="Ctrl+R")
+        add_cmd(label=_("Send message"), command=tcts.menu_send,
+                accelerator="Ctrl+S")
 
     def on_delete(self):
         self.config["geometry"] = self.root.geometry()

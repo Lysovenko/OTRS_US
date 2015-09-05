@@ -19,7 +19,7 @@ from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
 from ..core.pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError)
-from .dialogs import AboutBox, DlgDropBox
+from .dialogs import AboutBox, DlgDropBox, DlgMsgDetails
 
 
 def autoscroll(sbar, first, last):
@@ -82,6 +82,7 @@ class Tickets(ttk.Frame):
         frame.bind_all("<Control-l>", self.menu_lock)
         frame.bind_all("<Control-m>", self.menu_move)
         frame.bind_all("<Control-a>", self.menu_answer)
+        frame.bind_all("<Control-s>", self.menu_send)
         return frame
 
     def go_dasboard(self, evt):
@@ -108,6 +109,8 @@ class Tickets(ttk.Frame):
     def load_ticket(self, url):
         self.echo("load ticket:", url)
         self.my_url = url
+        self.app_widgets["menu_ticket"].entryconfig(
+            _("Send message"), state="disabled")
         pg = TicketsPage(self.app_widgets["core"])
         lres = None
         while True:
@@ -250,6 +253,9 @@ class Tickets(ttk.Frame):
     def enter_article(self, evt):
         iid = evt.widget.focus()
         if iid:
+            self.app_widgets["menu_ticket"].entryconfig(
+                _("Send message"), state="normal"
+                if iid == "editable" else "disabled")
             ca = self.tree_data[iid]
             self.change_cur_article(ca)
             if "article text" in ca:
@@ -354,8 +360,8 @@ class Tickets(ttk.Frame):
                     txt = i[2]
                     break
             ca = {"editable": True}
-            ca["article header"] = []
-            ca["article text"] = txt
+            ca["article text"] = []
+            ca["snapshot"] = txt
             self.articles_range.append("editable")
             self.tree.insert("", "end", "editable", text=_("Edit"))
             self.tree_data["editable"] = ca
@@ -389,3 +395,14 @@ class Tickets(ttk.Frame):
             return
         if self.my_url:
             self.load_ticket(self.my_url)
+
+    def menu_send(self, evt=None):
+        if self.tree.focus() != "editable":
+            return
+        cfg = {}
+        DlgMsgDetails(self, _("Send"), cfg=cfg)
+        if cfg["OK button"]:
+            self.app_widgets["menu_ticket"].entryconfig(
+                _("Send message"), state="disabled")
+            self.tree.delete("editable")
+            self.echo("Send the message ;-)")
