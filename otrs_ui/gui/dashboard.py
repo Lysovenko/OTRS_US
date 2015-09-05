@@ -67,12 +67,11 @@ class Dashboard(ttk.Frame):
         core_cfg = core.call("core cfg")
         runt_cfg = core.call("runtime cfg")
         pg = DashboardPage(core)
-        felt_trees = None
         show_dlg = False
         while True:
             try:
                 pgl = pg.load(runt_cfg.get("site", ""))
-                felt_trees = self.fill_trees(pgl)
+                self.fill_trees(pgl)
                 break
             except LoginError:
                 if self.login(pg, show_dlg):
@@ -89,15 +88,14 @@ class Dashboard(ttk.Frame):
         refresh = core_cfg.get("refresh_time", 0)
         if refresh > 10000:
             self.root.after(refresh, self.update)
-        self.show_status(felt_trees)
 
     def show_status(self, trees):
         if trees is None:
             return
-        ding = any(trees.values())
+        ding = " ".join(i for i in ("Reminder", "New", "Open") if trees[i])
         if ding:
             message = "%s: %s" % (
-                strftime("%H:%M:%S"), " ".join(i for i in trees if trees[i]))
+                strftime("%H:%M:%S"), ding)
         else:
             message = strftime("%H:%M:%S")
         self.app_widgets["core"].call("print_status", message)
@@ -109,7 +107,7 @@ class Dashboard(ttk.Frame):
     def fill_trees(self, pgl):
         if pgl is None:
             raise ConnectionError()
-        result = {}
+        result = {"Important": 0}
         self.tree_data.clear()
         for name in ("Reminder", "New", "Open"):
             data = pgl[name]
@@ -126,7 +124,7 @@ class Dashboard(ttk.Frame):
             self.ticket_range[name] = [i[2] for i in data]
             for item in data:
                 if item[3]:
-                    result[name] = True
+                    result["Important"] += 1
                     image = self.important
                 else:
                     image = ""
@@ -138,7 +136,7 @@ class Dashboard(ttk.Frame):
                     tree.focus(self.ticket_range[name][0])
                 except IndexError:
                     pass
-        return result
+        self.show_status(result)
 
     def activate(self, evt):
         "make selection jumps between trees"
