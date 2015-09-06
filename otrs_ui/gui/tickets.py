@@ -201,10 +201,9 @@ class Tickets(ttk.Frame):
                 allowed[qd["Action"]] = True
         self.actions_params = total
         econ = self.app_widgets["menu_ticket"].entryconfig
-        if allowed["AgentTicketLock"]:
-            econ(_("Lock"), state="normal")
-        else:
-            econ(_("Lock"), state="disabled")
+        for l in (_("Lock"), _("Answer")):
+            econ(l, state="normal"
+                 if allowed["AgentTicketLock"] else "disabled")
         try:
             self.change_cur_article(self.tree_data[total["ArticleID"]])
             self.tree.focus(item=total["ArticleID"])
@@ -251,7 +250,7 @@ class Tickets(ttk.Frame):
         self.tree.focus_set()
 
     def enter_article(self, evt):
-        iid = evt.widget.focus()
+        iid = evt if type(evt) == str else evt.widget.focus()
         if iid:
             self.app_widgets["menu_ticket"].entryconfig(
                 _("Send message"), state="normal"
@@ -332,7 +331,7 @@ class Tickets(ttk.Frame):
                 pass
 
     def menu_answer(self, evt=None):
-        if not self.answers:
+        if "editable" in self.tree_data or not self.answers:
             return
         selections = [i[1] for i in self.answers]
         tv = StringVar()
@@ -359,13 +358,13 @@ class Tickets(ttk.Frame):
                 if i[1] == "Body":
                     txt = i[2]
                     break
-            ca = {"editable": True}
-            ca["article text"] = []
-            ca["snapshot"] = txt
+            ca = {"editable": True, "article text": (), "inputs": inputs,
+                  "snapshot": txt}
             self.articles_range.append("editable")
             self.tree.insert("", "end", "editable", text=_("Edit"))
             self.tree_data["editable"] = ca
-            self.echo("Answer the ticket ;-)")
+            self.enter_article("editable")
+            self.tree.focus("editable")
 
     def menu_note(self):
         self.echo("Note the ticket ;-)")
@@ -399,10 +398,13 @@ class Tickets(ttk.Frame):
     def menu_send(self, evt=None):
         if self.tree.focus() != "editable":
             return
-        cfg = {}
+        cfg = dict(i[1:] for i in self.tree_data["editable"]["inputs"])
         DlgMsgDetails(self, _("Send"), cfg=cfg)
         if cfg["OK button"]:
             self.app_widgets["menu_ticket"].entryconfig(
                 _("Send message"), state="disabled")
             self.tree.delete("editable")
-            self.echo("Send the message ;-)")
+            self.tree_data.pop("editable")
+            self.articles_range.pop(self.articles_range.index("editable"))
+            self.tree.focus(item=self.articles_range[-1])
+            self.menu_reload()

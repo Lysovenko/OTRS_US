@@ -211,20 +211,24 @@ class DlgMsgDetails(Dialog):
         "place user dialog widgets"
         self.config = cfg
         self.config["OK button"] = False
+        # Field Names
+        fnames = (
+            ("ToCustomer", _("To:")), ("CcCustomer", _("Copy:")),
+            ("BccCustomer", _("Hidden copy:")), ("Subject", _("Subject:")),
+            ("TimeUnits", _("Time units:")))
         self.entries = entries = {}
         self.stringvars = svars = {}
-        # CustomerTicketText	""
-        # ToCustomer	""
-        # CcCustomerTicketText	""
-        # CcCustomer	""
-        # BccCustomerTicketText	""
-        # BccCustomer	""
-        # Subject	"Re: [Ticket#2015082510005067] p56605"
-        # TimeUnits	""
+        for pos, (nam, lab) in enumerate(fnames):
+            svars[nam] = sv = StringVar()
+            sv.set(cfg.get(nam, ""))
+            entries[nam] = en = Entry(master, width=30, textvariable=sv)
+            en.grid(column=1, row=pos, sticky="e")
+            Label(master, text=lab).grid(column=0, row=pos, sticky="w")
 
     def apply(self):
-        "On ok button pressed"
         self.config["OK button"] = True
+        for i in svars:
+            self.config[i] = self.stringvars[i].get()
 
 
 class AboutBox(Toplevel):
