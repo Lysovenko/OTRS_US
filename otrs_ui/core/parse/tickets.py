@@ -28,6 +28,7 @@ class TicketsParser(BasicParser):
         self.div_classes = dict()
         self.art_ctrl_cls = tuple(sorted(("LightRow", "Bottom")))
         self.opt_val = None
+        self.on_div_end = {"ArticleBody": self.stop_data_handling}
         self.label = ""
         self.message_text = []
         self.articles = []
@@ -38,6 +39,9 @@ class TicketsParser(BasicParser):
         self.queues = {}
         self.answers = []
         self.mail_src = None
+
+    def stop_data_handling(self):
+        self.data_handler = None
 
     def handle_starttag(self, tag, attrs):
         dattrs = dict(attrs)
@@ -130,6 +134,10 @@ class TicketsParser(BasicParser):
                 div_cls[k] -= 1
                 if div_cls[k] == 0:
                     del div_cls[k]
+                    try:
+                        self.on_div_end[k]()
+                    except KeyError:
+                        pass
             return
         if tag == "h2" and "WidgetSimple" in div_cls:
             self.info.append("".join(self.data_handler))
