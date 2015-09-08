@@ -398,9 +398,13 @@ class Tickets(ttk.Frame):
     def menu_send(self, evt=None):
         if self.tree.focus() != "editable":
             return
-        cfg = dict(i[1:] for i in self.tree_data["editable"]["inputs"])
+        inputs = self.tree_data["editable"]["inputs"]
+        cfg = dict(i[1:] for i in inputs)
         DlgMsgDetails(self, _("Send"), cfg=cfg)
         if cfg["OK button"]:
+            pg = AnswerSender(self.app_widgets["core"])
+            url = urlunsplit(self.url_begin + ("", ""))
+            pg.send(url, [(i[1], cfg[i[1]]) for i in inputs if None not in i])
             self.app_widgets["menu_ticket"].entryconfig(
                 _("Send message"), state="disabled")
             self.tree.delete("editable")
