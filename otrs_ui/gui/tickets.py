@@ -353,11 +353,7 @@ class Tickets(ttk.Frame):
             url = urlunsplit(self.url_begin + (urlencode(params), ""))
             pg = AnswerPage(self.app_widgets["core"])
             inputs = pg.load(url)
-            txt = ""
-            for i in inputs:
-                if i[1] == "Body":
-                    txt = i[2]
-                    break
+            txt = dict(inputs).get("Body", "")
             ca = {"editable": True, "article text": (), "inputs": inputs,
                   "snapshot": txt}
             self.articles_range.append("editable")
@@ -399,12 +395,12 @@ class Tickets(ttk.Frame):
         if self.tree.focus() != "editable":
             return
         inputs = self.tree_data["editable"]["inputs"]
-        cfg = dict(i[1:] for i in inputs)
+        cfg = dict(inputs)
         DlgMsgDetails(self, _("Send"), cfg=cfg)
         if cfg["OK button"]:
             pg = AnswerSender(self.app_widgets["core"])
             url = urlunsplit(self.url_begin + ("", ""))
-            pg.send(url, [(i[1], cfg[i[1]]) for i in inputs if None not in i])
+            pg.send(url, [(i[0], cfg[i[0]]) for i in inputs if None not in i])
             self.app_widgets["menu_ticket"].entryconfig(
                 _("Send message"), state="disabled")
             self.tree.delete("editable")
