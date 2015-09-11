@@ -217,6 +217,7 @@ class DlgMsgDetails(Dialog):
             ("BccCustomer", _("Hidden copy:")), ("Subject", _("Subject:")),
             ("TimeUnits", _("Time units:")))
         self.entries = entries = {}
+        self.comboboxes = combos = {}
         self.stringvars = svars = {}
         for pos, (nam, lab) in enumerate(fnames):
             svars[nam] = sv = StringVar()
@@ -224,10 +225,24 @@ class DlgMsgDetails(Dialog):
             entries[nam] = en = Entry(master, width=30, textvariable=sv)
             en.grid(column=1, row=pos, sticky="e")
             Label(master, text=lab).grid(column=0, row=pos, sticky="w")
+        start_pos = len(fnames)
+        fnames = (
+            ("StateID", _("Next state:")), ("Month", _("Month:")),
+            ("Day", _("Day:")), ("Year", _("Year:")),
+            ("Hour", _("Hour:")), ("Minute", _("Minute:")),
+            ("DynamicField_TicketFreeText15", _("Requires review:")))
+        for pos, (nam, lab) in enumerate(fnames, start_pos):
+            sel, itms = cfg.get(nam, (None, ()))
+            itms = [i[1] for i in itms]
+            combos[nam] = cb = Combobox(
+                master, width=30, state="readonly", values=itms)
+            cb.grid(column=1, row=pos, sticky="e")
+            Label(master, text=lab).grid(column=0, row=pos, sticky="w")
+            pass
 
     def apply(self):
         self.config["OK button"] = True
-        for i in svars:
+        for i in self.stringvars:
             self.config[i] = self.stringvars[i].get()
 
 
@@ -265,7 +280,17 @@ if __name__ == "__main__":
     from tkinter import Tk, Button
     _ = str
     root = Tk()
-    cfg = {"values": ("hello", "world", "foo", "bar"),
-           "textvariable": StringVar(), "state": "readonly"}
-    DlgDropBox(root, title="about drop", cfg=cfg)
-    print(cfg["textvariable"].get())
+    cfg = dict((
+        ("ToCustomer", "To"), ("CcCustomer", "Copy"),
+        ("BccCustomer", "Hidden copy"), ("Subject", "Subject"),
+        ("TimeUnits", "Time units"),
+        ("StateID", ("x", (("c", "h"), ("x", "y")))),
+        ("Month", ("x", (("c", "h"), ("x", "y")))),
+        ("Day", ("x", (("c", "h"), ("x", "y")))),
+        ("Year", ("x", (("c", "h"), ("x", "y")))),
+        ("Hour", ("x", (("c", "h"), ("x", "y")))),
+        ("Minute", ("x", (("c", "h"), ("x", "y")))),
+        ("DynamicField_TicketFreeText15", ("x", (("c", "h"), ("x", "y"))))
+    ))
+    DlgMsgDetails(root, title="about drop", cfg=cfg)
+    print(cfg)
