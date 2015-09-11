@@ -232,18 +232,22 @@ class DlgMsgDetails(Dialog):
             ("Hour", _("Hour:")), ("Minute", _("Minute:")),
             ("DynamicField_TicketFreeText15", _("Requires review:")))
         for pos, (nam, lab) in enumerate(fnames, start_pos):
-            sel, itms = cfg.get(nam, (None, ()))
-            itms = [i[1] for i in itms]
+            sel, itms = cfg[nam]
+            itms, names = zip(*itms)
             combos[nam] = cb = Combobox(
-                master, width=30, state="readonly", values=itms)
+                master, width=30, state="readonly", values=names,
+                exportselection=0)
             cb.grid(column=1, row=pos, sticky="e")
+            cb.current(itms.index(sel) if sel else 0)
             Label(master, text=lab).grid(column=0, row=pos, sticky="w")
-            pass
 
     def apply(self):
+        cfg = self.config
         self.config["OK button"] = True
-        for i in self.stringvars:
-            self.config[i] = self.stringvars[i].get()
+        for nam, val in self.stringvars.items():
+            cfg[nam] = val.get()
+        for nam, val in self.comboboxes.items():
+            cfg[nam] = cfg[nam][1][val.current()][0]
 
 
 class AboutBox(Toplevel):

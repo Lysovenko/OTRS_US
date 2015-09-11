@@ -27,6 +27,8 @@ class AnswerParser(BasicParser):
     def __init__(self):
         BasicParser.__init__(self)
         self.inputs = []
+        self.cur_select = None
+        self.cur_option = None
 
     def handle_starttag(self, tag, attrs):
         dattrs = dict(attrs)
@@ -34,11 +36,32 @@ class AnswerParser(BasicParser):
             self.inputs.append(tuple(
                 dattrs.get(i) for i in ("name", "value")))
             return
+        if tag == "option":
+            self.cur_option = dattrs["value"]
+            if "selected" in dattrs:
+                self.cur_select["selected"] = dattrs["value"]
+            self.data_handler = []
+            return
+        if tag == "select":
+            self.cur_select = dattrs
+            dattrs["values"] = []
+            return
         if tag == "textarea":
             self.tags_name = dattrs.get("name")
             self.data_handler = []
+            return
 
     def handle_endtag(self, tag):
+        if tag == "option":
+            self.cur_select["values"].append(
+                (self.cur_option, "".join(self.data_handler)))
+            self.data_handler = None
+            return
+        if tag == "select":
+            cs = self.cur_select
+            self.inputs.append(
+                (cs["name"], (cs.get("selected"), cs["values"])))
+            return
         if tag == "textarea":
             self.inputs.append(
                 (self.tags_name, "".join(self.data_handler)))
