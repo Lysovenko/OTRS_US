@@ -398,9 +398,25 @@ class Tickets(ttk.Frame):
         cfg = dict(inputs)
         DlgMsgDetails(self, _("Send"), cfg=cfg)
         if cfg["OK button"]:
+            cfg["Body"] = self.text.get("1.0", "end")
             pg = AnswerSender(self.app_widgets["core"])
             url = urlunsplit(self.url_begin + ("", ""))
-            pg.send(url, [(i[0], cfg[i[0]]) for i in inputs if None not in i])
+            form = [(i[0], cfg[i[0]]) for i in inputs if None not in i]
+            email = cfg["CustomerInitialValue"]
+            if '<' in email:
+                email = email[email.find("<")+1:email.find(">")]
+            pos = 0
+            for i in range(len(form)):
+                if form[i][0] == "CustomerTicketText":
+                    pos = i + 1
+                    break
+            for i in reversed((
+                    ("CustomerInitialValue_1", email),
+                    ("CustomerKey_1", ""),
+                    ("CustomerQueue_1", email),
+                    ("CustomerTicketText_1", email))):
+                form.insert(pos, i)
+            pg.send(url, form)
             self.app_widgets["menu_ticket"].entryconfig(
                 _("Send message"), state="disabled")
             self.tree.delete("editable")
