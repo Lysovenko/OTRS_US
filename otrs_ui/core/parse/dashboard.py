@@ -51,3 +51,4 @@ class DashboardParser(BasicParser):
                                    self.importance))
             self.data_handler = None
             self.cur_append = None
+            self.importance = False

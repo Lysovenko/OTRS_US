@@ -173,6 +173,4 @@ class AnswerSender(Page):
 
     def send(self, location, data_list):
         da, di = dump_multipart_text(data_list)
-        print(da.decode())
-        print(di)
         self.load(location, da, di)
