@@ -18,18 +18,24 @@ from base64 import b64encode
 
 
 def dump_multipart_text(data):
-    data = [(n, d.encode()) for n, d in data]
     bsum = sha1()
     for item in data:
-        bsum.update(item[1])
+        bsum.update(str(item[1]).encode())
     boundary = b64encode(bsum.digest())[:-1]
     result = []
     for name, content in data:
         result.append(b"--" + boundary)
-        result.append(b"Content-Disposition: form-data; name=\""
-                      + name.encode() + b'"')
-        result.append(b'')
-        result.append(content)
+        if type(content) is str:
+            result.append((
+                'Content-Disposition: form-data; name="%s"' % name).encode())
+            result.append(b'')
+            result.append(content.encode())
+        elif type(content) is tuple:
+            result.append((
+                'Content-Disposition: form-data; name="%s";'
+                ' filename="%s"' % (name, content[0])).encode())
+            result.append(b'')
+            result.append(content[1])
     result.append(b'--' + boundary + b'--')
     result.append(b'')
     contentType = "multipart/form-data; boundary=%s" % (boundary.decode())

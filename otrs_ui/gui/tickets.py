@@ -396,12 +396,14 @@ class Tickets(ttk.Frame):
             return
         inputs = self.tree_data["editable"]["inputs"]
         cfg = dict(inputs)
+        cfg.pop("FileUpload")
+        cfg["CustomerTicketCounterToCustomer"] = "1"
         DlgMsgDetails(self, _("Send"), cfg=cfg)
         if cfg["OK button"]:
             cfg["Body"] = self.text.get("1.0", "end")
             pg = AnswerSender(self.app_widgets["core"])
             url = urlunsplit(self.url_begin + ("", ""))
-            form = [(i[0], cfg[i[0]]) for i in inputs if None not in i]
+            form = [(i[0], cfg.get(i[0], ("", b""))) for i in inputs]
             email = cfg["CustomerInitialValue"]
             if '<' in email:
                 email = email[email.find("<")+1:email.find(">")]
