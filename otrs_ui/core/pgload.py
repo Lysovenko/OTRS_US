@@ -110,7 +110,6 @@ class Page:
         fname = os.path.join(path, fname)
         try:
             with open(fname, "wb") as fp:
-                print(repr(page.geturl()))
                 fp.write(("URL:\t%s\n" % page.geturl()).encode())
                 fp.write(("CODE:\t%d\n" % page.getcode()).encode())
                 for header in page.getheaders():
