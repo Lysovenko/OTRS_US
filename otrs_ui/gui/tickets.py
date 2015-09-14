@@ -352,15 +352,18 @@ class Tickets(ttk.Frame):
                 params.append((i, self.actions_params[i]))
             url = urlunsplit(self.url_begin + (urlencode(params), ""))
             pg = AnswerPage(self.app_widgets["core"])
-            inputs = pg.load(url)
-            txt = dict(inputs).get("Body", "")
-            ca = {"editable": True, "article text": (), "inputs": inputs,
-                  "snapshot": txt}
-            self.articles_range.append("editable")
-            self.tree.insert("", "end", "editable", text=_("Edit"))
-            self.tree_data["editable"] = ca
-            self.enter_article("editable")
-            self.tree.focus("editable")
+            inputs, error = pg.load(url)
+            if inputs:
+                txt = dict(inputs).get("Body", "")
+                ca = {"editable": True, "article text": (), "inputs": inputs,
+                      "snapshot": txt}
+                self.articles_range.append("editable")
+                self.tree.insert("", "end", "editable", text=_("Edit"))
+                self.tree_data["editable"] = ca
+                self.enter_article("editable")
+                self.tree.focus("editable")
+            else:
+                showerror(_("Answer"), (error if error else "Can't answer"))
 
     def menu_note(self):
         self.echo("Note the ticket ;-)")

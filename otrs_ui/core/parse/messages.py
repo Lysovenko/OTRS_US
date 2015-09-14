@@ -29,6 +29,7 @@ class AnswerParser(BasicParser):
         self.inputs = []
         self.cur_select = None
         self.cur_option = None
+        self.error_msg = None
 
     def handle_starttag(self, tag, attrs):
         dattrs = dict(attrs)
@@ -50,6 +51,9 @@ class AnswerParser(BasicParser):
             self.tags_name = dattrs.get("name")
             self.data_handler = []
             return
+        if tag == "span" and dattrs.get("class") == "Error":
+            self.data_handler = []
+            return
 
     def handle_endtag(self, tag):
         if tag == "option":
@@ -66,3 +70,9 @@ class AnswerParser(BasicParser):
             self.inputs.append(
                 (self.tags_name, "".join(self.data_handler)))
             self.data_handler = None
+            return
+        if tag == "span":
+            if self.data_handler:
+                self.error_msg = "".join(self.data_handler)
+                self.data_handler = None
+            return

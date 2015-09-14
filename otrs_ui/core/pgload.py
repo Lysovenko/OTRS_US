@@ -164,7 +164,7 @@ class AnswerPage(Page):
         parser = AnswerParser()
         parser.feed(data.decode(errors="ignore"))
         parser.close()
-        return parser.inputs
+        return parser.inputs, parser.error_msg
 
 
 class AnswerSender(Page):
