@@ -57,6 +57,7 @@ class Dashboard(ttk.Frame):
             frame, command=tree.xview, orient="horizontal")
         hsb.grid(column=0, row=1, sticky="ew")
         tree["xscrollcommand"] = lambda f, l: autoscroll(hsb, f, l)
+        tree.tag_configure("new", foreground="blue")
         tree.bind("<FocusIn>", self.activate)
         tree.bind("<Return>", self.enter_ticket)
         tree.bind("<Double-Button-1>", self.enter_ticket)
@@ -123,12 +124,14 @@ class Dashboard(ttk.Frame):
             self.tree_data.update((i[2], i[:2]) for i in data)
             self.ticket_range[name] = [i[2] for i in data]
             for item in data:
-                if item[3]:
+                if item[3] & 2:
                     result["Important"] += 1
                     image = self.important
                 else:
                     image = ""
-                tree.insert("", "end", item[2], text=item[1], image=image)
+                tags = ("new",) if item[3] & 1 else ()
+                tree.insert("", "end", item[2], text=item[1], image=image,
+                            tags=tags)
             if old_focus in self.ticket_range[name]:
                 tree.focus(old_focus)
             else:

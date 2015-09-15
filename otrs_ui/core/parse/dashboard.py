@@ -22,7 +22,7 @@ class DashboardParser(BasicParser):
         self.tickets = {"New": [], "Open": [], "Reminder": []}
         self.cur_array = None
         self.cur_append = None
-        self.importance = False
+        self.importance = 0
 
     def handle_starttag(self, tag, attrs):
         dattrs = dict(attrs)
@@ -42,7 +42,7 @@ class DashboardParser(BasicParser):
         if tag == "span":
             cls = dattrs.get("class", "").split()
             if "UnreadArticles" in cls:
-                self.importance = "Important" in cls
+                self.importance = 3 if "Important" in cls else 1
 
     def handle_endtag(self, tag):
         if tag == "a" and self.cur_append is not None:
@@ -51,4 +51,4 @@ class DashboardParser(BasicParser):
                                    self.importance))
             self.data_handler = None
             self.cur_append = None
-            self.importance = False
+            self.importance = 0
