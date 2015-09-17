@@ -287,7 +287,10 @@ class Tickets(ttk.Frame):
             return
         params = [("Action", "AgentTicketLock"), ("Subaction", subact)]
         for i in ("TicketID", "ChallengeToken", "Session"):
-            params.append((i, self.actions_params[i]))
+            try:
+                params.append((i, self.actions_params[i]))
+            except KeyError as err:
+                self.echo("In menu_lock KeyError: %s" % err)
         url = urlunsplit(self.url_begin + (urlencode(params), ""))
         pg = TicketsPage(self.app_widgets["core"])
         lres = pg.load(url)
@@ -321,7 +324,10 @@ class Tickets(ttk.Frame):
                 ("Action", "AgentTicketMove"), ("QueueID", ""),
                 ("DestQueueID", i)]
             for i in ("TicketID", "ChallengeToken", "Session"):
-                params.append((i, self.actions_params[i]))
+                try:
+                    params.append((i, self.actions_params[i]))
+                except KeyError as err:
+                    self.echo("In menu_move KeyError: %s" % err)
             url = urlunsplit(self.url_begin + ("", ""))
             pg = TicketsPage(self.app_widgets["core"])
             try:
@@ -349,7 +355,10 @@ class Tickets(ttk.Frame):
             i = "ArticleID"
             self.actions_params[i] = self.cur_article["article info"][i]
             for i in ("Session", "TicketID", "ArticleID", "ChallengeToken"):
-                params.append((i, self.actions_params[i]))
+                try:
+                    params.append((i, self.actions_params[i]))
+                except KeyError as err:
+                    self.echo("In menu_answer KeyError: %s" % err)
             url = urlunsplit(self.url_begin + (urlencode(params), ""))
             pg = AnswerPage(self.app_widgets["core"])
             inputs, error = pg.load(url)
