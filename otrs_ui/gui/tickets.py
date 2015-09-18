@@ -375,7 +375,13 @@ class Tickets(ttk.Frame):
                 showerror(_("Answer"), (error if error else "Can't answer"))
 
     def menu_note(self):
+        params = [("Action", "AgentTicketNote")]
         self.echo("Note the ticket ;-)")
+        for i in ("TicketID", "Session"):
+            params.append((i, self.actions_params[i]))
+        url = urlunsplit(self.url_begin + (urlencode(params), ""))
+        pg = AnswerPage(self.app_widgets["core"])
+        inputs, error = pg.load(url)
 
     def menu_owner(self):
         self.echo("Change the ticket's owner ;-)")
