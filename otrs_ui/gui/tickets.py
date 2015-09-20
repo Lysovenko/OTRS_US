@@ -435,8 +435,8 @@ class Tickets(ttk.Frame):
             self.tree.focus(item=self.articles_range[-1])
             self.menu_reload()
 
-    def append_params(params, where, keys):
-        for in keys:
+    def append_params(self, params, where, keys):
+        for i in keys:
             try:
                 params.append((i, self.actions_params[i]))
             except KeyError as err:
