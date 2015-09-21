@@ -373,6 +373,7 @@ class Tickets(ttk.Frame):
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
         cfg = dict(inputs)
+        cfg.pop("FileUpload")
 
     def menu_owner(self):
         self.echo("Change the ticket's owner ;-)")
