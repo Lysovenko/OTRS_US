@@ -189,7 +189,7 @@ msgstr "Переслати"
 
 #: ../../otrs_ui/gui/__init__.py:85
 msgid "Note"
-msgstr "Замітка"
+msgstr "Нотатка"
 
 #: ../../otrs_ui/gui/__init__.py:86
 msgid "Owner"

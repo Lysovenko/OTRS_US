@@ -372,6 +372,7 @@ class Tickets(ttk.Frame):
         url = urlunsplit(self.url_begin + (urlencode(params), ""))
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
+        cfg = dict(inputs)
 
     def menu_owner(self):
         self.echo("Change the ticket's owner ;-)")
@@ -406,7 +407,14 @@ class Tickets(ttk.Frame):
         cfg = dict(inputs)
         cfg.pop("FileUpload")
         cfg["CustomerTicketCounterToCustomer"] = "1"
-        DlgMsgDetails(self, _("Send"), cfg=cfg)
+        DlgMsgDetails(self, _("Send"), cfg=cfg, enames=(
+            ("ToCustomer", _("To:")), ("CcCustomer", _("Copy:")),
+            ("BccCustomer", _("Hidden copy:")), ("Subject", _("Subject:")),
+            ("TimeUnits", _("Time units:"))), dnames=(
+            ("StateID", _("Next state:")), ("Month", _("Month:")),
+            ("Day", _("Day:")), ("Year", _("Year:")),
+            ("Hour", _("Hour:")), ("Minute", _("Minute:")),
+            ("DynamicField_TicketFreeText15", _("Requires review:"))))
         if cfg["OK button"]:
             cfg["Body"] = self.text.get("1.0", "end")
             pg = AnswerSender(self.app_widgets["core"])

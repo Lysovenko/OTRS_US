@@ -207,31 +207,23 @@ class DlgDropBox(Dialog):
 
 
 class DlgMsgDetails(Dialog):
-    def body(self, master, cfg={}):
-        "place user dialog widgets"
+    def body(self, master, cfg={}, enames=(), dnames=()):
+        """place user dialog widgets
+        enames - entry names, aliases
+        dnames - dropbox names, aliasses"""
         self.config = cfg
         self.config["OK button"] = False
-        # Field Names
-        fnames = (
-            ("ToCustomer", _("To:")), ("CcCustomer", _("Copy:")),
-            ("BccCustomer", _("Hidden copy:")), ("Subject", _("Subject:")),
-            ("TimeUnits", _("Time units:")))
         self.entries = entries = {}
         self.comboboxes = combos = {}
         self.stringvars = svars = {}
-        for pos, (nam, lab) in enumerate(fnames):
+        for pos, (nam, lab) in enumerate(enames):
             svars[nam] = sv = StringVar()
             sv.set(cfg.get(nam, ""))
             entries[nam] = en = Entry(master, width=30, textvariable=sv)
             en.grid(column=1, row=pos, sticky="e")
             Label(master, text=lab).grid(column=0, row=pos, sticky="w")
-        start_pos = len(fnames)
-        fnames = (
-            ("StateID", _("Next state:")), ("Month", _("Month:")),
-            ("Day", _("Day:")), ("Year", _("Year:")),
-            ("Hour", _("Hour:")), ("Minute", _("Minute:")),
-            ("DynamicField_TicketFreeText15", _("Requires review:")))
-        for pos, (nam, lab) in enumerate(fnames, start_pos):
+        start_pos = len(enames)
+        for pos, (nam, lab) in enumerate(dnames, start_pos):
             sel, itms = cfg[nam]
             itms, names = zip(*itms)
             combos[nam] = cb = Combobox(
