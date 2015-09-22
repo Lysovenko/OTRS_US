@@ -83,6 +83,7 @@ class Tickets(ttk.Frame):
         frame.bind_all("<Control-m>", self.menu_move)
         frame.bind_all("<Control-a>", self.menu_answer)
         frame.bind_all("<Control-s>", self.menu_send)
+        frame.bind_all("<Control-t>", self.menu_note)
         return frame
 
     def go_dasboard(self, evt):
