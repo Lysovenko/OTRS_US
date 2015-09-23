@@ -366,7 +366,7 @@ class Tickets(ttk.Frame):
             else:
                 showerror(_("Answer"), (error if error else "Can't answer"))
 
-    def menu_note(self):
+    def menu_note(self, evt=None):
         params = [("Action", "AgentTicketNote")]
         self.echo("Note the ticket ;-)")
         self.append_params(params, "menu_note", ("TicketID", "Session"))
@@ -375,6 +375,19 @@ class Tickets(ttk.Frame):
         inputs, error = pg.load(url)
         cfg = dict(inputs)
         cfg.pop("FileUpload")
+        DlgMsgDetails(self, _("Note"), cfg=cfg, inputs=(
+            ("Subject", _("Subject:")), ("Body", _("Message:")),
+            ("TimeUnits", _("Time units:"))), selects=(
+            ("ArticleTypeID", _("Type of note:")),
+            ("NewStateID", _("Next state:")), ("Month", _("Month:")),
+            ("Day", _("Day:")), ("Year", _("Year:")),
+            ("Hour", _("Hour:")), ("Minute", _("Minute:"))))
+        if cfg["OK button"]:
+            pg = AnswerSender(self.app_widgets["core"])
+            url = urlunsplit(self.url_begin + ("", ""))
+            form = [(i[0], cfg.get(i[0], ("", b""))) for i in inputs]
+            pg.send(url, form)
+            self.menu_reload()
 
     def menu_owner(self):
         self.echo("Change the ticket's owner ;-)")
@@ -409,10 +422,10 @@ class Tickets(ttk.Frame):
         cfg = dict(inputs)
         cfg.pop("FileUpload")
         cfg["CustomerTicketCounterToCustomer"] = "1"
-        DlgMsgDetails(self, _("Send"), cfg=cfg, enames=(
+        DlgMsgDetails(self, _("Send"), cfg=cfg, inputs=(
             ("ToCustomer", _("To:")), ("CcCustomer", _("Copy:")),
             ("BccCustomer", _("Hidden copy:")), ("Subject", _("Subject:")),
-            ("TimeUnits", _("Time units:"))), dnames=(
+            ("TimeUnits", _("Time units:"))), selects=(
             ("StateID", _("Next state:")), ("Month", _("Month:")),
             ("Day", _("Day:")), ("Year", _("Year:")),
             ("Hour", _("Hour:")), ("Minute", _("Minute:")),

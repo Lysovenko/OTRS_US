@@ -207,23 +207,23 @@ class DlgDropBox(Dialog):
 
 
 class DlgMsgDetails(Dialog):
-    def body(self, master, cfg={}, enames=(), dnames=()):
+    def body(self, master, cfg={}, inputs=(), selects=()):
         """place user dialog widgets
-        enames - entry names, aliases
-        dnames - dropbox names, aliasses"""
+        inputs - aliases for input forms,
+        selects - aliasses for dropbox names"""
         self.config = cfg
         self.config["OK button"] = False
         self.entries = entries = {}
         self.comboboxes = combos = {}
         self.stringvars = svars = {}
-        for pos, (nam, lab) in enumerate(enames):
+        for pos, (nam, lab) in enumerate(inputs):
             svars[nam] = sv = StringVar()
             sv.set(cfg.get(nam, ""))
             entries[nam] = en = Entry(master, width=30, textvariable=sv)
             en.grid(column=1, row=pos, sticky="e")
             Label(master, text=lab).grid(column=0, row=pos, sticky="w")
-        start_pos = len(enames)
-        for pos, (nam, lab) in enumerate(dnames, start_pos):
+        start_pos = len(inputs)
+        for pos, (nam, lab) in enumerate(selects, start_pos):
             sel, itms = cfg[nam]
             itms, names = zip(*itms)
             combos[nam] = cb = Combobox(
