@@ -368,7 +368,6 @@ class Tickets(ttk.Frame):
 
     def menu_note(self, evt=None):
         params = [("Action", "AgentTicketNote")]
-        self.echo("Note the ticket ;-)")
         self.append_params(params, "menu_note", ("TicketID", "Session"))
         url = urlunsplit(self.url_begin + (urlencode(params), ""))
         pg = AnswerPage(self.app_widgets["core"])
@@ -385,15 +384,31 @@ class Tickets(ttk.Frame):
         if cfg["OK button"]:
             pg = AnswerSender(self.app_widgets["core"])
             url = urlunsplit(self.url_begin + ("", ""))
-            form = [(i[0], cfg.get(i[0], ("", b""))) for i in inputs]
-            pg.send(url, form)
+            pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
             self.menu_reload()
 
     def menu_owner(self):
         self.echo("Change the ticket's owner ;-)")
 
     def menu_close(self):
-        self.echo("Close the ticket ;-)")
+        params = [("Action", "AgentTicketClose")]
+        self.append_params(params, "menu_note", ("TicketID", "Session"))
+        url = urlunsplit(self.url_begin + (urlencode(params), ""))
+        pg = AnswerPage(self.app_widgets["core"])
+        inputs, error = pg.load(url)
+        cfg = dict(inputs)
+        cfg.pop("FileUpload")
+        DlgMsgDetails(self, _("Close"), cfg=cfg, inputs=(
+            ("Subject", _("Subject:")), ("Body", _("Message:")),
+            ("TimeUnits", _("Time units:"))), selects=(
+            ("ArticleTypeID", _("Type of note:")),
+            ("NewStateID", _("Next state:")),
+            ("DynamicField_TicketFreeText15", _("Requires review:"))))
+        if cfg["OK button"]:
+            pg = AnswerSender(self.app_widgets["core"])
+            url = urlunsplit(self.url_begin + ("", ""))
+            pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
+            self.menu_reload()
 
     def menu_info(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
