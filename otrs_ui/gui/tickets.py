@@ -76,14 +76,13 @@ class Tickets(ttk.Frame):
         tree.column("mode", width=70, anchor="center")
         tree.bind("<Double-Button-1>", self.enter_article)
         tree.bind("<Return>", self.enter_article)
-        frame.bind_all("<Control-Escape>", self.go_dasboard)
-        frame.bind_all("<Control-i>", self.menu_info)
-        frame.bind_all("<Control-r>", self.menu_reload)
-        frame.bind_all("<Control-l>", self.menu_lock)
-        frame.bind_all("<Control-m>", self.menu_move)
-        frame.bind_all("<Control-a>", self.menu_answer)
-        frame.bind_all("<Control-s>", self.menu_send)
-        frame.bind_all("<Control-t>", self.menu_note)
+        for k, f in (
+                ("Escape", self.go_dasboard), ("i", self.menu_info),
+                ("r", self.menu_reload), ("l", self.menu_lock),
+                ("m", self.menu_move), ("a", self.menu_answer),
+                ("s", self.menu_send), ("t", self.menu_note),
+                ("e", self.menu_close)):
+            frame.bind_all("<Control-%s>" % k, f)
         return frame
 
     def go_dasboard(self, evt):
@@ -202,9 +201,9 @@ class Tickets(ttk.Frame):
                 allowed[qd["Action"]] = True
         self.actions_params = total
         econ = self.app_widgets["menu_ticket"].entryconfig
-        for l in (_("Lock"), _("Answer")):
-            econ(l, state="normal"
-                 if allowed["AgentTicketLock"] else "disabled")
+        state = "normal" if allowed["AgentTicketLock"] else "disabled"
+        for l in (_("Lock"), _("Answer"), _("Close")):
+            econ(l, state=state)
         try:
             self.change_cur_article(self.tree_data[total["ArticleID"]])
             self.tree.focus(item=total["ArticleID"])
@@ -390,12 +389,15 @@ class Tickets(ttk.Frame):
     def menu_owner(self):
         self.echo("Change the ticket's owner ;-)")
 
-    def menu_close(self):
+    def menu_close(self, evt=None):
         params = [("Action", "AgentTicketClose")]
         self.append_params(params, "menu_note", ("TicketID", "Session"))
         url = urlunsplit(self.url_begin + (urlencode(params), ""))
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
+        if not inputs:
+            showerror(_("Close"), error)
+            return
         cfg = dict(inputs)
         cfg.pop("FileUpload")
         DlgMsgDetails(self, _("Close"), cfg=cfg, inputs=(
