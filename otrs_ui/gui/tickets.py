@@ -424,6 +424,19 @@ class Tickets(ttk.Frame):
         AboutBox(self, title=_("Ticket Info"), text="".join(res))
 
     def menu_forward(self):
+        if "editable" in self.tree_data or not self.answers:
+            return
+        params = [("Action", "AgentTicketForward")]
+        self.append_params(params, "menu_note", (
+            "TicketID", "ArticleID", "Session"))
+        url = urlunsplit(self.url_begin + (urlencode(params), ""))
+        pg = AnswerPage(self.app_widgets["core"])
+        inputs, error = pg.load(url)
+        if not inputs:
+            showerror(_("Close"), error)
+            return
+        cfg = dict(inputs)
+        cfg.pop("FileUpload")
         self.echo("Forward the ticket ;-)")
 
     def menu_reload(self, evt=None):
