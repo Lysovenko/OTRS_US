@@ -81,7 +81,7 @@ class Tickets(ttk.Frame):
                 ("r", self.menu_reload), ("l", self.menu_lock),
                 ("m", self.menu_move), ("a", self.menu_answer),
                 ("s", self.menu_send), ("t", self.menu_note),
-                ("e", self.menu_close)):
+                ("e", self.menu_close), ("w", self.menu_forward)):
             frame.bind_all("<Control-%s>" % k, f)
         return frame
 
@@ -301,7 +301,8 @@ class Tickets(ttk.Frame):
             showerror(title, _("The operation was failed"))
 
     def menu_move(self, evt=None):
-        if not self.queues:
+        if not self.queues or \
+           self.my_tab != self.app_widgets["notebook"].select():
             return
         selections = []
         for i in sorted(self.queues):
@@ -331,6 +332,8 @@ class Tickets(ttk.Frame):
                 pass
 
     def menu_answer(self, evt=None):
+        if self.my_tab != self.app_widgets["notebook"].select():
+            return
         if "editable" in self.tree_data or not self.answers:
             return
         selections = [i[1] for i in self.answers]
@@ -366,6 +369,8 @@ class Tickets(ttk.Frame):
                 showerror(_("Answer"), (error if error else "Can't answer"))
 
     def menu_note(self, evt=None):
+        if self.my_tab != self.app_widgets["notebook"].select():
+            return
         params = [("Action", "AgentTicketNote")]
         self.append_params(params, "menu_note", ("TicketID", "Session"))
         url = urlunsplit(self.url_begin + (urlencode(params), ""))
@@ -387,9 +392,13 @@ class Tickets(ttk.Frame):
             self.menu_reload()
 
     def menu_owner(self):
+        if self.my_tab != self.app_widgets["notebook"].select():
+            return
         self.echo("Change the ticket's owner ;-)")
 
     def menu_close(self, evt=None):
+        if self.my_tab != self.app_widgets["notebook"].select():
+            return
         params = [("Action", "AgentTicketClose")]
         self.append_params(params, "menu_note", ("TicketID", "Session"))
         url = urlunsplit(self.url_begin + (urlencode(params), ""))
@@ -423,7 +432,9 @@ class Tickets(ttk.Frame):
                 res.append("%s\t%s\n" % tuple(i.strip() for i in item[:2]))
         AboutBox(self, title=_("Ticket Info"), text="".join(res))
 
-    def menu_forward(self):
+    def menu_forward(self, evt=None):
+        if self.my_tab != self.app_widgets["notebook"].select():
+            return
         if "editable" in self.tree_data or not self.answers:
             return
         params = [("Action", "AgentTicketForward")]
@@ -446,7 +457,8 @@ class Tickets(ttk.Frame):
             self.load_ticket(self.my_url)
 
     def menu_send(self, evt=None):
-        if self.tree.focus() != "editable":
+        if self.my_tab != self.app_widgets["notebook"].select() or \
+           self.tree.focus() != "editable":
             return
         inputs = self.tree_data["editable"]["inputs"]
         cfg = dict(inputs)
