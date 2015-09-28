@@ -490,7 +490,7 @@ class Tickets(ttk.Frame):
             form = [(i[0], cfg.get(i[0], ("", b""))) for i in inputs]
             email = None
             for i in ("ToCustomer", "To", "CustomerInitialValue"):
-                if i in cfg:
+                if i in cfg and cfg[i]:
                     email = cfg[i]
                     break
             if email is None:
