@@ -447,7 +447,14 @@ class Tickets(ttk.Frame):
             showerror(_("Close"), error)
             return
         cfg = dict(inputs)
-        cfg.pop("FileUpload")
+        txt = cfg.get("Body", "")
+        ca = {"editable": True, "article text": (), "inputs": inputs,
+              "snapshot": txt}
+        self.articles_range.append("editable")
+        self.tree.insert("", "end", "editable", text=_("Edit"))
+        self.tree_data["editable"] = ca
+        self.enter_article("editable")
+        self.tree.focus("editable")
         self.echo("Forward the ticket ;-)")
 
     def menu_reload(self, evt=None):
@@ -466,18 +473,29 @@ class Tickets(ttk.Frame):
         cfg["CustomerTicketCounterToCustomer"] = "1"
         DlgMsgDetails(self, _("Send"), cfg=cfg, inputs=(
             ("ToCustomer", _("To:")), ("CcCustomer", _("Copy:")),
-            ("BccCustomer", _("Hidden copy:")), ("Subject", _("Subject:")),
+            ("BccCustomer", _("Hidden copy:")), ("To", _("To:")),
+            ("Cc", _("Copy:")), ("Bcc", _("Hidden copy:")),
+            ("Subject", _("Subject:")),
             ("TimeUnits", _("Time units:"))), selects=(
-            ("StateID", _("Next state:")), ("Month", _("Month:")),
+            ("StateID", _("Next state:")),
+            ("ComposeStateID", _("Next state:")), ("Month", _("Month:")),
             ("Day", _("Day:")), ("Year", _("Year:")),
             ("Hour", _("Hour:")), ("Minute", _("Minute:")),
-            ("DynamicField_TicketFreeText15", _("Requires review:"))))
+            ("DynamicField_TicketFreeText15", _("Requires review:")),
+            ("ArticleTypeID", _("Article type:"))))
         if cfg["OK button"]:
             cfg["Body"] = self.text.get("1.0", "end")
             pg = AnswerSender(self.app_widgets["core"])
             url = urlunsplit(self.url_begin + ("", ""))
             form = [(i[0], cfg.get(i[0], ("", b""))) for i in inputs]
-            email = cfg["CustomerInitialValue"]
+            email = None
+            for i in ("ToCustomer", "To", "CustomerInitialValue"):
+                if i in cfg:
+                    email = cfg[i]
+                    break
+            if email is None:
+                showerror(_("Error"), _("Receiver was not found"))
+                return
             if '<' in email:
                 email = email[email.find("<")+1:email.find(">")]
             pos = 0

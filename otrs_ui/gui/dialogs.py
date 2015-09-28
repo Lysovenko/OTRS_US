@@ -217,14 +217,21 @@ class DlgMsgDetails(Dialog):
         self.comboboxes = combos = {}
         self.stringvars = svars = {}
         for pos, (nam, lab) in enumerate(inputs):
+            try:
+                val = cfg[nam]
+            except KeyError:
+                continue
             svars[nam] = sv = StringVar()
-            sv.set(cfg.get(nam, ""))
+            sv.set(val)
             entries[nam] = en = Entry(master, width=30, textvariable=sv)
             en.grid(column=1, row=pos, sticky="e")
             Label(master, text=lab).grid(column=0, row=pos, sticky="w")
         start_pos = len(inputs)
         for pos, (nam, lab) in enumerate(selects, start_pos):
-            sel, itms = cfg[nam]
+            try:
+                sel, itms = cfg[nam]
+            except KeyError:
+                continue
             itms, names = zip(*itms)
             combos[nam] = cb = Combobox(
                 master, width=30, state="readonly", values=names,
