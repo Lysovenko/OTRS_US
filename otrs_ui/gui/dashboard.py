@@ -57,7 +57,7 @@ class Dashboard(ttk.Frame):
             frame, command=tree.xview, orient="horizontal")
         hsb.grid(column=0, row=1, sticky="ew")
         tree["xscrollcommand"] = lambda f, l: autoscroll(hsb, f, l)
-        tree.tag_configure("new", foreground="blue")
+        tree.tag_configure("new", foreground="blue", background="gray")
         tree.bind("<FocusIn>", self.activate)
         tree.bind("<Return>", self.enter_ticket)
         tree.bind("<Double-Button-1>", self.enter_ticket)
