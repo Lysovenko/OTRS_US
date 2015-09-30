@@ -116,13 +116,14 @@ class Dashboard(ttk.Frame):
             old_focus = tree.focus()
             for i in reversed(self.ticket_range.get(name, ())):
                 tree.delete(i)
-            try:
-                result[name] = (
-                    data[0][2] not in self.ticket_range.get(name, ()))
-            except IndexError:
-                result[name] = False
+            old = self.ticket_range.get(name, ())
+            new = tuple(i[2] for i in data)
+            if name == "New":
+                result[name] = new and new[0] not in old
+            else:
+                result[name] = any(i not in old for i in new)
             self.tree_data.update((i[2], i[:2]) for i in data)
-            self.ticket_range[name] = [i[2] for i in data]
+            self.ticket_range[name] = new
             for item in data:
                 if item[3] & 2:
                     result["Important"] += 1
