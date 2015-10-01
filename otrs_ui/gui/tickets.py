@@ -81,7 +81,8 @@ class Tickets(ttk.Frame):
                 ("r", self.menu_reload), ("l", self.menu_lock),
                 ("m", self.menu_move), ("a", self.menu_answer),
                 ("s", self.menu_send), ("t", self.menu_note),
-                ("e", self.menu_close), ("w", self.menu_forward)):
+                ("e", self.menu_close), ("w", self.menu_forward),
+                ("o", self.menu_owner)):
             frame.bind_all("<Control-%s>" % k, f)
         return frame
 
@@ -391,10 +392,28 @@ class Tickets(ttk.Frame):
             pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
             self.menu_reload()
 
-    def menu_owner(self):
+    def menu_owner(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
             return
-        self.echo("Change the ticket's owner ;-)")
+        params = [("Action", "AgentTicketOwner")]
+        self.append_params(params, "menu_note", ("TicketID", "Session"))
+        url = urlunsplit(self.url_begin + (urlencode(params), ""))
+        pg = AnswerPage(self.app_widgets["core"])
+        inputs, error = pg.load(url)
+        if not inputs:
+            showerror(_("Change owner"), error)
+        cfg = dict(inputs)
+        cfg.pop("FileUpload")
+        cfg["NewOwnerType"] = "New"
+        DlgMsgDetails(self, _("Owner"), cfg=cfg, inputs=(
+            ("Subject", _("Subject:")), ("Body", _("Comment:"))),  selects=(
+            ("NewOwnerID", _("Owner:")), ("OldOwnerID", _("Old owner:")),
+            ("ArticleTypeID", _("Article type:"))))
+        if cfg["OK button"] and cfg.get("NewOwnerID"):
+            pg = AnswerSender(self.app_widgets["core"])
+            url = urlunsplit(self.url_begin + ("", ""))
+            pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
+            self.menu_reload()
 
     def menu_close(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
