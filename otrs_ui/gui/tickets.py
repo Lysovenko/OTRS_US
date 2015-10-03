@@ -538,6 +538,7 @@ class Tickets(ttk.Frame):
             self.menu_reload()
 
     def append_params(self, params, where, keys):
+        self.actions_params["ArticleID"] = self.tree.focus()
         for i in keys:
             try:
                 params.append((i, self.actions_params[i]))
