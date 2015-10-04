@@ -181,7 +181,7 @@ class Tickets(ttk.Frame):
                 text.insert("end", "%s\t%s\n" % i)
             text.insert("end", "\n")
             for i in article["article text"]:
-                text.insert("end", i)
+                text.insert("end", *i)
         else:
             text.insert("1.0", snapshot)
         text["state"] = "normal" if article["editable"] else "disabled"

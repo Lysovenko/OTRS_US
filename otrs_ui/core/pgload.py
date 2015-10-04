@@ -147,6 +147,10 @@ class TicketsPage(Page):
                 del anss[hl:]
         except (KeyError, IndexError):
             pass
+        try:
+            res["message_text"] = [(i,) for i in res["message_text"]]
+        except KeyError:
+            pass
         return res
 
 
@@ -155,7 +159,10 @@ class MessagePage(Page):
         parser = MessageParser()
         parser.feed(data.decode(errors="ignore"))
         parser.close()
-        return parser.message_text
+        if parser.message_text:
+            return parser.message_text
+        else:
+            return [(i,) for i in parser.data_handler]
 
 
 class AnswerPage(Page):

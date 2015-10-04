@@ -20,7 +20,34 @@ class MessageParser(BasicParser):
     def __init__(self):
         BasicParser.__init__(self)
         self.message_text = []
-        self.data_handler = self.message_text
+        self.data_handler = []
+        self.curtags = []
+
+    def handle_starttag(self, tag, attrs):
+        self.append_msg_text()
+        dattrs = dict(attrs)
+        if tag == "h1":
+            self.curtags.append(tag)
+            return
+        if tag == "p":
+            self.message_text.append(("\n    ",))
+            return
+        if tag == "br":
+            self.message_text.append(("\n",))
+            return
+
+    def handle_endtag(self, tag):
+        self.append_msg_text()
+        if self.curtags and tag == self.curtags[-1]:
+            self.curtags.pop(-1)
+
+    def append_msg_text(self):
+        tspl = []
+        for i in self.data_handler:
+            tspl += i.split()
+        if tspl:
+            self.message_text.append((" ".join(tspl), tuple(self.curtags)))
+        del self.data_handler[:]
 
 
 class AnswerParser(BasicParser):
