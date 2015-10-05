@@ -22,6 +22,7 @@ class MessageParser(BasicParser):
         self.message_text = []
         self.data_handler = []
         self.curtags = []
+        self.preformatted = 0
 
     def handle_starttag(self, tag, attrs):
         self.append_msg_text()
@@ -35,18 +36,34 @@ class MessageParser(BasicParser):
         if tag == "br":
             self.message_text.append(("\n",))
             return
+        if tag == "div":
+            self.message_text.append(("\n<div>\n",))
+            return
+        if tag == "pre":
+            self.preformatted += 1
+            return
 
     def handle_endtag(self, tag):
         self.append_msg_text()
         if self.curtags and tag == self.curtags[-1]:
             self.curtags.pop(-1)
+        if tag == "div":
+            self.message_text.append(("\n</div>\n",))
+            return
+        if tag == "pre":
+            self.preformatted -= 1
+            return
 
     def append_msg_text(self):
-        tspl = []
-        for i in self.data_handler:
-            tspl += i.split()
-        if tspl:
-            self.message_text.append((" ".join(tspl), tuple(self.curtags)))
+        if self.preformatted:
+            self.message_text.append(
+                ("".join(self.data_handler), tuple(self.curtags)))
+        else:
+            tspl = []
+            for i in self.data_handler:
+                tspl += i.split()
+            if tspl:
+                self.message_text.append((" ".join(tspl), tuple(self.curtags)))
         del self.data_handler[:]
 
 
