@@ -75,6 +75,12 @@ class Face:
         self.app_widgets["menubar"] = menubar
         self.app_widgets["menu_ticket"] = mticket
         tcts = self.app_widgets["tickets"]
+        mfile.insert_command(
+            1, label=_("New email ticket"), command=tcts.menu_new_email,
+            accelerator="Ctrl+N")
+        mfile.insert_command(
+            2, label=_("New phone ticket"), command=tcts.menu_new_phone,
+            accelerator="Ctrl+H", underline=1)
         add_cmd = mticket.add_command
         add_cmd(label=_("Lock"), command=tcts.menu_lock, accelerator="Ctrl+L")
         add_cmd(label=_("Move"), command=tcts.menu_move, accelerator="Ctrl+M")

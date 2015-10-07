@@ -82,7 +82,8 @@ class Tickets(ttk.Frame):
                 ("m", self.menu_move), ("a", self.menu_answer),
                 ("s", self.menu_send), ("t", self.menu_note),
                 ("e", self.menu_close), ("w", self.menu_forward),
-                ("o", self.menu_owner)):
+                ("o", self.menu_owner), ("n", self.menu_new_email),
+                ("h", self.menu_new_phone)):
             frame.bind_all("<Control-%s>" % k, f)
         return frame
 
@@ -544,3 +545,9 @@ class Tickets(ttk.Frame):
                 params.append((i, self.actions_params[i]))
             except KeyError as err:
                 self.echo("In %s KeyError: %s" % (where, err))
+
+    def menu_new_email(self, evt=None):
+        self.echo('New email ticket')
+
+    def menu_new_phone(self, evt=None):
+        self.echo('New phone ticket')
