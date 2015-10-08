@@ -25,6 +25,11 @@ class MessageParser(BasicParser):
         self.preformatted = 0
 
     def handle_starttag(self, tag, attrs):
+        if tag == "body":
+            del self.data_handler[:]
+            del self.message_text[:]
+            del self.curtags[:]
+            self.preformatted = 0
         self.append_msg_text()
         dattrs = dict(attrs)
         if tag == "h1":
