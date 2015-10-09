@@ -475,7 +475,6 @@ class Tickets(ttk.Frame):
         self.tree_data["editable"] = ca
         self.enter_article("editable")
         self.tree.focus("editable")
-        self.echo("Forward the ticket ;-)")
 
     def menu_reload(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
@@ -547,6 +546,34 @@ class Tickets(ttk.Frame):
                 self.echo("In %s KeyError: %s" % (where, err))
 
     def menu_new_email(self, evt=None):
+        self.my_url = None
+        self.app_widgets["menu_ticket"].entryconfig(
+            _("Send message"), state="normal")
+        self.set_menu_active()
+        if "editable" in self.tree_data:
+            return
+        params = [("Action", "AgentTicketEmail")]
+        self.append_params(params, "menu_new_email", ("Session",))
+        url = urlunsplit(self.url_begin + (urlencode(params), ""))
+        pg = AnswerPage(self.app_widgets["core"])
+        inputs, error = pg.load(url)
+        if not inputs:
+            showerror(_("New email"), error)
+            return
+        self.fill_tree([
+                {'row': 'agent-email-external', 'Type': 'ext email',
+                 'Created': 'now', 'Subject': 'Subject',
+                 'article info': {'ArticleID': 'editable'},
+                 'No': '1', 'From': 'You', 'Direction': '1',
+                 'editable': True}])
+        cfg = dict(inputs)
+        txt = cfg.get("Body", "")
+        ca = {"editable": True, "article text": (), "inputs": inputs,
+              "snapshot": txt}
+        self.tree.insert("", "end", "editable", text=_("Edit"))
+        self.tree_data["editable"] = ca
+        self.enter_article("editable")
+        self.tree.focus("editable")
         self.echo('New email ticket')
 
     def menu_new_phone(self, evt=None):
