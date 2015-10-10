@@ -464,7 +464,7 @@ class Tickets(ttk.Frame):
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
         if not inputs:
-            showerror(_("Close"), error)
+            showerror(_("Forward"), error)
             return
         cfg = dict(inputs)
         txt = cfg.get("Body", "")
@@ -560,12 +560,10 @@ class Tickets(ttk.Frame):
         if not inputs:
             showerror(_("New email"), error)
             return
-        self.fill_tree([
-                {'row': 'agent-email-external', 'Type': 'ext email',
-                 'Created': 'now', 'Subject': 'Subject',
-                 'article info': {'ArticleID': 'editable'},
-                 'No': '1', 'From': 'You', 'Direction': '1',
-                 'editable': True}])
+        self.tree_data.clear()
+        for i in reversed(self.articles_range):
+            self.tree.delete(i)
+        self.articles_range = ["editable"]
         cfg = dict(inputs)
         txt = cfg.get("Body", "")
         ca = {"editable": True, "article text": (), "inputs": inputs,
