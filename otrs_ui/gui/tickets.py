@@ -429,6 +429,7 @@ class Tickets(ttk.Frame):
             return
         cfg = dict(inputs)
         cfg.pop("FileUpload")
+        cfg["Body"] = "OTRS_US dummy message"
         DlgMsgDetails(self, _("Close"), cfg=cfg, inputs=(
             ("Subject", _("Subject:")), ("Body", _("Message:")),
             ("TimeUnits", _("Time units:"))), selects=(
