@@ -140,8 +140,11 @@ class TicketsPage(Page):
             attr = getattr(parser, i)
             if attr:
                 res[i] = attr
+        for i in ("queues", "answers"):
+            if not res[i][1]:
+                del res[i]
         try:
-            anss = res["answers"]
+            anss = res["answers"][1]
             hl = len(anss) // 2
             if anss[hl][0] == anss[0][0]:
                 del anss[hl:]

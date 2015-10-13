@@ -19,7 +19,7 @@ from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
 from ..core.pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError)
-from .dialogs import AboutBox, DlgDropBox, DlgMsgDetails
+from .dialogs import AboutBox, DlgMsgDetails
 
 
 def autoscroll(sbar, first, last):
@@ -306,23 +306,13 @@ class Tickets(ttk.Frame):
         if not self.queues or \
            self.my_tab != self.app_widgets["notebook"].select():
             return
-        selections = []
-        for i in sorted(self.queues):
-            if i != "-":
-                selections.append(self.queues[i])
-        tv = StringVar()
-        tv.set(self.queues["-"])
-        cfg = {"values": selections,
-               "textvariable": tv, "state": "readonly"}
-        DlgDropBox(self, title=_("Change queue"), cfg=cfg)
+        cfg = {"queue": self.queues}
+        DlgMsgDetails(self, _("Change queue"), cfg=cfg, selects=(
+            ("queue", _("Queue:")),))
         if cfg["OK button"]:
-            rv = tv.get()
-            for i, v in self.queues.items():
-                if v == rv:
-                    break
             params = [
                 ("Action", "AgentTicketMove"), ("QueueID", ""),
-                ("DestQueueID", i)]
+                ("DestQueueID", cfg["queue"])]
             self.append_params(params, "menu_move", (
                 "TicketID", "ChallengeToken", "Session"))
             url = urlunsplit(self.url_begin + ("", ""))
@@ -338,19 +328,12 @@ class Tickets(ttk.Frame):
             return
         if "editable" in self.tree_data or not self.answers:
             return
-        selections = [i[1] for i in self.answers]
-        tv = StringVar()
-        cfg = {"values": selections,
-               "textvariable": tv, "state": "readonly"}
-        DlgDropBox(self, title=_("Answer type"), cfg=cfg)
+        cfg = {"type": self.answers}
+        DlgMsgDetails(self, _("Answer type"), cfg=cfg, selects=(
+            ("type", _("Answer type:")),))
         if cfg["OK button"]:
-            ans = tv.get()
-            for k, v in self.answers:
-                if v == ans:
-                    ans = k
-                    break
             params = [("Action", "AgentTicketCompose"),
-                      ("ReplyAll", ""), ("ResponseID", ans)]
+                      ("ReplyAll", ""), ("ResponseID", cfg["type"])]
             i = "ArticleID"
             self.actions_params[i] = self.cur_article["article info"][i]
             self.append_params(params, "menu_answer", (

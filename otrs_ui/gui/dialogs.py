@@ -192,20 +192,6 @@ class DlgSettings(Dialog):
         return None
 
 
-class DlgDropBox(Dialog):
-    def body(self, master, cfg={}):
-        "place user dialog widgets"
-        self.config = cfg
-        self.cb = Combobox(master, **cfg)
-        self.cb.pack()
-        self.config["OK button"] = False
-        return self.cb
-
-    def apply(self):
-        "On ok button pressed"
-        self.config["OK button"] = True
-
-
 class DlgMsgDetails(Dialog):
     def body(self, master, cfg={}, inputs=(), selects=()):
         """place user dialog widgets

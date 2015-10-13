@@ -36,8 +36,8 @@ class TicketsParser(BasicParser):
         self.mail_header = []
         self.action_hrefs = []
         self.art_act_hrefs = []
-        self.queues = {}
-        self.answers = []
+        self.queues = [None, []]
+        self.answers = [None, []]
         self.mail_src = None
 
     def stop_data_handling(self):
@@ -107,6 +107,11 @@ class TicketsParser(BasicParser):
                     pass
             return
         if tag == "option":
+            if "selected" in dattrs:
+                if "ActionRow" in div_cls:
+                    self.selected[0] = dattrs["value"]
+                if self.art_ctrl_cls in div_cls:
+                    self.answers[0] = dattrs["value"]
             self.opt_val = dattrs.get("value")
             self.data_handler = []
             return
@@ -159,8 +164,10 @@ class TicketsParser(BasicParser):
                 self.mail_header.append((self.label, title))
         if tag == "option":
             if "ActionRow" in div_cls:
-                self.queues[self.opt_val] = "".join(self.data_handler)
+                self.queues[1].append(
+                    (self.opt_val, "".join(self.data_handler)))
             if self.art_ctrl_cls in div_cls:
-                self.answers.append((self.opt_val, "".join(self.data_handler)))
+                self.answers[1].append(
+                    (self.opt_val, "".join(self.data_handler)))
             self.data_handler = None
             return
