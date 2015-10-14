@@ -152,12 +152,10 @@ class Tickets(ttk.Frame):
                                     page.get("art_act_hrefs", []))
         try:
             self.queues = page["queues"]
-            self.queues.pop("0")
         except KeyError:
             pass
         try:
             self.answers = page["answers"]
-            self.answers.pop(0)
         except (KeyError, IndexError):
             self.answers = None
         if "article text" in self.cur_article:
@@ -412,7 +410,6 @@ class Tickets(ttk.Frame):
             return
         cfg = dict(inputs)
         cfg.pop("FileUpload")
-        cfg["Body"] = "OTRS_US dummy message"
         DlgMsgDetails(self, _("Close"), cfg=cfg, inputs=(
             ("Subject", _("Subject:")), ("Body", _("Message:")),
             ("TimeUnits", _("Time units:"))), selects=(
@@ -420,6 +417,8 @@ class Tickets(ttk.Frame):
             ("NewStateID", _("Next state:")),
             ("DynamicField_TicketFreeText15", _("Requires review:"))))
         if cfg["OK button"]:
+            if not cfg["Body"]:
+                cfg["Body"] = "OTRS_US dummy message"
             pg = AnswerSender(self.app_widgets["core"])
             url = urlunsplit(self.url_begin + ("", ""))
             pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
