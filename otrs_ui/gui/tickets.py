@@ -392,6 +392,8 @@ class Tickets(ttk.Frame):
             ("NewOwnerID", _("Owner:")), ("OldOwnerID", _("Old owner:")),
             ("ArticleTypeID", _("Article type:"))))
         if cfg["OK button"] and cfg.get("NewOwnerID"):
+            if not cfg["Body"]:
+                cfg["Body"] = "Changed owner using OTRS_US"
             pg = AnswerSender(self.app_widgets["core"])
             url = urlunsplit(self.url_begin + ("", ""))
             pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
@@ -418,7 +420,7 @@ class Tickets(ttk.Frame):
             ("DynamicField_TicketFreeText15", _("Requires review:"))))
         if cfg["OK button"]:
             if not cfg["Body"]:
-                cfg["Body"] = "OTRS_US dummy message"
+                cfg["Body"] = "Closed using OTRS_US"
             pg = AnswerSender(self.app_widgets["core"])
             url = urlunsplit(self.url_begin + ("", ""))
             pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
