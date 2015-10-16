@@ -192,7 +192,7 @@ class DlgSettings(Dialog):
         return None
 
 
-class DlgMsgDetails(Dialog):
+class DlgDetails(Dialog):
     def body(self, master, cfg={}, inputs=(), selects=()):
         """place user dialog widgets
         inputs - aliases for input forms,
@@ -281,5 +281,5 @@ if __name__ == "__main__":
         ("Minute", ("x", (("c", "h"), ("x", "y")))),
         ("DynamicField_TicketFreeText15", ("x", (("c", "h"), ("x", "y"))))
     ))
-    DlgMsgDetails(root, title="about drop", cfg=cfg)
+    DlgDetails(root, title="about drop", cfg=cfg)
     print(cfg)

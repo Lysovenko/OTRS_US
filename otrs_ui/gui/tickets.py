@@ -19,7 +19,7 @@ from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
 from ..core.pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError)
-from .dialogs import AboutBox, DlgMsgDetails
+from .dialogs import AboutBox, DlgDetails
 
 
 def autoscroll(sbar, first, last):
@@ -305,7 +305,7 @@ class Tickets(ttk.Frame):
            self.my_tab != self.app_widgets["notebook"].select():
             return
         cfg = {"queue": self.queues}
-        DlgMsgDetails(self, _("Change queue"), cfg=cfg, selects=(
+        DlgDetails(self, _("Change queue"), cfg=cfg, selects=(
             ("queue", _("Queue:")),))
         if cfg["OK button"]:
             params = [
@@ -327,7 +327,7 @@ class Tickets(ttk.Frame):
         if "editable" in self.tree_data or not self.answers:
             return
         cfg = {"type": self.answers}
-        DlgMsgDetails(self, _("Answer type"), cfg=cfg, selects=(
+        DlgDetails(self, _("Answer type"), cfg=cfg, selects=(
             ("type", _("Answer type:")),))
         if cfg["OK button"]:
             params = [("Action", "AgentTicketCompose"),
@@ -361,7 +361,7 @@ class Tickets(ttk.Frame):
         inputs, error = pg.load(url)
         cfg = dict(inputs)
         cfg.pop("FileUpload")
-        DlgMsgDetails(self, _("Note"), cfg=cfg, inputs=(
+        DlgDetails(self, _("Note"), cfg=cfg, inputs=(
             ("Subject", _("Subject:")), ("Body", _("Message:")),
             ("TimeUnits", _("Time units:"))), selects=(
             ("ArticleTypeID", _("Type of note:")),
@@ -387,7 +387,7 @@ class Tickets(ttk.Frame):
         cfg = dict(inputs)
         cfg.pop("FileUpload")
         cfg["NewOwnerType"] = "New"
-        DlgMsgDetails(self, _("Owner"), cfg=cfg, inputs=(
+        DlgDetails(self, _("Owner"), cfg=cfg, inputs=(
             ("Subject", _("Subject:")), ("Body", _("Comment:"))),  selects=(
             ("NewOwnerID", _("Owner:")), ("OldOwnerID", _("Old owner:")),
             ("ArticleTypeID", _("Article type:"))))
@@ -412,7 +412,7 @@ class Tickets(ttk.Frame):
             return
         cfg = dict(inputs)
         cfg.pop("FileUpload")
-        DlgMsgDetails(self, _("Close"), cfg=cfg, inputs=(
+        DlgDetails(self, _("Close"), cfg=cfg, inputs=(
             ("Subject", _("Subject:")), ("Body", _("Message:")),
             ("TimeUnits", _("Time units:"))), selects=(
             ("ArticleTypeID", _("Type of note:")),
@@ -475,7 +475,7 @@ class Tickets(ttk.Frame):
         cfg = dict(inputs)
         cfg.pop("FileUpload")
         cfg["CustomerTicketCounterToCustomer"] = "1"
-        DlgMsgDetails(self, _("Send"), cfg=cfg, inputs=(
+        DlgDetails(self, _("Send"), cfg=cfg, inputs=(
             ("ToCustomer", _("To:")), ("CcCustomer", _("Copy:")),
             ("BccCustomer", _("Hidden copy:")), ("To", _("To:")),
             ("Cc", _("Copy:")), ("Bcc", _("Hidden copy:")),
