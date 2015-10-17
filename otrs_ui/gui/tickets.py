@@ -393,7 +393,7 @@ class Tickets(ttk.Frame):
             ("ArticleTypeID", _("Article type:"))))
         if cfg["OK button"] and cfg.get("NewOwnerID"):
             if not cfg["Body"]:
-                cfg["Body"] = "Changed owner using OTRS_US"
+                cfg["Body"] = "Owner was changed using OTRS_US"
             pg = AnswerSender(self.app_widgets["core"])
             url = urlunsplit(self.url_begin + ("", ""))
             pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
@@ -561,3 +561,6 @@ class Tickets(ttk.Frame):
 
     def menu_new_phone(self, evt=None):
         self.echo('New phone ticket')
+
+    def menu_ticket_merge(self, evt=None):
+        print('AgentTicketMerge')

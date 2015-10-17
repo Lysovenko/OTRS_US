@@ -18,6 +18,7 @@ from time import strftime
 from urllib.parse import urlparse, parse_qsl, urlencode
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
+from http.client import BadStatusLine
 from gzip import decompress
 from .parse.dashboard import DashboardParser
 from .parse.tickets import TicketsParser
@@ -79,7 +80,10 @@ class Page:
                 [("Action", "Login"), ("RequestedURL", req), ("Lang", "en"),
                  ("TimeOffset", ""), ("User", user), ("Password", passwd),
                  ("login", "Login")]).encode())
-        pg = urlopen(r)
+        try:
+            pg = urlopen(r)
+        except BadStatusLine:
+            raise LoginError("BadStatusLine")
         url = pg.geturl()
         qpl = parse_qsl(urlparse(url).query)
         dpl = dict(qpl)
