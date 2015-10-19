@@ -361,7 +361,7 @@ class Tickets(ttk.Frame):
         inputs, error = pg.load(url)
         cfg = dict(inputs)
         cfg.pop("FileUpload")
-        DlgDetails(self, _("Note"), cfg=cfg, inputs=(
+        DlgDetails(self, _("Note"), cfg=cfg, focus_on="Body", inputs=(
             ("Subject", _("Subject:")), ("Body", _("Message:")),
             ("TimeUnits", _("Time units:"))), selects=(
             ("ArticleTypeID", _("Type of note:")),
@@ -387,8 +387,8 @@ class Tickets(ttk.Frame):
         cfg = dict(inputs)
         cfg.pop("FileUpload")
         cfg["NewOwnerType"] = "New"
-        DlgDetails(self, _("Owner"), cfg=cfg, inputs=(
-            ("Subject", _("Subject:")), ("Body", _("Comment:"))),  selects=(
+        DlgDetails(self, _("Owner"), cfg=cfg, focus_on="NewOwnerID", inputs=(
+            ("Subject", _("Subject:")), ("Body", _("Comment:"))), selects=(
             ("NewOwnerID", _("Owner:")), ("OldOwnerID", _("Old owner:")),
             ("ArticleTypeID", _("Article type:"))))
         if cfg["OK button"] and cfg.get("NewOwnerID"):
@@ -412,7 +412,7 @@ class Tickets(ttk.Frame):
             return
         cfg = dict(inputs)
         cfg.pop("FileUpload")
-        DlgDetails(self, _("Close"), cfg=cfg, inputs=(
+        DlgDetails(self, _("Close"), cfg=cfg, focus_on="Body", inputs=(
             ("Subject", _("Subject:")), ("Body", _("Message:")),
             ("TimeUnits", _("Time units:"))), selects=(
             ("ArticleTypeID", _("Type of note:")),

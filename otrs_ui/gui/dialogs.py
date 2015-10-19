@@ -193,7 +193,7 @@ class DlgSettings(Dialog):
 
 
 class DlgDetails(Dialog):
-    def body(self, master, cfg={}, inputs=(), selects=()):
+    def body(self, master, cfg={}, inputs=(), selects=(), focus_on=None):
         """place user dialog widgets
         inputs - aliases for input forms,
         selects - aliasses for dropbox names"""
@@ -225,6 +225,12 @@ class DlgDetails(Dialog):
             cb.grid(column=1, row=pos, sticky="e")
             cb.current(itms.index(sel) if sel else 0)
             Label(master, text=lab).grid(column=0, row=pos, sticky="w")
+        if focus_on:
+            return entries.get(focus_on, combos_get(focus_on))
+        elif inputs:
+            return entries[inputs[0][0]]
+        elif selects:
+            return combos[selects[0][0]]
 
     def apply(self):
         cfg = self.config
