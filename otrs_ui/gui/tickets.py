@@ -523,7 +523,7 @@ class Tickets(ttk.Frame):
                 params.append((i, self.actions_params[i]))
             except KeyError as err:
                 self.echo("In %s KeyError: %s" % (where, err))
-        url = urlunsplit(self.url_begin + (urlencode(params), ""))
+        return urlunsplit(self.url_begin + (urlencode(params), ""))
 
     def menu_new_email(self, evt=None):
         self.my_url = None

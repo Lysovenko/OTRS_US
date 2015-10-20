@@ -226,7 +226,7 @@ class DlgDetails(Dialog):
             cb.current(itms.index(sel) if sel else 0)
             Label(master, text=lab).grid(column=0, row=pos, sticky="w")
         if focus_on:
-            return entries.get(focus_on, combos_get(focus_on))
+            return entries.get(focus_on, combos.get(focus_on))
         elif inputs:
             return entries[inputs[0][0]]
         elif selects:
