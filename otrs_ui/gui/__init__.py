@@ -99,6 +99,8 @@ class Face:
                 accelerator="Ctrl+R")
         add_cmd(label=_("Send message"), command=tcts.menu_send,
                 accelerator="Ctrl+S")
+        add_cmd(label=_("Merge to ticket"), command=tcts.menu_ticket_merge,
+                accelerator="Ctrl+J")
 
     def on_delete(self):
         self.config["geometry"] = self.root.geometry()

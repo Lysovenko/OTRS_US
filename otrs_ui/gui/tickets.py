@@ -83,7 +83,7 @@ class Tickets(ttk.Frame):
                 ("s", self.menu_send), ("t", self.menu_note),
                 ("e", self.menu_close), ("w", self.menu_forward),
                 ("o", self.menu_owner), ("n", self.menu_new_email),
-                ("h", self.menu_new_phone)):
+                ("h", self.menu_new_phone), ("j", self.menu_ticket_merge)):
             frame.bind_all("<Control-%s>" % k, f)
         return frame
 
