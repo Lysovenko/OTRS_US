@@ -563,3 +563,17 @@ class Tickets(ttk.Frame):
         url = self.extract_url(params, "ticket_merge", ("TicketID", "Session"))
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
+        cfg = dict(inputs)
+        DlgDetails(self, _("Note"), cfg=cfg, inputs=(
+            ("MainTicketNumber", _("Ticket number:")),
+            ("InformSender", _("Inform user")), ("To", _("To:")),
+            ("Subject", _("Subject:")), ("Body", _("Message:"))), selects=(
+            ("ArticleTypeID", _("Type of note:")),
+            ("NewStateID", _("Next state:")), ("Month", _("Month:")),
+            ("Day", _("Day:")), ("Year", _("Year:")),
+            ("Hour", _("Hour:")), ("Minute", _("Minute:"))))
+        if cfg["OK button"]:
+            pg = AnswerSender(self.app_widgets["core"])
+            url = urlunsplit(self.url_begin + ("", ""))
+            pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
+            self.menu_reload()
