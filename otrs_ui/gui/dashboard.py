@@ -21,6 +21,7 @@ from tkinter import ttk, PhotoImage
 from tkinter.messagebox import showerror
 from .tickets import autoscroll
 from ..core.pgload import DashboardPage, LoginError
+from ..core.dash_upd import DashboardUpdater
 from .dialogs import DlgLogin
 
 
@@ -43,6 +44,7 @@ class Dashboard(ttk.Frame):
         self.urlbegin = ("", "")
         self.important = PhotoImage(
             file=join(dirname(__file__), "important.gif"))
+        self.updater = DashboardUpdater(appw["core"])
 
     def make_tree(self, name):
         frame = ttk.Frame(self.pw, takefocus=False)
@@ -67,6 +69,23 @@ class Dashboard(ttk.Frame):
         core = self.app_widgets["core"]
         core_cfg = core.call("core cfg")
         runt_cfg = core.call("runtime cfg")
+        status = self.updater.get_status()
+        if status == "Wait":
+            self.root.after(1000, self.update)
+            return
+        if status == "Ready":
+            self.updater.start_loader(runt_cfg.get("site", ""))
+            self.root.after(1000, self.update)
+            return
+        if status == "LoginError":
+            self.login()
+            self.updater.start_loader()
+            self.root.after(1000, self.update)
+            return
+        if status == "Complete":
+            self.fill_trees(self.updater.get_result())
+        if status == "URLError":
+            self.on_url_error(self.updater.get_result())
         pg = DashboardPage(core)
         show_dlg = False
         while True:
