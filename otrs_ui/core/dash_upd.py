@@ -81,4 +81,5 @@ class DashboardUpdater:
             self.__result = err
             self.__set_status("URLError")
             return
+        self.__site = self.__who.get("site", "")
         self.__loader()

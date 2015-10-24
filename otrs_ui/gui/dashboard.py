@@ -20,7 +20,6 @@ from urllib.error import URLError
 from tkinter import ttk, PhotoImage
 from tkinter.messagebox import showerror
 from .tickets import autoscroll
-from ..core.pgload import DashboardPage, LoginError
 from ..core.dash_upd import DashboardUpdater
 from .dialogs import DlgLogin
 
