@@ -21,7 +21,7 @@ from .pgload import DashboardPage, LoginError
 class DashboardUpdater:
     def __init__(self, core):
         self.__st_lock = Lock()
-        self.__status = "*Ready"
+        self.__status = "Ready"
         self.__result = None
         self.__page = DashboardPage(core)
 
@@ -64,5 +64,21 @@ class DashboardUpdater:
             self.__status = "Ready"
             return self.__result
 
-    def login(self, cfg):
-        self.__page.login(cfg)
+    def login(self, who):
+        self.__who = who
+        self.__status = "Wait"
+        t = Thread(target=self.__login)
+        t.daemon = True
+        t.start()
+
+    def __login(self):
+        try:
+            self.__page.login(self.__who)
+        except LoginError:
+            self.__set_status("LoginError")
+            return
+        except URLError as err:
+            self.__result = err
+            self.__set_status("URLError")
+            return
+        self.__loader()

@@ -45,6 +45,7 @@ class Dashboard(ttk.Frame):
         self.important = PhotoImage(
             file=join(dirname(__file__), "important.gif"))
         self.updater = DashboardUpdater(appw["core"])
+        self.login_escaped = False
 
     def make_tree(self, name):
         frame = ttk.Frame(self.pw, takefocus=False)
@@ -77,34 +78,14 @@ class Dashboard(ttk.Frame):
             self.updater.start_loader(runt_cfg.get("site", ""))
             self.root.after(1000, self.update)
             return
-        if status == "LoginError":
+        if status == "LoginError" and not self.login_escaped:
             self.login()
-            self.updater.start_loader()
             self.root.after(1000, self.update)
             return
         if status == "Complete":
             self.fill_trees(self.updater.get_result())
         if status == "URLError":
             self.on_url_error(self.updater.get_result())
-        pg = DashboardPage(core)
-        show_dlg = False
-        while True:
-            try:
-                pgl = pg.load(runt_cfg.get("site", ""))
-                self.fill_trees(pgl)
-                break
-            except LoginError:
-                if self.login(pg, show_dlg):
-                    show_dlg = True
-                    continue
-                break
-            except ConnectionError:
-                if self.login(pg, False):
-                    continue
-                break
-            except URLError as err:
-                self.on_url_error(err)
-                break
         refresh = core_cfg.get("refresh_time", 0)
         if refresh > 10000:
             self.root.after(refresh, self.update)
@@ -178,7 +159,7 @@ class Dashboard(ttk.Frame):
                 urlunsplit(
                     self.urlbegin + urlsplit(self.tree_data[iid][0])[2:]))
 
-    def login(self, page, dialog=True):
+    def login(self, dialog=False):
         core = self.app_widgets["core"]
         core_cfg = core.call("core cfg")
         runt_cfg = core.call("runtime cfg")
@@ -202,17 +183,10 @@ class Dashboard(ttk.Frame):
             if cfg["remember_passwd"]:
                 for i in ("site", "user", "password"):
                     core_cfg[i] = cfg[i]
-            try:
-                self.echo("Login in Dashboard.login")
-                page.login(cfg)
-            except LoginError:
-                if dialog:
-                    showerror(_("Error"), _("Login attempt failed"))
-            except URLError as err:
-                self.on_url_error(err)
-                return False
-            return True
-        return False
+            self.echo("Login in Dashboard.login")
+            self.updater.login(cfg)
+        else:
+            self.login_escaped = True
 
     def on_url_error(self, error):
         message = "%s: %s" % (strftime("%H:%M:%S"),
