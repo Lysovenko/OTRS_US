@@ -227,10 +227,12 @@ class DlgDetails(Dialog):
             Label(master, text=lab).grid(column=0, row=pos, sticky="w")
         if focus_on:
             return entries.get(focus_on, combos.get(focus_on))
-        elif inputs:
-            return entries[inputs[0][0]]
-        elif selects:
-            return combos[selects[0][0]]
+        for i in inputs:
+            if i[0] in entries:
+                return entries[i[0]]
+        for i in selects:
+            if i[0] in combos:
+                return combos[i[0]]
 
     def apply(self):
         cfg = self.config
