@@ -38,7 +38,7 @@ class DashboardUpdater:
 
     def start_loader(self, site):
         self.__site = site
-        self.__status = "Wait"
+        self.__set_status("Wait")
         t = Thread(target=self.__loader)
         t.daemon = True
         t.start()
@@ -61,7 +61,7 @@ class DashboardUpdater:
 
     def get_result(self):
         if self.get_status() in ("Complete", "URLError"):
-            self.__status = "Ready"
+            self.__set_status = "Ready"
             return self.__result
 
     def login(self, who):
