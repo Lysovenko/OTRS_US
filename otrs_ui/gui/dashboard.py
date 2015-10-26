@@ -83,7 +83,7 @@ class Dashboard(ttk.Frame):
             return
         if status == "Complete":
             self.fill_trees(self.updater.get_result())
-        if status == "URLError":
+        if status in  ("URLError", "Empty"):
             self.on_url_error(self.updater.get_result())
         refresh = core_cfg.get("refresh_time", 0)
         if refresh > 10000:

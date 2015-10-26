@@ -61,7 +61,7 @@ class DashboardUpdater:
             self.__set_status("Complete")
 
     def get_result(self):
-        if self.get_status() in ("Complete", "URLError"):
+        if self.get_status() != "Wait":
             self.__set_status("Ready")
             result = self.__result
             self.__result = None
@@ -69,7 +69,7 @@ class DashboardUpdater:
 
     def login(self, who):
         self.__who = who
-        self.__status = "Wait"
+        self.__set_status("Wait")
         t = Thread(target=self.__login)
         t.daemon = True
         t.start()

@@ -495,7 +495,7 @@ class Tickets(ttk.Frame):
                 showerror(_("Error"), _("Receiver was not found"))
                 return
             if '<' in email:
-                email = email[email.find("<")+1:email.find(">")]
+                email = email[email.find("<") + 1:email.find(">")]
             pos = 0
             for i in range(len(form)):
                 if form[i][0] == "CustomerTicketText":

@@ -271,23 +271,3 @@ class AboutBox(Toplevel):
         if self.had_focus is not None:
             self.had_focus.focus_set()
         Toplevel.destroy(self)
-
-
-if __name__ == "__main__":
-    from tkinter import Tk, Button
-    _ = str
-    root = Tk()
-    cfg = dict((
-        ("ToCustomer", "To"), ("CcCustomer", "Copy"),
-        ("BccCustomer", "Hidden copy"), ("Subject", "Subject"),
-        ("TimeUnits", "Time units"),
-        ("StateID", ("x", (("c", "h"), ("x", "y")))),
-        ("Month", ("x", (("c", "h"), ("x", "y")))),
-        ("Day", ("x", (("c", "h"), ("x", "y")))),
-        ("Year", ("x", (("c", "h"), ("x", "y")))),
-        ("Hour", ("x", (("c", "h"), ("x", "y")))),
-        ("Minute", ("x", (("c", "h"), ("x", "y")))),
-        ("DynamicField_TicketFreeText15", ("x", (("c", "h"), ("x", "y"))))
-    ))
-    DlgDetails(root, title="about drop", cfg=cfg)
-    print(cfg)
