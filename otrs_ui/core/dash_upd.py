@@ -76,7 +76,7 @@ class DashboardUpdater:
 
     def __login(self):
         try:
-            self.__page.login(self.__who)
+            pgl = self.__page.login(self.__who)
         except LoginError:
             self.__set_status("LoginError")
             return
@@ -85,4 +85,8 @@ class DashboardUpdater:
             self.__set_status("URLError")
             return
         self.__site = self.__who.get("site", "")
-        self.__loader()
+        self.__result = pgl
+        if pgl is None:
+            self.__set_status("Empty")
+        else:
+            self.__set_status("Complete")

@@ -90,6 +90,11 @@ class Page:
         if "Session" not in dpl:
             raise LoginError()
         self.runt_cfg["Session"] = dpl["Session"]
+        pd = pg.read()
+        if pg.getheader("Content-Encoding") == "gzip":
+            pd = decompress(pd)
+        self.dump_data(pg, pd)
+        return self.parse(pd)
 
     def check_login(self, pd):
         for i in pd.splitlines():
