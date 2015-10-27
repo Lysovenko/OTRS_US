@@ -45,6 +45,7 @@ class Dashboard(ttk.Frame):
             file=join(dirname(__file__), "important.gif"))
         self.updater = DashboardUpdater(appw["core"])
         self.login_escaped = False
+        self.login_failed = 0
 
     def make_tree(self, name):
         frame = ttk.Frame(self.pw, takefocus=False)
@@ -80,10 +81,12 @@ class Dashboard(ttk.Frame):
         if status == "LoginError" and not self.login_escaped:
             self.login()
             self.root.after(1000, self.update)
+            self.login_failed += 1
             return
         if status == "Complete":
             self.fill_trees(self.updater.get_result())
-        if status in  ("URLError", "Empty"):
+            self.login_failed = 0
+        if status in ("URLError", "Empty"):
             self.on_url_error(self.updater.get_result())
         refresh = core_cfg.get("refresh_time", 0)
         if refresh > 10000:
@@ -163,6 +166,8 @@ class Dashboard(ttk.Frame):
         core_cfg = core.call("core cfg")
         runt_cfg = core.call("runtime cfg")
         cfg = {}
+        if 2 > self.login_failed:
+            dialog = True
         for i in ("site", "user", "password"):
             cfg[i] = runt_cfg.get(i, core_cfg.get(i))
         if None in cfg.values():
