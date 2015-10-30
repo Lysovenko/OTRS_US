@@ -166,7 +166,7 @@ class Dashboard(ttk.Frame):
         core_cfg = core.call("core cfg")
         runt_cfg = core.call("runtime cfg")
         cfg = {}
-        if 2 > self.login_failed:
+        if 2 < self.login_failed:
             dialog = True
         for i in ("site", "user", "password"):
             cfg[i] = runt_cfg.get(i, core_cfg.get(i))
