@@ -121,14 +121,12 @@ class Tickets(ttk.Frame):
                 self.fill_tree(lres["articles"])
                 break
             except LoginError:
-                if self.app_widgets["dashboard"].login(pg):
-                    continue
-                lres = None
+                lres = pg.login(self.runt_cfg)
                 break
             except ConnectionError:
                 try:
                     self.echo("Login in Tickets.load_ticket")
-                    pg.login(self.runt_cfg)
+                    lres = pg.login(self.runt_cfg)
                 except (LoginError, KeyError):
                     self.go_dasboard(None)
                     lres = None
