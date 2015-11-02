@@ -364,10 +364,7 @@ class Tickets(ttk.Frame):
             ("Day", _("Day:")), ("Year", _("Year:")),
             ("Hour", _("Hour:")), ("Minute", _("Minute:"))))
         if cfg["OK button"]:
-            pg = AnswerSender(self.app_widgets["core"])
-            url = urlunsplit(self.url_begin + ("", ""))
-            pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
-            self.menu_reload()
+            self.send_multiprat(cfg, inputs)
 
     def menu_owner(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
@@ -388,10 +385,7 @@ class Tickets(ttk.Frame):
         if cfg["OK button"] and cfg.get("NewOwnerID"):
             if not cfg["Body"]:
                 cfg["Body"] = "Owner was changed using OTRS_US"
-            pg = AnswerSender(self.app_widgets["core"])
-            url = urlunsplit(self.url_begin + ("", ""))
-            pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
-            self.menu_reload()
+            self.send_multiprat(cfg, inputs)
 
     def menu_close(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
@@ -414,10 +408,7 @@ class Tickets(ttk.Frame):
         if cfg["OK button"]:
             if not cfg["Body"]:
                 cfg["Body"] = "Closed using OTRS_US"
-            pg = AnswerSender(self.app_widgets["core"])
-            url = urlunsplit(self.url_begin + ("", ""))
-            pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
-            self.menu_reload()
+            self.send_multiprat(cfg, inputs)
 
     def menu_info(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
@@ -571,7 +562,10 @@ class Tickets(ttk.Frame):
             ("Day", _("Day:")), ("Year", _("Year:")),
             ("Hour", _("Hour:")), ("Minute", _("Minute:"))))
         if cfg["OK button"]:
-            pg = AnswerSender(self.app_widgets["core"])
-            url = urlunsplit(self.url_begin + ("", ""))
-            pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
-            self.menu_reload()
+            self.send_multiprat(cfg, inputs)
+
+    def send_multiprat(self, cfg, inputs):
+        pg = AnswerSender(self.app_widgets["core"])
+        url = urlunsplit(self.url_begin + ("", ""))
+        pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
+        self.menu_reload()
