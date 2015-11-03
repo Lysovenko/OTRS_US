@@ -23,6 +23,7 @@ class MessageParser(BasicParser):
         self.data_handler = []
         self.curtags = []
         self.preformatted = 0
+        self.div_level = 0
 
     def handle_starttag(self, tag, attrs):
         if tag == "body":
@@ -42,7 +43,8 @@ class MessageParser(BasicParser):
             self.message_text.append(("\n",))
             return
         if tag == "div":
-            self.message_text.append(("\n<div>\n",))
+            self.div_level += 1
+            self.message_text.append(("\n<div> == %d ==\n" % self.div_level,))
             return
         if tag == "img":
             self.message_text.append(("\n<img>\n", ("h1",)))
@@ -56,7 +58,8 @@ class MessageParser(BasicParser):
         if self.curtags and tag == self.curtags[-1]:
             self.curtags.pop(-1)
         if tag == "div":
-            self.message_text.append(("\n</div>\n",))
+            self.message_text.append(("\n</div> == %d ==\n" % self.div_level,))
+            self.div_level -= 1
             return
         if tag == "pre":
             self.preformatted -= 1
