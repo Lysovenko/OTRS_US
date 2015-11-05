@@ -81,7 +81,7 @@ class TicketsParser(BasicParser):
             if cls == "ArticleBody":
                 self.data_handler = self.message_text
             return
-        if tag == "h2" and "WidgetSimple" in div_cls:
+        if tag == "title" or (tag == "h2" and "WidgetSimple" in div_cls):
             self.data_handler = []
             return
         if tag == "label":
@@ -144,7 +144,7 @@ class TicketsParser(BasicParser):
                     except KeyError:
                         pass
             return
-        if tag == "h2" and "WidgetSimple" in div_cls:
+        if tag == "title" or (tag == "h2" and "WidgetSimple" in div_cls):
             self.info.append("".join(self.data_handler))
             self.data_handler = None
             return
