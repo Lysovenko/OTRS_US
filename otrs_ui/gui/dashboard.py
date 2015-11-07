@@ -71,6 +71,7 @@ class Dashboard(ttk.Frame):
         core_cfg = core.call("core cfg")
         runt_cfg = core.call("runtime cfg")
         status = self.updater.get_status()
+        self.echo("\033[0,7m%s\033[0m>>> %s" % (strftime("%H:%M:%S"), status))
         if status == "Wait":
             self.root.after(1000, self.update)
             return
