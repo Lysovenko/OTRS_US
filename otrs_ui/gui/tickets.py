@@ -496,7 +496,11 @@ class Tickets(ttk.Frame):
                     ("CustomerQueue_1", email),
                     ("CustomerTicketText_1", email))):
                 form.insert(pos, i)
-            pg.send(url, form)
+            try:
+                pg.send(url, form)
+            except LoginError:
+                showerror(_("Send"), _("The ticket was logged off"))
+                return
             self.app_widgets["menu_ticket"].entryconfig(
                 _("Send message"), state="disabled")
             self.tree.delete("editable")
