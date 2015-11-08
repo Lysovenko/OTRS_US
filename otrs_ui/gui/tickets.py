@@ -17,6 +17,7 @@ from tkinter import ttk, Text, StringVar
 from tkinter.messagebox import showerror, showinfo
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
+from ..core import version
 from ..core.pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError)
 from .dialogs import AboutBox, DlgDetails
@@ -384,7 +385,7 @@ class Tickets(ttk.Frame):
             ("ArticleTypeID", _("Article type:"))))
         if cfg["OK button"] and cfg.get("NewOwnerID"):
             if not cfg["Body"]:
-                cfg["Body"] = "Owner was changed using OTRS_US"
+                cfg["Body"] = "Owner was changed using OTRS_US %s" % version
             self.send_multiprat(cfg, inputs)
 
     def menu_close(self, evt=None):
@@ -407,7 +408,7 @@ class Tickets(ttk.Frame):
             ("DynamicField_TicketFreeText15", _("Requires review:"))))
         if cfg["OK button"]:
             if not cfg["Body"]:
-                cfg["Body"] = "Closed using OTRS_US"
+                cfg["Body"] = "Closed using OTRS_US %s" % version
             self.send_multiprat(cfg, inputs)
 
     def menu_info(self, evt=None):

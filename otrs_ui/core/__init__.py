@@ -14,6 +14,7 @@
 # limitations under the License.
 "interactor"
 from .settings import Config
+version = '0.5'
 
 
 class Interactor(dict):
