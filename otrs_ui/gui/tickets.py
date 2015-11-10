@@ -119,6 +119,8 @@ class Tickets(ttk.Frame):
         while True:
             try:
                 lres = pg.load(url)
+                if lres is None:
+                    raise ConnectionError()
                 self.fill_tree(lres["articles"])
                 break
             except LoginError:
