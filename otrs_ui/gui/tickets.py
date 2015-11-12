@@ -560,7 +560,7 @@ class Tickets(ttk.Frame):
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
         cfg = dict(inputs)
-        DlgDetails(self, _("Note"), cfg=cfg, inputs=(
+        DlgDetails(self, _("Merge"), cfg=cfg, inputs=(
             ("MainTicketNumber", _("Ticket number:")),
             ("InformSender", _("Inform user")), ("To", _("To:")),
             ("Subject", _("Subject:")), ("Body", _("Message:"))), selects=(
