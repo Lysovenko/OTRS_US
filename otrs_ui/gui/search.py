@@ -12,3 +12,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 "Making the Search widget"
+
+from tkinter import ttk, Text, StringVar
+from os.path import isdir, join, dirname
+from .tickets import autoscroll
+
+
+class Search(ttk.Frame):
+    def __init__(self, parent, appw):
+        ttk.Frame.__init__(self, parent)
+        self.app_widgets = appw
+        self.echo = appw["core"].echo
+        self.runt_cfg = appw["core"].call("runtime cfg")
+        self.tree_data = {}
+        self.add_control()
+
+    def add_control(self, self):
+        self.control = ttk.Frame(self)
+        self.control.grid_columnconfigure(1, weight=1)
+        self.control.grid(column=0, row=0, columnspan=2, sticky="ew")
+        self.btn = ttk.Button(self.control, command=self.search,
+                              text=_("Search"), width=8)
+        self.btn.grid(column=0, row=0, sticky="w")
+        self.entry = ttk.Entry(self.control, width=60)
+        self.entry.grid(column=1, row=0, sticky="ew", padx=3)
+        self.entry.bind("<KeyPress-Return>", self.search)
+
+    def make_tree(self):
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        self.tree = tree = ttk.Treeview(self, selectmode="extended")
+        tree.grid(column=0, row=0, sticky="nwes")
+        vsb = ttk.Scrollbar(self, command=tree.yview, orient="vertical")
+        vsb.grid(column=1, row=0, sticky="ns")
+        tree["yscrollcommand"] = lambda f, l: autoscroll(vsb, f, l)
+        hsb = ttk.Scrollbar(
+            self, command=tree.xview, orient="horizontal")
+        hsb.grid(column=0, row=1, sticky="ew")
+        tree["xscrollcommand"] = lambda f, l: autoscroll(hsb, f, l)
+        tree.tag_bind("page", "<Return>", self.enter_page)
+        tree.tag_bind("page", "<Double-Button-1>", self.enter_page)
+        tree.tag_bind("page", "<Delete>", self.del_page)
+        tree.tag_bind("page", "<Insert>", self.remember_pg)
+        tree.tag_bind("file", "<Return>", self.enter_file)
+        tree.tag_bind("file", "<Double-Button-1>", self.enter_file)
+        tree.tag_configure("page", background="gray")
+        tree.tag_configure("file", foreground="blue", font="Monospace 12")
+        tree.tag_configure("bmk", foreground="red")
+        tree.tag_configure("folder", font="Times 14 bold")
