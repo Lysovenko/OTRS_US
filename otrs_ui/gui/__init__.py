@@ -22,6 +22,7 @@ from ..core.settings import Config
 from ..core import get_core
 from .tickets import Tickets
 from .dashboard import Dashboard
+from .search import Search
 from .dialogs import DlgSettings
 
 
@@ -46,6 +47,8 @@ class Face:
         appw["tickets"] = Tickets(ntbk, appw)
         ntbk.add(appw["tickets"], text=_("Ticket"))
         ntbk.hide(appw["tickets"])
+        appw["search"] = Search(ntbk, appw)
+        ntbk.add(appw["search"], text=_("Search"))
         self.status = StringVar()
         st_lab = ttk.Label(root, textvariable=self.status)
         core.register("print_status", self.status.set)
