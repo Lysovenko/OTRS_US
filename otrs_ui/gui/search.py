@@ -54,8 +54,11 @@ class Search(ttk.Frame):
         tree.tag_bind("page", "<Return>", self.enter_ticket)
         tree.tag_bind("page", "<Double-Button-1>", self.enter_ticket)
 
-    def search(self):
-        pass
+    def search(self, evt=None):
+        sexpr = self.entry.get()
+        if not sexpr:
+            return
+        self.echo("Serch: %s" % sexpr)
 
     def enter_ticket(self, evt=None):
         pass
