@@ -71,19 +71,17 @@ class Face:
         menubar.add_cascade(menu=medit, label=_("Edit"))
         menubar.add_cascade(
             menu=mticket, label=_("Ticket"), state="disabled")
-        mfile.add_command(label=_("Quit"), command=self.on_delete,
-                          accelerator="Ctrl+Q", underline=1)
-        self.root.bind_all("<Control-q>", lambda x: self.on_delete())
         medit.add_command(label=_("Settings"), command=self.ask_settings)
         self.app_widgets["menubar"] = menubar
         self.app_widgets["menu_ticket"] = mticket
         tcts = self.app_widgets["tickets"]
-        mfile.insert_command(
-            1, label=_("New email ticket"), command=tcts.menu_new_email,
-            accelerator="Ctrl+N")
-        mfile.insert_command(
-            2, label=_("New phone ticket"), command=tcts.menu_new_phone,
-            accelerator="Ctrl+H", underline=1)
+        for lab, cmd, acc, ul in (
+                (_("New email ticket"), tcts.menu_new_email, "Ctrl+N", 0),
+                (_("New phone ticket"), tcts.menu_new_phone, "Ctrl+H", 1),
+                (_("Quit"), self.on_delete, "Ctrl+Q", 0)):
+            mfile.add_command(label=lab, command=cmd,
+                              accelerator=acc, underline=ul)
+        self.root.bind_all("<Control-q>", lambda x: self.on_delete())
         add_cmd = mticket.add_command
         add_cmd(label=_("Lock"), command=tcts.menu_lock, accelerator="Ctrl+L")
         add_cmd(label=_("Move"), command=tcts.menu_move, accelerator="Ctrl+M")
