@@ -17,6 +17,7 @@ from tkinter import ttk, Text, StringVar
 from tkinter.messagebox import showerror, showinfo
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
+import re
 from ..core import version
 from ..core.pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError)
@@ -452,6 +453,17 @@ class Tickets(ttk.Frame):
             return
         if self.my_url:
             self.load_ticket(self.my_url)
+
+    def menu_goto_url(self, evt=None):
+        cfg = {"url": ""}
+        DlgDetails(self, _("Go to ticket"),
+                   cfg=cfg, inputs=(("url", _("URL:")),))
+        if cfg["OK button"]:
+            url = cfg["url"]
+            if self.my_url is not None:
+                m = re.search(r"TicketID=(\d+)", url)
+                url = re.sub(r"TicketID=(\d+)", m.group(0), self.my_url)
+            self.load_ticket(url)
 
     def menu_send(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select() or \

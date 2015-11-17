@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 "Making the Dashboard widget"
+
 from os import system
 from os.path import dirname, join
 from time import strftime
