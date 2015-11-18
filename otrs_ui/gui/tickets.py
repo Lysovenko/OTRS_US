@@ -13,7 +13,7 @@
 # limitations under the License.
 "Making the Tickets widget"
 
-from tkinter import ttk, Text, StringVar
+from tkinter import ttk, StringVar
 from tkinter.messagebox import showerror, showinfo
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
@@ -22,6 +22,7 @@ from ..core import version
 from ..core.pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError)
 from .dialogs import AboutBox, DlgDetails
+from .ttext import TicText
 
 
 def autoscroll(sbar, first, last):
@@ -99,15 +100,13 @@ class Tickets(ttk.Frame):
         frame = ttk.Frame(self.pw)
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_rowconfigure(0, weight=1)
-        text = Text(frame, state="disabled", wrap="word",
-                    font="Times 14", takefocus=True)
+        text = TicText(frame, state="disabled")
         self.text = text
         text.grid(column=0, row=0, sticky="nwes")
         vsb = ttk.Scrollbar(frame, command=self.text.yview, orient="vertical")
         vsb.grid(column=1, row=0, sticky="ns")
         text["yscrollcommand"] = lambda f, l: autoscroll(vsb, f, l)
         self.text_curinfo = None
-        text.tag_configure("h1", font="Times 16 bold", relief="raised")
         return frame
 
     def load_ticket(self, url):
