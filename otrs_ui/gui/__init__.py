@@ -104,6 +104,7 @@ class Face:
                 accelerator="Ctrl+S")
         add_cmd(label=_("Merge to ticket"), command=tcts.menu_ticket_merge,
                 accelerator="Ctrl+J")
+        add_cmd(label=_("Copy URL"), command=tcts.menu_copy_url)
 
     def on_delete(self):
         self.config["geometry"] = self.root.geometry()

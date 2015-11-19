@@ -464,6 +464,11 @@ class Tickets(ttk.Frame):
                 url = re.sub(r"TicketID=(\d+)", m.group(0), self.my_url)
             self.load_ticket(url)
 
+    def menu_copy_url(self, evt=None):
+        self.text.clipboard_clear()
+        self.text.clipboard_append(re.sub(
+            '(;Session=[0-9a-f]+)*', '', self.my_url))
+
     def menu_send(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select() or \
            self.tree.focus() != "editable":
