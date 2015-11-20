@@ -86,7 +86,10 @@ class Dashboard(ttk.Frame):
             self.login_failed += 1
             return
         if status == "Complete":
-            self.fill_trees(self.updater.get_result())
+            res = self.updater.get_result()
+            if res is not None:
+                self.fill_trees(res)
+                runt_cfg["dash_inputs"] = res.pop(inputs, {})
             self.login_failed = 0
         if status in ("URLError", "Empty"):
             self.on_url_error(self.updater.get_result())

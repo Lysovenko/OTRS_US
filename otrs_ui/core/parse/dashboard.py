@@ -19,7 +19,7 @@ from .basic import BasicParser
 class DashboardParser(BasicParser):
     def __init__(self):
         BasicParser.__init__(self)
-        self.tickets = {"New": [], "Open": [], "Reminder": []}
+        self.tickets = {"New": [], "Open": [], "Reminder": [], "inputs": {}}
         self.cur_array = None
         self.cur_append = None
         self.importance = 0
@@ -43,6 +43,9 @@ class DashboardParser(BasicParser):
             cls = dattrs.get("class", "").split()
             if "UnreadArticles" in cls:
                 self.importance = 3 if "Important" in cls else 1
+            return
+        if tag == "input":
+            self.tickets["inputs"][dattrs.get("name")] = dattrs.get("value")
 
     def handle_endtag(self, tag):
         if tag == "a" and self.cur_append is not None:
