@@ -59,6 +59,7 @@ class Search(ttk.Frame):
         if not sexpr:
             return
         self.echo("Serch: %s" % sexpr)
+        self.echo(self.runt_cfg["dash_inputs"])
 
     def enter_ticket(self, evt=None):
         pass
