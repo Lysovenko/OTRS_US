@@ -54,6 +54,10 @@ class DashboardUpdater:
             self.__result = err
             self.__set_status("URLError")
             return
+        except Exception as err:
+            self.__result = "%s: %s" % (str(type(err)), str(err))
+            self.__set_status("URLError")
+            return
         self.__result = pgl
         if pgl is None:
             self.__set_status("Empty")
@@ -82,6 +86,10 @@ class DashboardUpdater:
             return
         except URLError as err:
             self.__result = err
+            self.__set_status("URLError")
+            return
+        except Exception as err:
+            self.__result = "%s: %s" % (str(type(err)), str(err))
             self.__set_status("URLError")
             return
         self.__site = self.__who.get("site", "")
