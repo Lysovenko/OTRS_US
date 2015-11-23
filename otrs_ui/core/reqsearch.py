@@ -13,3 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 "Search request sender"
+
+
+def send_request(where, request):
+    return
