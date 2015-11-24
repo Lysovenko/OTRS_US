@@ -159,6 +159,7 @@ class Tickets(ttk.Frame):
             self.answers = page["answers"]
         except (KeyError, IndexError):
             self.answers = None
+        mail_text = ""
         if "article text" in self.cur_article:
             mail_text = self.cur_article["article text"]
         elif "mail_src" in page:
