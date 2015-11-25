@@ -41,6 +41,7 @@ class Page:
         print(data)
 
     def load(self, location, data=None, headers={}):
+        "loader"
         try:
             session = self.runt_cfg["Session"]
         except KeyError:
@@ -70,6 +71,7 @@ class Page:
         return self.parse(pd)
 
     def login(self, who, req=""):
+        "login and load"
         if who is None:
             who = self.runt_cfg
         user = who["user"]
