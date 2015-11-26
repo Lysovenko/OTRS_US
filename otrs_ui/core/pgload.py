@@ -46,7 +46,9 @@ class Page:
             session = self.runt_cfg["Session"]
         except KeyError:
             raise LoginError()
-        heads = {"Accept-Encoding": "gzip, deflate"}
+        heads = {"Accept-Encoding": "gzip, deflate",
+                 "User-Agent": "Mozilla/5.0 (X11; Fedora; \
+                 Linux x86_64; rv:38.0) Gecko/20100101 Firefox/38.0"}
         heads.update(headers)
         if "?" in location or data is not None:
             r = Request(location, data, headers=heads)
