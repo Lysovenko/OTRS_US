@@ -266,7 +266,8 @@ class Tickets(ttk.Frame):
                       ("Subaction", "ArticleUpdate")]
             for i in ("Count", "TicketID", "ArticleID"):
                 params.append((i, ca["article info"][i]))
-            params.append(("Session", self.runt_cfg["Session"]))
+            params.append(("OTRSAgentInterface",
+                           self.runt_cfg["OTRSAgentInterface"]))
             url = urlunsplit(self.url_begin + (urlencode(params), ""))
             pg = TicketsPage(self.app_widgets["core"])
             self.get_tickets_page(pg.load(url))
@@ -289,7 +290,7 @@ class Tickets(ttk.Frame):
             return
         params = [("Action", "AgentTicketLock"), ("Subaction", subact)]
         url = self.extract_url(params, "menu_lock", (
-            "TicketID", "ChallengeToken", "Session"))
+            "TicketID", "ChallengeToken", "OTRSAgentInterface"))
         pg = TicketsPage(self.app_widgets["core"])
         lres = pg.load(url)
         self.get_tickets_page(lres)
@@ -313,7 +314,7 @@ class Tickets(ttk.Frame):
                 ("Action", "AgentTicketMove"), ("QueueID", ""),
                 ("DestQueueID", cfg["queue"])]
             self.extract_url(params, "menu_move", (
-                "TicketID", "ChallengeToken", "Session"))
+                "TicketID", "ChallengeToken", "OTRSAgentInterface"))
             url = urlunsplit(self.url_begin + ("", ""))
             pg = TicketsPage(self.app_widgets["core"])
             try:
@@ -336,7 +337,8 @@ class Tickets(ttk.Frame):
             i = "ArticleID"
             self.actions_params[i] = self.cur_article["article info"][i]
             url = self.extract_url(params, "menu_answer", (
-                "Session", "TicketID", "ArticleID", "ChallengeToken"))
+                "OTRSAgentInterface", "TicketID", "ArticleID",
+                "ChallengeToken"))
             pg = AnswerPage(self.app_widgets["core"])
             inputs, error = pg.load(url)
             if inputs:
@@ -355,7 +357,8 @@ class Tickets(ttk.Frame):
         if self.my_tab != self.app_widgets["notebook"].select():
             return
         params = [("Action", "AgentTicketNote")]
-        url = self.extract_url(params, "menu_note", ("TicketID", "Session"))
+        url = self.extract_url(
+            params, "menu_note", ("TicketID", "OTRSAgentInterface"))
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
         cfg = dict(inputs)
@@ -374,7 +377,8 @@ class Tickets(ttk.Frame):
         if self.my_tab != self.app_widgets["notebook"].select():
             return
         params = [("Action", "AgentTicketOwner")]
-        url = self.extract_url(params, "menu_note", ("TicketID", "Session"))
+        url = self.extract_url(
+            params, "menu_note", ("TicketID", "OTRSAgentInterface"))
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
         if not inputs:
@@ -395,7 +399,8 @@ class Tickets(ttk.Frame):
         if self.my_tab != self.app_widgets["notebook"].select():
             return
         params = [("Action", "AgentTicketClose")]
-        url = self.extract_url(params, "menu_note", ("TicketID", "Session"))
+        url = self.extract_url(
+            params, "menu_note", ("TicketID", "OTRSAgentInterface"))
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
         if not inputs:
@@ -432,7 +437,7 @@ class Tickets(ttk.Frame):
             return
         params = [("Action", "AgentTicketForward")]
         url = self.extract_url(params, "menu_note", (
-            "TicketID", "ArticleID", "Session"))
+            "TicketID", "ArticleID", "OTRSAgentInterface"))
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
         if not inputs:
@@ -468,7 +473,7 @@ class Tickets(ttk.Frame):
     def menu_copy_url(self, evt=None):
         self.text.clipboard_clear()
         self.text.clipboard_append(re.sub(
-            '(;Session=[0-9a-f]+)*', '', self.my_url))
+            '(;OTRSAgentInterface=[0-9a-f]+)*', '', self.my_url))
 
     def menu_send(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select() or \
@@ -546,7 +551,8 @@ class Tickets(ttk.Frame):
         if "editable" in self.tree_data:
             return
         params = [("Action", "AgentTicketEmail")]
-        url = self.extract_url(params, "menu_new_email", ("Session",))
+        url = self.extract_url(
+            params, "menu_new_email", ("OTRSAgentInterface",))
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
         if not inputs:
@@ -573,7 +579,8 @@ class Tickets(ttk.Frame):
         if self.my_tab != self.app_widgets["notebook"].select():
             return
         params = [("Action", "AgentTicketMerge")]
-        url = self.extract_url(params, "ticket_merge", ("TicketID", "Session"))
+        url = self.extract_url(
+            params, "ticket_merge", ("TicketID", "OTRSAgentInterface"))
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
         cfg = dict(inputs)

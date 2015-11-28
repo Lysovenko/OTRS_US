@@ -14,6 +14,7 @@
 # limitations under the License.
 "Page loader parrent"
 import os
+import re
 from time import strftime
 from urllib.parse import urlparse, parse_qsl, urlencode
 from urllib.request import Request, urlopen
@@ -35,6 +36,7 @@ class Page:
         self.core_cfg = core.call("core cfg")
         self.runt_cfg = core.call("runtime cfg")
         self.echo = core.echo
+        self.last_url = ""
 
     def parse(self, data):
         "Dummy method to be replaced"
@@ -43,9 +45,8 @@ class Page:
     def load(self, location, data=None, headers={}):
         if not location:
             raise LoginError()
-        heads = {"Accept-Encoding": "gzip, deflate",
-                 "User-Agent": "Mozilla/5.0 (X11; Fedora; \
-Linux x86_64; rv:38.0) Gecko/20100101 Firefox/38.0"}
+        self.last_url = re.sub(r"https?:\/\/[^/]+", r"", location)
+        heads = {"Accept-Encoding": "gzip, deflate"}
         if "Cookies" in self.runt_cfg:
             heads["Cookie"] = self.runt_cfg["Cookies"]
         heads.update(headers)
@@ -66,10 +67,12 @@ Linux x86_64; rv:38.0) Gecko/20100101 Firefox/38.0"}
             raise LoginError(r.get_full_url())
         return self.parse(pd)
 
-    def login(self, who, req=""):
+    def login(self, who, req=None):
         "login and load"
         if who is None:
             who = self.runt_cfg
+        if req is None:
+            req = self.last_url
         user = who["user"]
         passwd = who["password"]
         site = who["site"]
