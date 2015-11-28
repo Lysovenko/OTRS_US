@@ -40,6 +40,7 @@ class Interactor(dict):
 
 def get_core():
     actor = Interactor()
-    actor.register("core cfg", lambda x: x, Config("core.cfg"))
-    actor.register("runtime cfg", lambda x: x, dict())
+    cfg = Config("core.cfg")
+    actor.register("core cfg", lambda x: x, cfg)
+    actor.register("runtime cfg", lambda x: x, dict(cfg))
     return actor

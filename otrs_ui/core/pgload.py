@@ -41,21 +41,15 @@ class Page:
         print(data)
 
     def load(self, location, data=None, headers={}):
-        "loader"
-        try:
-            session = self.runt_cfg["Session"]
-        except KeyError:
+        if not location:
             raise LoginError()
         heads = {"Accept-Encoding": "gzip, deflate",
                  "User-Agent": "Mozilla/5.0 (X11; Fedora; \
 Linux x86_64; rv:38.0) Gecko/20100101 Firefox/38.0"}
+        if "Cookies" in self.runt_cfg:
+            heads["Cookie"] = self.runt_cfg["Cookies"]
         heads.update(headers)
-        if "?" in location or data is not None:
-            r = Request(location, data, headers=heads)
-        else:
-            r = Request(
-                "%s?%s" % (location, urlencode([("Session", session)])),
-                data, headers=heads)
+        r = Request(location, data, headers=heads)
         try:
             pg = urlopen(r)
         except HTTPError as err:
@@ -88,12 +82,6 @@ Linux x86_64; rv:38.0) Gecko/20100101 Firefox/38.0"}
             pg = urlopen(r)
         except BadStatusLine:
             raise LoginError("BadStatusLine")
-        url = pg.geturl()
-        qpl = parse_qsl(urlparse(url).query)
-        dpl = dict(qpl)
-        if "Session" not in dpl:
-            raise LoginError()
-        self.runt_cfg["Session"] = dpl["Session"]
         pd = pg.read()
         if pg.getheader("Content-Encoding") == "gzip":
             pd = decompress(pd)
