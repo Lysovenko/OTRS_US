@@ -140,6 +140,7 @@ class Tickets(ttk.Frame):
         self.set_menu_active()
 
     def get_tickets_page(self, page):
+        mail_text = ""
         if page is None:
             return
         if "info" in page:
@@ -159,7 +160,6 @@ class Tickets(ttk.Frame):
             self.answers = page["answers"]
         except (KeyError, IndexError):
             self.answers = None
-        mail_text = ""
         if "article text" in self.cur_article:
             mail_text = self.cur_article["article text"]
         elif "mail_src" in page:
@@ -266,8 +266,6 @@ class Tickets(ttk.Frame):
                       ("Subaction", "ArticleUpdate")]
             for i in ("Count", "TicketID", "ArticleID"):
                 params.append((i, ca["article info"][i]))
-            params.append(("OTRSAgentInterface",
-                           self.runt_cfg["OTRSAgentInterface"]))
             url = urlunsplit(self.url_begin + (urlencode(params), ""))
             pg = TicketsPage(self.app_widgets["core"])
             self.get_tickets_page(pg.load(url))

@@ -60,7 +60,7 @@ class TicketsParser(BasicParser):
             self.row = {"row": dattrs.get("class")}
             return
         if tag == "table":
-            if dattrs.get("id") == "FixedTable":
+            if dattrs.get("id") == "ArticleTable":
                 self.in_table = True
             return
         if tag == "tbody" and self.in_table:
