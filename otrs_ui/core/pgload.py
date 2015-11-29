@@ -67,7 +67,7 @@ class Page:
             raise LoginError(r.get_full_url())
         return self.parse(pd)
 
-    def login(self, who, req=None):
+    def login(self, who=None, req=None):
         "login and load"
         if who is None:
             who = self.runt_cfg
@@ -88,6 +88,11 @@ class Page:
         pd = pg.read()
         if pg.getheader("Content-Encoding") == "gzip":
             pd = decompress(pd)
+        m = re.search(r"OTRSAgentInterface=[^;&]+", pg.geturl())
+        if m.group(0):
+            self.runt_cfg["Cookies"] = m.group(0)
+        else:
+            self.runt_cfg.pop("Cookies", None)
         self.dump_data(pg, pd)
         return self.parse(pd)
 
