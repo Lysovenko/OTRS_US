@@ -39,6 +39,10 @@ def dump_multipart_text(data):
     result.append(b'--' + boundary + b'--')
     result.append(b'')
     contentType = "multipart/form-data; boundary=%s" % (boundary.decode())
-    result = b'\r\n'.join(result)
+    try:
+        result = b'\r\n'.join(result)
+    except TypeError as err:
+        print(data)
+        raise TypeError(err)
     headers = {'Content-type': contentType}
     return result, headers
