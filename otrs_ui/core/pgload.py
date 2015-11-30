@@ -182,7 +182,18 @@ class AnswerPage(Page):
         parser = AnswerParser()
         parser.feed(data.decode(errors="ignore"))
         parser.close()
-        return parser.inputs, parser.error_msg
+        inputs = parser.inputs
+        m = re.search("Core\\.Agent\\.CustomerSearch\\\
+.AddTicketCustomer\\(\s*\'([^\']+)\',\s*\"([^\"]+)\"\s*\\)", data.decode())
+        if m:
+            nam = m.group(1)
+            val = m.group(2)
+            for i, j in enumerate(inputs):
+                if j[0] == nam:
+                    inputs[i] = (nam, val)
+                    break
+        err = parser.error_msg
+        return inputs, err
 
 
 class AnswerSender(Page):

@@ -163,7 +163,8 @@ class TicketsParser(BasicParser):
             if "ArticleMailHeader" in div_cls:
                 self.mail_header.append((self.label, title))
         if tag == "option":
-            if "ActionRow" in div_cls:
+            if "ActionRow" in div_cls or any(
+                    ["ActionRow" in i for i in div_cls]):
                 self.queues[1].append(
                     (self.opt_val, "".join(self.data_handler)))
             if self.art_ctrl_cls in div_cls:

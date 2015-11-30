@@ -335,8 +335,7 @@ class Tickets(ttk.Frame):
             i = "ArticleID"
             self.actions_params[i] = self.cur_article["article info"][i]
             url = self.extract_url(params, "menu_answer", (
-                "OTRSAgentInterface", "TicketID", "ArticleID",
-                "ChallengeToken"))
+                "TicketID", "ArticleID", "ChallengeToken"))
             pg = AnswerPage(self.app_widgets["core"])
             inputs, error = pg.load(url)
             if inputs:
@@ -387,7 +386,10 @@ class Tickets(ttk.Frame):
         DlgDetails(self, _("Owner"), cfg=cfg, focus_on="NewOwnerID", inputs=(
             ("Subject", _("Subject:")), ("Body", _("Comment:"))), selects=(
             ("NewOwnerID", _("Owner:")), ("OldOwnerID", _("Old owner:")),
-            ("ArticleTypeID", _("Article type:"))))
+            ("ArticleTypeID", _("Type of note:")),
+            ("NewStateID", _("Next state:")), ("Month", _("Month:")),
+            ("Day", _("Day:")), ("Year", _("Year:")),
+            ("Hour", _("Hour:")), ("Minute", _("Minute:"))))
         if cfg["OK button"] and cfg.get("NewOwnerID"):
             if not cfg["Body"]:
                 cfg["Body"] = "Owner was changed using OTRS_US %s" % version
@@ -398,7 +400,7 @@ class Tickets(ttk.Frame):
             return
         params = [("Action", "AgentTicketClose")]
         url = self.extract_url(
-            params, "menu_note", ("TicketID", "OTRSAgentInterface"))
+            params, "menu_close", ("TicketID",))
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
         if not inputs:
@@ -435,7 +437,7 @@ class Tickets(ttk.Frame):
             return
         params = [("Action", "AgentTicketForward")]
         url = self.extract_url(params, "menu_note", (
-            "TicketID", "ArticleID", "OTRSAgentInterface"))
+            "TicketID", "ArticleID"))
         pg = AnswerPage(self.app_widgets["core"])
         inputs, error = pg.load(url)
         if not inputs:
