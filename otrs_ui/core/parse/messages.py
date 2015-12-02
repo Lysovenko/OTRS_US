@@ -47,7 +47,8 @@ class MessageParser(BasicParser):
             self.message_text.append(("\n<div> == %d ==\n" % self.div_level,))
             return
         if tag == "img":
-            self.message_text.append(("\n<img>\n", ("h1",)))
+            self.message_text.append(
+                ("\n<img (%s)>\n" % dattrs.get("src", ""), ("h1",)))
             return
         if tag == "pre":
             self.preformatted += 1
