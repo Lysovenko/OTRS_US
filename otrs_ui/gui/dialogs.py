@@ -166,12 +166,18 @@ class DlgSettings(Dialog):
         self.snd_err.set(str(cfg.get("snd_err", "")))
         self.esnd_err = Entry(master, width=15, textvariable=self.snd_err)
         self.esnd_err.grid(column=1, row=5, sticky="e")
+        self.dld_fldr = StringVar()
+        self.dld_fldr.set(str(cfg.get("dld_fldr", "")))
+        self.edld_fldr = Entry(master, width=15, textvariable=self.dld_fldr)
+        self.edld_fldr.grid(column=1, row=6, sticky="e")
         lab = Label(master, text=_("Refresh time:"))
         lab.grid(column=0, row=3, sticky="w")
         lab = Label(master, text=_("Sound command:"))
         lab.grid(column=0, row=4, sticky="w")
         lab = Label(master, text=_("Error sound command:"))
         lab.grid(column=0, row=5, sticky="w")
+        lab = Label(master, text=_("Download folder:"))
+        lab.grid(column=0, row=6, sticky="w")
         return self.etime
 
     def apply(self):
@@ -179,6 +185,7 @@ class DlgSettings(Dialog):
         self.config["refresh_time"] = int(self.time.get())
         self.config["snd_cmd"] = self.snd_cmd.get()
         self.config["snd_err"] = self.snd_err.get()
+        self.config["dld_fldr"] = self.dld_fldr.get()
         self.config["site"] = self.site.get()
         self.config["user"] = self.login.get()
         self.config["password"] = self.password.get()

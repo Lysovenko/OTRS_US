@@ -600,3 +600,6 @@ class Tickets(ttk.Frame):
         url = urlunsplit(self.url_begin + ("", ""))
         pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
         self.menu_reload()
+
+    def menu_download(self, evt=None):
+        pass
