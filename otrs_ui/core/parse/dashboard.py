@@ -42,7 +42,7 @@ class DashboardParser(BasicParser):
         if tag == "span":
             cls = dattrs.get("class", "").split()
             if "UnreadArticles" in cls:
-                self.importance = 3 if "Important" in cls else 1
+                self.importance = 3 if "Remarkable" in cls else 1
             return
         if tag == "input":
             self.tickets["inputs"][dattrs.get("name")] = dattrs.get("value")
