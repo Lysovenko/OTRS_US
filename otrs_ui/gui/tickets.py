@@ -41,6 +41,7 @@ class Tickets(ttk.Frame):
         self.app_widgets = appw
         self.echo = appw["core"].echo
         self.runt_cfg = appw["core"].call("runtime cfg")
+        self.core_cfg = appw["core"].call("core cfg")
         self.pw = pw = ttk.Panedwindow(self, orient="vertical")
         frame = self.make_tree()
         pw.add(frame)
@@ -602,4 +603,8 @@ class Tickets(ttk.Frame):
         self.menu_reload()
 
     def menu_download(self, evt=None):
-        pass
+        cfg = {"URL": "", "path": self.core_cfg.get("dld_fldr", "")}
+        DlgDetails(self, _("Download"), cfg=cfg, inputs=(
+            ("URL", _("Address:")), ("path", _("Path:"))))
+        if cfg["OK button"]:
+            print(cfg["URL"])
