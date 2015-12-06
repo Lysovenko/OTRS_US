@@ -607,4 +607,4 @@ class Tickets(ttk.Frame):
         DlgDetails(self, _("Download"), cfg=cfg, inputs=(
             ("URL", _("Address:")), ("path", _("Path:"))))
         if cfg["OK button"]:
-            print(cfg["URL"])
+            print(cfg["URL"], '=>', cfg["path"])

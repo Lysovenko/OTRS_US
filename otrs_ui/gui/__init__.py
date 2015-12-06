@@ -119,9 +119,9 @@ class Face:
             cfg[i] = core_cfg.get(i, "")
         DlgSettings(self.root, _("Settings"), cfg=cfg)
         if cfg["OK button"]:
-            for i in ("snd_cmd", "snd_err", "site", "user", "password",
-                      "refresh_time"):
-                core_cfg[i] = cfg[i]
+            for i, val in cfg.items():
+                if i != "OK button":
+                    core_cfg[i] = val
             if not irt and core_cfg["refresh_time"]:
                 self.root.after(
                     core_cfg["refresh_time"],
