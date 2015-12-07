@@ -20,7 +20,7 @@ from urllib.error import URLError
 import re
 from ..core import version
 from ..core.pgload import (
-    TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError)
+    TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError, FileLoader)
 from .dialogs import AboutBox, DlgDetails
 from .ttext import TicText
 
@@ -607,4 +607,10 @@ class Tickets(ttk.Frame):
         DlgDetails(self, _("Download"), cfg=cfg, inputs=(
             ("URL", _("Address:")), ("path", _("Path:"))))
         if cfg["OK button"]:
-            print(cfg["URL"], '=>', cfg["path"])
+            fl = FileLoader(self.app_widgets["core"])
+            fl.set_save_path(cfg["path"])
+            url = cfg["URL"]
+            if url.startswith("/"):
+                m = re.search(r"^https?://[^/]+", self.runt_cfg["site"])
+                url = m.group(0) + url
+            fl.load(url)
