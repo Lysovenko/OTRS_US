@@ -38,7 +38,7 @@ class Page:
         self.echo = core.echo
         self.last_url = ""
 
-    def parse(self, data):
+    def parse(self, data, page):
         "Dummy method to be replaced"
         print(data)
 
@@ -94,7 +94,7 @@ class Page:
         else:
             self.runt_cfg.pop("Cookies", None)
         self.dump_data(pg, pd)
-        return self.parse(pd)
+        return self.parse(pd, pg)
 
     def check_login(self, pd):
         for i in pd.splitlines():
