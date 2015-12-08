@@ -184,7 +184,8 @@ class AnswerPage(Page):
         parser.close()
         inputs = parser.inputs
         m = re.search("Core\\.Agent\\.CustomerSearch\\\
-.AddTicketCustomer\\(\s*\'([^\']+)\',\s*\"([^\"]+)\"\s*\\)", data.decode())
+.AddTicketCustomer\\(\s*\'([^\']+)\',\s*\"([^\"]+)\"\s*\\)", data.decode(
+            errors="ignore"))
         if m:
             nam = m.group(1)
             val = m.group(2)
