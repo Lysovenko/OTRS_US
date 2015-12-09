@@ -50,6 +50,10 @@ class MessageParser(BasicParser):
             self.message_text.append(
                 ("\n<img (%s)>\n" % dattrs.get("src", ""), ("h1",)))
             return
+        if tag == "a":
+            self.message_text.append(
+                ("\n<a href=\"%s\">\n" % dattrs.get("href", ""), ("h1",)))
+            return
         if tag == "pre":
             self.preformatted += 1
             return

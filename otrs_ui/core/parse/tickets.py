@@ -105,6 +105,8 @@ class TicketsParser(BasicParser):
                     self.art_act_hrefs.append(dattrs["href"])
                 except KeyError:
                     pass
+            if self.p_value and dattrs.get("href"):
+                self.data_handler.append("[%s]\n" % dattrs["href"])
             return
         if tag == "option":
             if "selected" in dattrs:
