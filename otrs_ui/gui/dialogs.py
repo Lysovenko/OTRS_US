@@ -158,18 +158,18 @@ class DlgSettings(Dialog):
         self.snd_cmd = StringVar()
         self.time.set(str(cfg.get("refresh_time", 0)))
         self.snd_cmd.set(str(cfg.get("snd_cmd", "")))
-        self.etime = Entry(master, width=15, textvariable=self.time)
-        self.etime.grid(column=1, row=3, sticky="e")
-        self.esnd_cmd = Entry(master, width=15, textvariable=self.snd_cmd)
-        self.esnd_cmd.grid(column=1, row=4, sticky="e")
+        etime = Entry(master, width=15, textvariable=self.time)
+        etime.grid(column=1, row=3, sticky="e")
+        esnd_cmd = Entry(master, width=15, textvariable=self.snd_cmd)
+        esnd_cmd.grid(column=1, row=4, sticky="e")
         self.snd_err = StringVar()
         self.snd_err.set(str(cfg.get("snd_err", "")))
-        self.esnd_err = Entry(master, width=15, textvariable=self.snd_err)
-        self.esnd_err.grid(column=1, row=5, sticky="e")
+        esnd_err = Entry(master, width=15, textvariable=self.snd_err)
+        esnd_err.grid(column=1, row=5, sticky="e")
         self.dld_fldr = StringVar()
         self.dld_fldr.set(str(cfg.get("dld_fldr", "")))
-        self.edld_fldr = Entry(master, width=15, textvariable=self.dld_fldr)
-        self.edld_fldr.grid(column=1, row=6, sticky="e")
+        edld_fldr = Entry(master, width=15, textvariable=self.dld_fldr)
+        edld_fldr.grid(column=1, row=6, sticky="e")
         lab = Label(master, text=_("Refresh time:"))
         lab.grid(column=0, row=3, sticky="w")
         lab = Label(master, text=_("Sound command:"))
@@ -178,7 +178,7 @@ class DlgSettings(Dialog):
         lab.grid(column=0, row=5, sticky="w")
         lab = Label(master, text=_("Download folder:"))
         lab.grid(column=0, row=6, sticky="w")
-        return self.etime
+        return etime
 
     def apply(self):
         "On ok button pressed"
