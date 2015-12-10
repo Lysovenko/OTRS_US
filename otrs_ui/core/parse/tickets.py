@@ -95,7 +95,8 @@ class TicketsParser(BasicParser):
                 self.p_title = dattrs.get("title")
             return
         if tag == "a":
-            if "ActionRow" in div_cls and "Scroller" not in div_cls:
+            if ("ActionRow", "Cluster") in div_cls \
+               and "Scroller" not in div_cls:
                 try:
                     self.action_hrefs.append(dattrs["href"])
                 except KeyError:
