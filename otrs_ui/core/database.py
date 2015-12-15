@@ -19,3 +19,12 @@ import sqlite3 as sql
 
 class Database:
     "Sqlite3 database class"
+    def __init__(self, pth_to_db):
+        self.connection = None
+        try:
+            self.connection = sql.connect(pth_to_db)
+        except sql.Error, e:
+            pass
+
+    def __bool__(self):
+        return self.connection is not None
