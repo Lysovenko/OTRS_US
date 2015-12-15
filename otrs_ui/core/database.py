@@ -14,17 +14,35 @@
 "Provide database operations"
 
 import atexit
+from os import makedirs, name
+from os.path import isdir, expanduser, join
 import sqlite3 as sql
 
 
 class Database:
     "Sqlite3 database class"
-    def __init__(self, pth_to_db):
+    def __init__(self, filename):
+        if name == 'posix':
+            path = expanduser("~/.config/otrs_us")
+        elif name == 'nt':
+            if isdir(expanduser("~/Application Data")):
+                path = expanduser("~/Application Data/otrs_us")
+            else:
+                path = expanduser("~/otrs_us")
+        else:
+            path = expanduser("~/otrs_us")
+        if not isdir(path):
+            makedirs(path)
+        path = join(path, filename)
         self.connection = None
         try:
-            self.connection = sql.connect(pth_to_db)
-        except sql.Error, e:
+            self.connection = sql.connect(path)
+        except sql.Error as e:
             pass
+        atexit.register(self.close)
 
     def __bool__(self):
         return self.connection is not None
+
+    def close(self):
+        if self.connection.close()

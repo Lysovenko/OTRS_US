@@ -14,7 +14,8 @@
 # limitations under the License.
 "interactor"
 from .settings import Config
-version = '0.5'
+from .database import Database
+version = "0.7"
 
 
 class Interactor(dict):
@@ -43,4 +44,6 @@ def get_core():
     cfg = Config("core.cfg")
     actor.register("core cfg", lambda x: x, cfg)
     actor.register("runtime cfg", lambda x: x, dict(cfg))
+    db = Database("core.db")
+    actor.register("core db", lambda x: x, db)
     return actor
