@@ -45,4 +45,5 @@ class Database:
         return self.connection is not None
 
     def close(self):
-        if self.connection.close()
+        if self.connection:
+            self.connection.close()
