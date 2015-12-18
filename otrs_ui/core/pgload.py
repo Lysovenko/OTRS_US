@@ -90,7 +90,7 @@ class Page:
         if pg.getheader("Content-Encoding") == "gzip":
             pd = decompress(pd)
         m = re.search(r"OTRSAgentInterface=[^;&]+", pg.geturl())
-        if m.group(0):
+        if m and m.group(0):
             self.runt_cfg["Cookies"] = m.group(0)
         else:
             self.runt_cfg.pop("Cookies", None)
