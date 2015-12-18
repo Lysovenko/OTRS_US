@@ -47,7 +47,7 @@ class Page:
             raise LoginError()
         self.last_url = re.sub(r"https?:\/\/[^/]+", r"", location)
         heads = {"Accept-Encoding": "gzip, deflate",
-                 "User-Agent": "OTRS_US/0.0"}
+                 "User-Agent": self.core_cfg.get("User-Agent", "OTRS_US/0.0")}
         if "Cookies" in self.runt_cfg:
             heads["Cookie"] = self.runt_cfg["Cookies"]
         heads.update(headers)
