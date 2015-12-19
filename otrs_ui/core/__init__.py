@@ -44,6 +44,7 @@ def get_core():
     cfg = Config("core.cfg")
     actor.register("core cfg", lambda x: x, cfg)
     actor.register("runtime cfg", lambda x: x, dict(cfg))
+    # not implemented yet
     db = Database("core.db")
     actor.register("core db", lambda x: x, db)
     return actor
