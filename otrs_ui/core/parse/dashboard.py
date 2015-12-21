@@ -21,7 +21,7 @@ class DashboardParser(BasicParser):
         BasicParser.__init__(self)
         self.tickets = {"New": [], "Open": [], "Reminder": [], "inputs": {}}
         self.cur_array = None
-        self.cur_append = None
+        self.cur_append = {}
         self.importance = 0
 
     def handle_starttag(self, tag, attrs):
@@ -36,7 +36,7 @@ class DashboardParser(BasicParser):
                 self.cur_array = self.tickets["Reminder"]
             return
         if tag == "a" and dattrs.get("class") == "AsBlock MasterActionLink":
-            self.cur_append = (dattrs["href"], dattrs["title"])
+            self.cur_append.update((i, dattrs[i]) for i in ("href", "title"))
             self.data_handler = []
             return
         if tag == "span":
@@ -48,10 +48,10 @@ class DashboardParser(BasicParser):
             self.tickets["inputs"][dattrs.get("name")] = dattrs.get("value")
 
     def handle_endtag(self, tag):
-        if tag == "a" and self.cur_append is not None:
-            self.cur_array.append(
-                self.cur_append + ("".join(self.data_handler),
-                                   self.importance))
+        if tag == "a" and self.cur_append:
+            self.cur_append["number"] = "".join(self.data_handler)
+            self.cur_append["marker"] = self.importance
+            self.cur_array.append(self.cur_append)
             self.data_handler = None
-            self.cur_append = None
+            self.cur_append = {}
             self.importance = 0
