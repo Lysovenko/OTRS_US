@@ -1,7 +1,7 @@
 # OTRS\_US
 
 OTRS user side
-For OTRS version: 3.1.7
+For OTRS version: 5.0.3
 
 ## Instalation
 Enshure that you have installed Python version greatter or equal to 3.3. 
