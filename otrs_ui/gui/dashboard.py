@@ -143,8 +143,9 @@ class Dashboard(ttk.Frame):
                 else:
                     image = ""
                 tags = ("new",) if item["marker"] & 1 else ()
-                tree.insert("", "end", item["number"], text=item["title"],
-                            image=image, tags=tags)
+                tree.insert(
+                    "", "end", item["number"], text=item["title"], image=image,
+                    tags=tags, values=(item.get("Changed", ""),))
             if old_focus in self.ticket_range[name]:
                 tree.focus(old_focus)
             else:

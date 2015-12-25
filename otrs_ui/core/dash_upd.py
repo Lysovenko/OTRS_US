@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 "Thread for dashboard's update"
+from traceback import print_exc
 from threading import Thread, Lock
 from urllib.error import URLError
 from .pgload import DashboardPage, LoginError
@@ -56,6 +57,7 @@ class DashboardUpdater:
             return
         except Exception as err:
             self.__result = "%s: %s" % (str(type(err)), str(err))
+            print_exc()
             self.__set_status("URLError")
             return
         self.__result = pgl
@@ -90,6 +92,7 @@ class DashboardUpdater:
             return
         except Exception as err:
             self.__result = "%s: %s" % (str(type(err)), str(err))
+            print_exc()
             self.__set_status("URLError")
             return
         self.__site = self.__who.get("site", "")

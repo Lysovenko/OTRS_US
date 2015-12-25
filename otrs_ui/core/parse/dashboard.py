@@ -23,6 +23,8 @@ class DashboardParser(BasicParser):
         self.cur_array = None
         self.cur_append = {}
         self.importance = 0
+        self.head_names = []
+        self.cur_column = -1
 
     def handle_starttag(self, tag, attrs):
         dattrs = dict(attrs)
@@ -34,6 +36,10 @@ class DashboardParser(BasicParser):
                 self.cur_array = self.tickets["Open"]
             if div_id == "Dashboard0100-TicketPendingReminder":
                 self.cur_array = self.tickets["Reminder"]
+            if 0 <= self.cur_column < len(self.head_names):
+                cn = self.head_names[self.cur_column]
+                if cn is not None and "title" in dattrs:
+                    self.cur_append[cn] = dattrs["title"]
             return
         if tag == "a" and dattrs.get("class") == "AsBlock MasterActionLink":
             self.cur_append.update((i, dattrs[i]) for i in ("href", "title"))
@@ -46,12 +52,25 @@ class DashboardParser(BasicParser):
             return
         if tag == "input":
             self.tickets["inputs"][dattrs.get("name")] = dattrs.get("value")
+        if tag == "tr":
+            self.cur_column = -1
+            return
+        if tag == "td":
+            self.cur_column += 1
+            return
+        if tag == "th":
+            self.head_names.append(dattrs.get("data-column"))
+            return
+        if tag == "thead":
+            self.head_names = []
+            return
 
     def handle_endtag(self, tag):
         if tag == "a" and self.cur_append:
             self.cur_append["number"] = "".join(self.data_handler)
             self.cur_append["marker"] = self.importance
             self.cur_array.append(self.cur_append)
+            print('++++....', self.cur_append)
             self.data_handler = None
             self.cur_append = {}
             self.importance = 0
