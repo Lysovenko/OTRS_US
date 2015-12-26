@@ -54,6 +54,7 @@ class DashboardParser(BasicParser):
             self.tickets["inputs"][dattrs.get("name")] = dattrs.get("value")
         if tag == "tr":
             self.cur_column = -1
+            self.cur_append = {}
             return
         if tag == "td":
             self.cur_column += 1
@@ -66,11 +67,12 @@ class DashboardParser(BasicParser):
             return
 
     def handle_endtag(self, tag):
-        if tag == "a" and self.cur_append:
+        if tag == "a" and self.data_handler:
             self.cur_append["number"] = "".join(self.data_handler)
             self.cur_append["marker"] = self.importance
             self.cur_array.append(self.cur_append)
-            print('++++....', self.cur_append)
             self.data_handler = None
-            self.cur_append = {}
             self.importance = 0
+            return
+        if tag == "tr":
+            self.cur_append = None
