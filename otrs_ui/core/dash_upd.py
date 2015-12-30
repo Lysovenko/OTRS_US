@@ -14,7 +14,7 @@
 # limitations under the License.
 "Thread for dashboard's update"
 from traceback import print_exc
-from threading import Thread, Lock
+from threading import Thread, Lock, active_count
 from urllib.error import URLError
 from .pgload import DashboardPage, LoginError
 
@@ -101,3 +101,6 @@ class DashboardUpdater:
             self.__set_status("Empty")
         else:
             self.__set_status("Complete")
+
+    def get_info(self):
+        return 'cyrrently %d threads' % active_count()
