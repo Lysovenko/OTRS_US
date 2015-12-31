@@ -22,6 +22,7 @@ from tkinter import ttk, PhotoImage
 from tkinter.messagebox import showerror
 from .tickets import autoscroll
 from ..core.dash_upd import DashboardUpdater
+from ..core.ptime import TimeConv
 from .dialogs import DlgLogin
 
 
@@ -120,6 +121,7 @@ class Dashboard(ttk.Frame):
     def fill_trees(self, pgl):
         if pgl is None:
             raise ConnectionError()
+        tshow = TimeConv(yday=_("yest."), mago=_("min. ago"))
         result = {"Important": 0}
         self.tree_data.clear()
         for name in ("Reminder", "New", "Open"):
@@ -144,9 +146,13 @@ class Dashboard(ttk.Frame):
                 else:
                     image = ""
                 tags = ("new",) if item["marker"] & 1 else ()
+                tc = item.get("Changed", "")
+                if tc:
+                    tshow.set_modified(tc)
+                    tc = tshow.relative()
                 tree.insert(
                     "", "end", item["number"], text=item["title"], image=image,
-                    tags=tags, values=(item.get("Changed", ""),))
+                    tags=tags, values=(tc,))
             if old_focus in self.ticket_range[name]:
                 tree.focus(old_focus)
             else:
