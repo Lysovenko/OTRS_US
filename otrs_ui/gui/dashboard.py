@@ -121,7 +121,8 @@ class Dashboard(ttk.Frame):
     def fill_trees(self, pgl):
         if pgl is None:
             raise ConnectionError()
-        tshow = TimeConv(yday=_("yest."), mago=_("min. ago"))
+        tshow = TimeConv(
+            yday=_("yest."), mago=_("min. ago"), dago=_("days ago"))
         result = {"Important": 0}
         self.tree_data.clear()
         for name in ("Reminder", "New", "Open"):

@@ -19,11 +19,12 @@ from time import strptime, mktime, localtime, strftime
 
 class TimeConv:
     "Time converter"
-    def __init__(self, yday="yest.", mago="min. ago"):
+    def __init__(self, yday="yest.", mago="min. ago", dago="days ago"):
         self.cur = localtime()
         self.curs = mktime(self.cur)
         self.yday = yday
         self.mago = mago
+        self.dago = dago
 
     def set_modified(self, modified):
         self.time = strptime(modified, "%m/%d/%Y %H:%M")
@@ -38,4 +39,6 @@ class TimeConv:
             return strftime("%H:%M", self.time)
         if delta <= secs + 86400:
             return self.yday + " " + strftime("%H:%M", self.time)
+        if delta < secs + 864000:
+            return "%d %s" % ((delta - secs) // 86400 + 1, self.dago)
         return strftime("%d/%m/%y", self.time)
