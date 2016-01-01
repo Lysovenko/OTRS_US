@@ -122,7 +122,7 @@ class Dashboard(ttk.Frame):
         if pgl is None:
             raise ConnectionError()
         tshow = TimeConv(
-            yday=_("yest."), mago=_("min. ago"), dago=_("days ago"))
+            yday=_("yest."), mago=_("min."), dago=_("days"))
         result = {"Important": 0}
         self.tree_data.clear()
         for name in ("Reminder", "New", "Open"):
