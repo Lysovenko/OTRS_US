@@ -128,6 +128,10 @@ class Dashboard(ttk.Frame):
         for name in ("Reminder", "New", "Open"):
             data = pgl[name]
             tree = self.tree[name]
+            totw = sum(int(tree.column(i, "width"))
+                       for i in ("#0", "modified"))
+            tree.column("#0", width=totw-80, anchor="center")
+            tree.column("modified", width=80, anchor="center")
             old_focus = tree.focus()
             for i in reversed(self.ticket_range.get(name, ())):
                 tree.delete(i)
