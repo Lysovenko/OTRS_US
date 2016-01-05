@@ -72,6 +72,9 @@ class Dashboard(ttk.Frame):
         tree.bind("<Double-Button-1>", self.enter_ticket)
         return frame
 
+    def sort_tree(self, tree):
+        pass
+
     def update(self):
         core = self.app_widgets["core"]
         core_cfg = core.call("core cfg")
