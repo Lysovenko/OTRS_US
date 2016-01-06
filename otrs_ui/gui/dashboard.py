@@ -15,7 +15,7 @@
 
 from os import system
 from os.path import dirname, join
-from time import strftime
+from time import strftime, strptime, mktime
 from urllib.parse import urlsplit, urlunsplit
 from urllib.error import URLError
 from tkinter import ttk, PhotoImage
@@ -72,9 +72,6 @@ class Dashboard(ttk.Frame):
         tree.bind("<Double-Button-1>", self.enter_ticket)
         return frame
 
-    def sort_tree(self, tree):
-        pass
-
     def update(self):
         core = self.app_widgets["core"]
         core_cfg = core.call("core cfg")
@@ -129,7 +126,6 @@ class Dashboard(ttk.Frame):
         result = {"Important": 0}
         self.tree_data.clear()
         for name in ("Reminder", "New", "Open"):
-            data = pgl[name]
             tree = self.tree[name]
             totw = sum(int(tree.column(i, "width"))
                        for i in ("#0", "modified"))
@@ -139,6 +135,10 @@ class Dashboard(ttk.Frame):
             for i in reversed(self.ticket_range.get(name, ())):
                 tree.delete(i)
             old = self.ticket_range.get(name, ())
+            data = pgl[name]
+            if data and "Changed" in data[0]:
+                data.sort(reverse=True, key=lambda x: mktime(
+                    strptime(x["Changed"], "%m/%d/%Y %H:%M")))
             new = tuple(i["number"] for i in data)
             if name == "New":
                 result[name] = new and new[0] not in old
