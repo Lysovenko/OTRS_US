@@ -41,11 +41,11 @@ class DashboardUpdater:
         self.__site = site
         self.__set_status("Wait")
         self.__result = None
-        t = Thread(target=self.__loader)
+        t = Thread(target=self.__thr_loader)
         t.daemon = True
         t.start()
 
-    def __loader(self):
+    def __thr_loader(self):
         try:
             pgl = self.__page.load(self.__site)
         except LoginError:
@@ -76,11 +76,11 @@ class DashboardUpdater:
     def login(self, who):
         self.__who = who
         self.__set_status("Wait")
-        t = Thread(target=self.__login)
+        t = Thread(target=self.__thr_login)
         t.daemon = True
         t.start()
 
-    def __login(self):
+    def __thr_login(self):
         try:
             pgl = self.__page.login(self.__who)
         except LoginError:
