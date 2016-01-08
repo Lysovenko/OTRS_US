@@ -53,7 +53,7 @@ class Page:
         heads.update(headers)
         r = Request(location, data, headers=heads)
         try:
-            pg = urlopen(r)
+            pg = urlopen(r, timeout=60)
         except HTTPError as err:
             self.echo("HTTP Error:", err.getcode())
             return
@@ -83,7 +83,7 @@ class Page:
                  ("TimeOffset", ""), ("User", user), ("Password", passwd),
                  ("login", "Login")]).encode())
         try:
-            pg = urlopen(r)
+            pg = urlopen(r, timeout=60)
         except BadStatusLine:
             raise LoginError("BadStatusLine")
         pd = pg.read()
