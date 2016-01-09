@@ -14,7 +14,6 @@
 # limitations under the License.
 "Basic parsing"
 from html.parser import HTMLParser
-from sys import hexversion
 
 
 SPEC_ENTS = {
@@ -89,10 +88,7 @@ SPEC_ENTS = {
 
 class BasicParser(HTMLParser):
     def __init__(self):
-        di = {}
-        if hexversion >= 0x030200f0:
-            di["strict"] = False
-        HTMLParser.__init__(self, **di)
+        HTMLParser.__init__(self)
         self.data_handler = None
 
     def handle_data(self, data):
