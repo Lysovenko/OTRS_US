@@ -87,6 +87,7 @@ SPEC_ENTS = {
 
 
 class BasicParser(HTMLParser):
+    "basic parser class"
     def __init__(self):
         HTMLParser.__init__(self)
         self.data_handler = None
