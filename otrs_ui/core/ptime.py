@@ -15,6 +15,7 @@
 "Parse some timestamps"
 
 from time import strptime, mktime, localtime, strftime
+import re
 
 
 class TimeConv:
@@ -42,3 +43,30 @@ class TimeConv:
         if delta < secs + 864000:
             return "%d %s" % ((delta - secs) // 86400 + 1, self.dago)
         return strftime("%d/%m/%y", self.time)
+
+
+class TimeUnit:
+    "time units parser"
+    def __init__(self, value):
+        m = re.search(r"(\d+([,.])?\d*)\s*((s)|(m)|(h)|(ms))?$", value)
+        if m in None:
+            raise ValueError("Bad time %s" % value)
+        mantisa, dec_sep, units = (m.group(i) for i in range(1, 4))
+        if dec_sep == ",":
+            mantisa = mantisa.replace(',', '.')
+        if units == "s":
+            self.__seconds = float(mantisa)
+        elif units == "m":
+            self.__seconds = float(mantisa) * 60
+        elif units == "h":
+            self.__seconds = float(mantisa) * 3600
+        elif units == "ms":
+            self.__seconds = float(mantisa) * 1e-3
+        else:
+            raise ValueError("Bad time units %s" % units)
+
+    def seconds(self):
+        return self.__seconds
+
+    def miliseconds(self):
+        return self.__seconds / 1000
