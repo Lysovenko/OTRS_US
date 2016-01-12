@@ -99,9 +99,9 @@ class Dashboard(ttk.Frame):
             self.login_failed = 0
         if status in ("URLError", "Empty"):
             self.on_url_error(self.updater.get_result())
-        refresh = core_cfg.get("refresh_time", 0)
-        if refresh > 10000:
-            self.root.after(refresh, self.update)
+        refresh = core_cfg.get("refresh_time")
+        if refresh.seconds() > 10:
+            self.root.after(int(refresh.miliseconds()), self.update)
 
     def show_status(self, trees):
         if trees is None:

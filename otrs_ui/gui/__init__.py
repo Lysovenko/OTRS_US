@@ -114,7 +114,7 @@ class Face:
     def ask_settings(self):
         core_cfg = self.core.call("core cfg")
         cfg = {}
-        cfg["refresh_time"] = irt = core_cfg.get("refresh_time", 0)
+        cfg["refresh_time"] = irt = core_cfg.get("refresh_time")
         cfg.update(core_cfg)
         DlgSettings(self.root, _("Settings"), cfg=cfg)
         if cfg["OK button"]:
@@ -122,7 +122,7 @@ class Face:
             core_cfg.update(cfg)
             if not irt and core_cfg["refresh_time"]:
                 self.root.after(
-                    core_cfg["refresh_time"],
+                    int(core_cfg["refresh_time"].miliseconds()),
                     self.app_widgets["dashboard"].update)
 
 

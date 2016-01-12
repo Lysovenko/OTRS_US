@@ -47,10 +47,9 @@ class TimeConv:
 
 class TimeUnit:
     "time units parser"
-    def __init__(self, value):
-        print(value)
+    def update(self, value):
         m = re.search(r"(\d+([,.])?\d*)\s*((s)|(m)|(h)|(ms))?$", value)
-        if m in None:
+        if m is None:
             raise ValueError("Bad time %s" % value)
         mantisa, dec_sep, units = (m.group(i) for i in range(1, 4))
         if dec_sep == ",":
@@ -66,11 +65,16 @@ class TimeUnit:
         else:
             raise ValueError("Bad time units %s" % units)
 
+    __init__ = update
+
     def __repr__(self):
+        return "'%g s'" % self.__seconds
+
+    def __str__(self):
         return "%g s" % self.__seconds
 
     def seconds(self):
         return self.__seconds
 
     def miliseconds(self):
-        return self.__seconds / 1000
+        return self.__seconds * 1000

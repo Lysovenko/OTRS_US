@@ -156,7 +156,7 @@ class DlgSettings(Dialog):
         Label(master, text=_("Password:")).grid(column=0, row=2, sticky="w")
         self.time = StringVar()
         self.snd_cmd = StringVar()
-        self.time.set(str(cfg.get("refresh_time", 0)))
+        self.time.set(str(cfg.get("refresh_time")))
         self.snd_cmd.set(str(cfg.get("snd_cmd", "")))
         etime = Entry(master, width=15, textvariable=self.time)
         etime.grid(column=1, row=3, sticky="e")
@@ -182,7 +182,6 @@ class DlgSettings(Dialog):
 
     def apply(self):
         "On ok button pressed"
-        self.config["refresh_time"] = int(self.time.get())
         self.config["snd_cmd"] = self.snd_cmd.get()
         self.config["snd_err"] = self.snd_err.get()
         self.config["dld_fldr"] = self.dld_fldr.get()
@@ -193,7 +192,7 @@ class DlgSettings(Dialog):
 
     def validate(self):
         try:
-            int(self.time.get())
+            self.config["refresh_time"].update(self.time.get())
         except ValueError:
             return self.etime
         return None
