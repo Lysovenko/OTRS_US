@@ -48,6 +48,7 @@ class TimeConv:
 class TimeUnit:
     "time units parser"
     def __init__(self, value):
+        print(value)
         m = re.search(r"(\d+([,.])?\d*)\s*((s)|(m)|(h)|(ms))?$", value)
         if m in None:
             raise ValueError("Bad time %s" % value)
@@ -64,6 +65,9 @@ class TimeUnit:
             self.__seconds = float(mantisa) * 1e-3
         else:
             raise ValueError("Bad time units %s" % units)
+
+    def __repr__(self):
+        return "%g s" % self.__seconds
 
     def seconds(self):
         return self.__seconds
