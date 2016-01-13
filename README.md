@@ -15,3 +15,5 @@ Just run \_\_main\_\_.py and enter your login and password. Tickets should be ap
 In configure your dashboard to show ticket's modification time.
 
 Enter or double click no open ticket. Look for the shortkeys in the menu. Ctrl+esc closes ticket's window.
+
+Set echo to True to displaydebuginfo.
