@@ -17,6 +17,8 @@
 from time import strptime, mktime, localtime, strftime
 import re
 
+dashb_time = lambda x: mktime(strptime(x["Changed"], "%m/%d/%Y %H:%M"))
+
 
 class TimeConv:
     "Time converter"

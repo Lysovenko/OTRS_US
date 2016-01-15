@@ -15,14 +15,14 @@
 
 from os import system
 from os.path import dirname, join
-from time import strftime, strptime, mktime
+from time import strftime
 from urllib.parse import urlsplit, urlunsplit
 from urllib.error import URLError
 from tkinter import ttk, PhotoImage
 from tkinter.messagebox import showerror
 from .tickets import autoscroll
 from ..core.dash_upd import DashboardUpdater
-from ..core.ptime import TimeConv
+from ..core.ptime import TimeConv, dashb_time
 from .dialogs import DlgLogin
 
 
@@ -137,8 +137,7 @@ class Dashboard(ttk.Frame):
             old = self.ticket_range.get(name, ())
             data = pgl[name]
             if data and "Changed" in data[0]:
-                data.sort(reverse=True, key=lambda x: mktime(
-                    strptime(x["Changed"], "%m/%d/%Y %H:%M")))
+                data.sort(reverse=True, key=dashb_time)
             new = tuple(i["number"] for i in data)
             if name == "New":
                 result[name] = new and new[0] not in old
