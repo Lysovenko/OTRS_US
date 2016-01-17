@@ -44,6 +44,11 @@ class Database:
     def __bool__(self):
         return self.connection is not None
 
+    def execute(self, command):
+        cursor = self.connection.cursor()
+        cursor.execute(command)
+        self.connection.commit()
+
     def close(self):
         if self.connection:
             self.connection.close()

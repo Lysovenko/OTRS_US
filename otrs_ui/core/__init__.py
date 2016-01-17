@@ -51,5 +51,5 @@ def get_core():
     actor.register("runtime cfg", lambda x: x, dict(cfg))
     # not implemented yet
     db = Database("core.db")
-    actor.register("core db", lambda x: x, db)
+    actor.register("database", lambda x: x, db)
     return actor
