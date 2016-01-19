@@ -115,8 +115,11 @@ class Dashboard(ttk.Frame):
         self.app_widgets["core"].call("print_status", message)
         if ding:
             snd_cmd = self.app_widgets["core"].call("core cfg").get("snd_cmd")
+            imp_cmd = self.app_widgets["core"].call("core cfg").get("snd_imp")
             if snd_cmd:
                 system(snd_cmd)
+            if imp_cmd and trees["Important"]:
+                system(imp_cmd)
 
     def fill_trees(self, pgl):
         if pgl is None:
@@ -148,7 +151,8 @@ class Dashboard(ttk.Frame):
             self.ticket_range[name] = new
             for item in data:
                 if item["marker"] & 2:
-                    result["Important"] += 1
+                    if item["number"] not in old:
+                        result["Important"] += 1
                     image = self.important
                 else:
                     image = ""

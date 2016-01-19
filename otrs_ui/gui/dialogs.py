@@ -189,6 +189,7 @@ class DlgSettings(Dialog):
     def apply(self):
         "On ok button pressed"
         self.config["snd_cmd"] = self.snd_cmd.get()
+        self.config["snd_imp"] = self.snd_imp.get()
         self.config["snd_err"] = self.snd_err.get()
         self.config["dld_fldr"] = self.dld_fldr.get()
         self.config["site"] = self.site.get()
