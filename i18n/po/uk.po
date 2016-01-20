@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.0.3 \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-12 19:17+0200\n"
-"PO-Revision-Date: 2015-12-12 19:26+0200\n"
+"POT-Creation-Date: 2016-01-20 23:31+0200\n"
+"PO-Revision-Date: 2016-01-20 23:34+0200\n"
 "Last-Translator: Serhiy Lysovenko <EMAIL@ADDRESS>\n"
 "Language-Team: UKRAINIAN <nospam@gmail.com>\n"
 "Language: Ukrainian\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: utf-8\n"
 
-#: ../../otrs_ui/gui/dialogs.py:32 ../../otrs_ui/gui/dialogs.py:267
+#: ../../otrs_ui/gui/dialogs.py:32 ../../otrs_ui/gui/dialogs.py:273
 msgid "OK"
 msgstr "Гаразд"
 
@@ -33,19 +33,23 @@ msgstr "Користувач:"
 msgid "Password:"
 msgstr "Пароль:"
 
-#: ../../otrs_ui/gui/dialogs.py:173
+#: ../../otrs_ui/gui/dialogs.py:177
 msgid "Refresh time:"
 msgstr "Інтервал оновлення:"
 
-#: ../../otrs_ui/gui/dialogs.py:175
+#: ../../otrs_ui/gui/dialogs.py:179
 msgid "Sound command:"
 msgstr "Команда звуку:"
 
-#: ../../otrs_ui/gui/dialogs.py:177
+#: ../../otrs_ui/gui/dialogs.py:181
 msgid "Error sound command:"
 msgstr "Команда звуку помилки:"
 
-#: ../../otrs_ui/gui/dialogs.py:179
+#: ../../otrs_ui/gui/dialogs.py:183
+msgid "Important sound command:"
+msgstr "Команда звуку важливого:"
+
+#: ../../otrs_ui/gui/dialogs.py:185
 msgid "Download folder:"
 msgstr "Місце завантаження:"
 
@@ -336,6 +340,26 @@ msgstr "Копіювати посилання"
 msgid "Find"
 msgstr "Знайти"
 
-#: ../../otrs_ui/gui/dashboard.py:184
+#: ../../otrs_ui/gui/dashboard.py:67
+msgid "Title"
+msgstr "Назва"
+
+#: ../../otrs_ui/gui/dashboard.py:68
+msgid "Modified"
+msgstr "Змінено"
+
+#: ../../otrs_ui/gui/dashboard.py:128
+msgid "yest."
+msgstr "вчора"
+
+#: ../../otrs_ui/gui/dashboard.py:128
+msgid "min."
+msgstr "хв."
+
+#: ../../otrs_ui/gui/dashboard.py:128
+msgid "days"
+msgstr "дні"
+
+#: ../../otrs_ui/gui/dashboard.py:208
 msgid "Login"
 msgstr "Вхід"
