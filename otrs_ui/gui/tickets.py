@@ -101,7 +101,8 @@ class Tickets(ttk.Frame):
         frame = ttk.Frame(self.pw)
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_rowconfigure(0, weight=1)
-        text = TicText(frame, state="disabled")
+        text = TicText(frame, spell=self.core_cfg.get("spell"),
+                       state="disabled")
         self.text = text
         text.grid(column=0, row=0, sticky="nwes")
         vsb = ttk.Scrollbar(frame, command=self.text.yview, orient="vertical")
