@@ -55,8 +55,6 @@ class TicText(Text):
         word = self.get(index, "insert")
         write(self.wd, (word + '\n').encode())
         sleep(.01)
-        assert waitpid(self.sp.pid, 1) == (0, 0)
-        assert self.sp.poll() is None
         spell = read(self.rd, 0x0fffffff)
         rm = len([None for i in spell.splitlines()
                   if i[:1] == b'#'])
