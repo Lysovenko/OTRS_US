@@ -39,8 +39,8 @@ class Database:
             self.connection = sql.connect(path)
         except sql.Error as e:
             return
-        tables = {"tickets": "id int, mtime int, flags int",
-                  "articles": "tid text, id text"}
+        tables = {"tickets": "id INT, mtime INT, flags INT, title VARCHAR",
+                  "articles": "tid INT, aid INT, message TEXT"}
         for table in tables:
             self.execute("CREATE TABLE IF NOT EXISTS %s (%s)" % (
                 table, tables[table]))
@@ -55,7 +55,7 @@ class Database:
         self.connection.commit()
         return cursor.fetchall()
 
-    def update_ticket(self, tid, mtime, flags):
+    def update_ticket(self, tid, mtime, flags, title):
         tcts = self.execute("SELECT * FROM tickets WHERE id=%d" % tid)
         if tcts:
             ftid, fmtime, fflags = tcts[0]
@@ -65,8 +65,8 @@ class Database:
                         mtime, flags, tid))
                 return True
             return False
-        self.execute("INSERT INTO tickets VALUES(%d, %d, %d)" % (
-            tid, mtime, flags))
+        self.execute("INSERT INTO tickets VALUES(%d, %d, %d, '%s')" % (
+            tid, mtime, flags, title))
         return True
 
     def close(self):

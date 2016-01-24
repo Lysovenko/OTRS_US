@@ -152,7 +152,8 @@ class Dashboard(ttk.Frame):
             self.ticket_range[name] = new
             for item in data:
                 self.database.update_ticket(
-                    int(item["number"]), dashb_time(item), item["marker"])
+                    int(item["number"]), dashb_time(item), item["marker"],
+                    item["title"])
                 if item["marker"] & 2:
                     if item["number"] not in old:
                         result["Important"] += 1
