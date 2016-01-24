@@ -48,6 +48,7 @@ class Dashboard(ttk.Frame):
         self.updater = DashboardUpdater(appw["core"])
         self.login_escaped = False
         self.login_failed = 0
+        self.database = appw["core"].call("database")
 
     def make_tree(self, name):
         frame = ttk.Frame(self.pw, takefocus=False)
@@ -150,6 +151,8 @@ class Dashboard(ttk.Frame):
                 (i["number"], (i["href"], i["title"])) for i in data)
             self.ticket_range[name] = new
             for item in data:
+                self.database.update_ticket(
+                    int(item["number"]), dashb_time(item), item["marker"])
                 if item["marker"] & 2:
                     if item["number"] not in old:
                         result["Important"] += 1

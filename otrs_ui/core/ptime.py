@@ -14,11 +14,16 @@
 # limitations under the License.
 "Parse some timestamps"
 
-from time import strptime, mktime, localtime, strftime
+from time import strptime, mktime, localtime, strftime, time
 import re
-
-dashb_time = lambda x: mktime(strptime(x["Changed"], "%m/%d/%Y %H:%M"))
 ticket_time = lambda x: mktime(strptime(x["Changed"], "%Y/%m/%d %H:%M:%S"))
+
+
+def dashb_time(item):
+    try:
+        return mktime(strptime(item["Changed"], "%m/%d/%Y %H:%M"))
+    except KeyError:
+        return time()
 
 
 class TimeConv:

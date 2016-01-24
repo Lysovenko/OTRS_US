@@ -1,4 +1,4 @@
-# Copyright 2015 Serhiy Lysovenko
+# Copyright 2016 Serhiy Lysovenko
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,7 +38,12 @@ class Database:
         try:
             self.connection = sql.connect(path)
         except sql.Error as e:
-            pass
+            return
+        tables = {"tickets": "id int, mtime int, flags int",
+                  "articles": "tid text, id text"}
+        for table in tables:
+            self.execute("CREATE TABLE IF NOT EXISTS %s (%s)" % (
+                table, tables[table]))
         atexit.register(self.close)
 
     def __bool__(self):
@@ -48,6 +53,21 @@ class Database:
         cursor = self.connection.cursor()
         cursor.execute(command)
         self.connection.commit()
+        return cursor.fetchall()
+
+    def update_ticket(self, tid, mtime, flags):
+        tcts = self.execute("SELECT * FROM tickets WHERE id=%d" % tid)
+        if tcts:
+            ftid, fmtime, fflags = tcts[0]
+            if fmtime < mtime:
+                self.execute(
+                    "UPDATE tickets SET mtime=%d, flags=%d WHERE id=%d" % (
+                        mtime, flags, tid))
+                return True
+            return False
+        self.execute("INSERT INTO tickets VALUES(%d, %d, %d)" % (
+            tid, mtime, flags))
+        return True
 
     def close(self):
         if self.connection:
