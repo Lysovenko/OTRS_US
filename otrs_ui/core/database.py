@@ -40,7 +40,8 @@ class Database:
         except sql.Error as e:
             return
         tables = {"tickets": "id INT, mtime INT, flags INT, title VARCHAR",
-                  "articles": "tid INT, aid INT, message TEXT"}
+                  "articles": "tid INT, aid INT, ctime INT, title VARCHAR, "
+                  "sender VARCHAR, recipient VARCHAR, message TEXT, flags INT"}
         for table in tables:
             self.execute("CREATE TABLE IF NOT EXISTS %s (%s)" % (
                 table, tables[table]))
@@ -58,7 +59,7 @@ class Database:
     def update_ticket(self, tid, mtime, flags, title):
         tcts = self.execute("SELECT * FROM tickets WHERE id=%d" % tid)
         if tcts:
-            ftid, fmtime, fflags = tcts[0]
+            fmtime, fflags = tcts[0][1:3]
             if fmtime < mtime:
                 self.execute(
                     "UPDATE tickets SET mtime=%d, flags=%d WHERE id=%d" % (
