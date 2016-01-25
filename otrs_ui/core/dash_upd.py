@@ -16,6 +16,7 @@
 from traceback import print_exc
 from threading import Thread, Lock, active_count
 from urllib.error import URLError
+from urllib.parse import urlsplit, parse_qs
 from .pgload import DashboardPage, LoginError
 from .ptime import dashb_time
 
@@ -83,9 +84,10 @@ class DashboardUpdater:
             for name in ("Reminder", "New", "Open"):
                 summary[name] = False
                 for item in pgl[name]:
+                    tid, = parse_qs(urlsplit(item["href"]).query)["TicketID"]
                     if self.__db.update_ticket(
-                        int(item["number"]), dashb_time(item), item["marker"],
-                        item["title"]):
+                            int(tid), int(item["number"]), dashb_time(item),
+                            item["marker"], item["title"]):
                         summary[name] = True
                         if item["marker"] & 2:
                             summary["Important"] += 1
