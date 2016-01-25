@@ -47,7 +47,10 @@ class DashboardUpdater:
 
     def __thr_loader(self):
         try:
-            pgl = self.__page.load(self.__site)
+            if self.__site is None:
+                pgl = self.__page.login(self.__who)
+            else:
+                pgl = self.__page.load(self.__site)
         except LoginError:
             self.__set_status("LoginError")
             return
@@ -75,32 +78,11 @@ class DashboardUpdater:
 
     def login(self, who):
         self.__who = who
+        self.__site = None
         self.__set_status("Wait")
-        t = Thread(target=self.__thr_login)
+        t = Thread(target=self.__thr_loader)
         t.daemon = True
         t.start()
-
-    def __thr_login(self):
-        try:
-            pgl = self.__page.login(self.__who)
-        except LoginError:
-            self.__set_status("LoginError")
-            return
-        except URLError as err:
-            self.__result = err
-            self.__set_status("URLError")
-            return
-        except Exception as err:
-            self.__result = "%s: %s" % (str(type(err)), str(err))
-            print_exc()
-            self.__set_status("URLError")
-            return
-        self.__site = self.__who.get("site", "")
-        self.__result = pgl
-        if pgl is None:
-            self.__set_status("Empty")
-        else:
-            self.__set_status("Complete")
 
     def get_info(self):
         return 'cyrrently %d threads' % active_count()
