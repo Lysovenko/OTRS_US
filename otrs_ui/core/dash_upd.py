@@ -17,6 +17,7 @@ from traceback import print_exc
 from threading import Thread, Lock, active_count
 from urllib.error import URLError
 from .pgload import DashboardPage, LoginError
+from .ptime import dashb_time
 
 
 class DashboardUpdater:
@@ -25,6 +26,7 @@ class DashboardUpdater:
         self.__status = "Ready"
         self.__result = None
         self.__page = DashboardPage(core)
+        self.__db = core.call("database")
 
     def get_status(self):
         self.__st_lock.acquire()
@@ -74,7 +76,21 @@ class DashboardUpdater:
             self.__set_status("Ready")
             result = self.__result
             self.__result = None
-            return result
+            if type(result) is not dict:
+                return result
+            pgl = result
+            summary = {"Important": 0}
+            for name in ("Reminder", "New", "Open"):
+                summary[name] = False
+                for item in pgl[name]:
+                    if self.__db.update_ticket(
+                        int(item["number"]), dashb_time(item), item["marker"],
+                        item["title"]):
+                        summary[name] = True
+                        if item["marker"] & 2:
+                            summary["Important"] += 1
+                        item["marker"] |= 4
+            return pgl, summary
 
     def login(self, who):
         self.__who = who

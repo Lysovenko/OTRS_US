@@ -48,7 +48,6 @@ class Dashboard(ttk.Frame):
         self.updater = DashboardUpdater(appw["core"])
         self.login_escaped = False
         self.login_failed = 0
-        self.database = appw["core"].call("database")
 
     def make_tree(self, name):
         frame = ttk.Frame(self.pw, takefocus=False)
@@ -96,7 +95,7 @@ class Dashboard(ttk.Frame):
             res = self.updater.get_result()
             if res is not None:
                 self.fill_trees(res)
-                runt_cfg["dash_inputs"] = res.pop("inputs", {})
+                runt_cfg["dash_inputs"] = res[0].pop("inputs", {})
             self.login_failed = 0
         if status in ("URLError", "Empty"):
             self.on_url_error(self.updater.get_result())
@@ -122,12 +121,12 @@ class Dashboard(ttk.Frame):
             if imp_cmd and trees["Important"]:
                 system(imp_cmd)
 
-    def fill_trees(self, pgl):
-        if pgl is None:
+    def fill_trees(self, upd):
+        if upd is None:
             raise ConnectionError()
+        pgl, summary = upd
         tshow = TimeConv(
             yday=_("yest."), mago=_("min."), dago=_("days"))
-        result = {"Important": 0}
         self.tree_data.clear()
         for name in ("Reminder", "New", "Open"):
             tree = self.tree[name]
@@ -143,20 +142,11 @@ class Dashboard(ttk.Frame):
             if data and "Changed" in data[0]:
                 data.sort(reverse=True, key=dashb_time)
             new = tuple(i["number"] for i in data)
-            if name == "New":
-                result[name] = new and new[0] not in old
-            else:
-                result[name] = any(i not in old for i in new)
             self.tree_data.update(
                 (i["number"], (i["href"], i["title"])) for i in data)
             self.ticket_range[name] = new
             for item in data:
-                self.database.update_ticket(
-                    int(item["number"]), dashb_time(item), item["marker"],
-                    item["title"])
                 if item["marker"] & 2:
-                    if item["number"] not in old:
-                        result["Important"] += 1
                     image = self.important
                 else:
                     image = ""
@@ -175,7 +165,7 @@ class Dashboard(ttk.Frame):
                     tree.focus(self.ticket_range[name][0])
                 except IndexError:
                     pass
-        self.show_status(result)
+        self.show_status(summary)
 
     def activate(self, evt):
         "make selection jumps between trees"
