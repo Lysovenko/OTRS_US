@@ -15,6 +15,7 @@
 
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
+import re
 from .pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError, FileLoader)
 
@@ -22,33 +23,43 @@ from .pgload import (
 class MessageLoader:
     def __init__(self, core):
         self.echo = core.echo
+        self.core = core
+        self.runtime = core.call("runtime cfg")
 
-    def load_ticket(self, url):
-        self.echo("load ticket:", url)
-        self.my_url = url
-        pg = TicketsPage(self.app_widgets["core"])
+    def zoom_ticket(self, ticket_id):
+        self.echo("Zoom ticket:", ticket_id)
+        url_beg = urlsplit(self.runtime.get("site"))[:3]
+        params = (("Action", "AgentTicketZoom"), ("TicketID", ticket_id))
+        url = urlunsplit(url_beg + (urlencode(params), ""))
+        pg = TicketsPage(self.core)
         lres = None
         while True:
             try:
                 lres = pg.load(url)
                 if lres is None:
                     raise ConnectionError()
-                self.fill_tree(lres["articles"])
                 break
             except LoginError:
-                lres = pg.login(self.runt_cfg)
+                lres = pg.login(self.runtime)
                 break
             except ConnectionError:
                 try:
                     self.echo("Login in Tickets.load_ticket")
-                    lres = pg.login(self.runt_cfg)
+                    lres = pg.login(self.runtime)
                 except (LoginError, KeyError):
                     lres = None
             except KeyError:
-                showerror(_("Error"), _("Wrong Ticket"))
                 return
 
-    def get_tickets_page(self, page):
+    def zoom_article(self, ticket_id, article_id):
+        self.echo("Zoom article:", ticket_id, article_id)
+        url_beg = urlsplit(self.runtime.get("site"))[:3]
+        Action=AgentTicketZoom;;TicketID=370361;
+        params = (
+            ("Action", "AgentTicketZoom"), ("Subaction", "ArticleUpdate"),
+            ("TicketID", ticket_id), ("ArticleID", article_id))
+        url = urlunsplit(url_beg + (urlencode(params), ""))
+        page = TicketsPage(self.core)
         mail_text = ""
         if page is None:
             return
@@ -69,14 +80,50 @@ class MessageLoader:
             self.answers = page["answers"]
         except (KeyError, IndexError):
             self.answers = None
-        if "article text" in self.cur_article:
-            mail_text = self.cur_article["article text"]
-        elif "mail_src" in page:
-            url = urlunsplit(
-                self.url_begin[:2] + urlsplit(page["mail_src"])[2:])
+        if "mail_src" in page:
+            url = urlunsplit(url_beg[:2] + urlsplit(page["mail_src"])[2:])
             self.echo("Get message:", url)
             pg = MessagePage(self.app_widgets["core"])
             mail_text = pg.load(url)
-        self.cur_article["article text"] = mail_text
-        self.cur_article["article header"] = mail_header
-        self.show_email(self.cur_article)
+        return mail_text, mail_header
+
+    def menu_goto_url(self, evt=None):
+        cfg = {"url": ""}
+        DlgDetails(self, _("Go to ticket"),
+                   cfg=cfg, inputs=(("url", _("URL:")),))
+        if cfg["OK button"]:
+            url = cfg["url"]
+            if self.my_url is not None:
+                m = re.search(r"TicketID=(\d+)", url)
+                url = re.sub(r"TicketID=(\d+)", m.group(0), self.my_url)
+            self.load_ticket(url)
+
+    def menu_copy_url(self, evt=None):
+        self.text.clipboard_clear()
+        self.text.clipboard_append(re.sub(
+            '(;OTRSAgentInterface=[0-9a-f]+)*', '', self.my_url))
+
+    def detect_allowed_actions(self, act_hrefs):
+        total = {}
+        allowed = {"AgentTicketLock": False}
+        ac_sub = self.action_subaction
+        ac_sub.clear()
+        for href in act_hrefs:
+            qd = dict(parse_qsl(urlsplit(href).query))
+            total.update(qd)
+            try:
+                ac_sub[qd["Action"]] = qd.get("Subaction")
+            except KeyError:
+                pass
+            if qd.get("Action") in allowed:
+                allowed[qd["Action"]] = True
+        self.actions_params = total
+        econ = self.app_widgets["menu_ticket"].entryconfig
+        state = "normal" if allowed["AgentTicketLock"] else "disabled"
+        for l in (_("Lock"), _("Answer"), _("Close")):
+            econ(l, state=state)
+        try:
+            self.change_cur_article(self.tree_data[total["ArticleID"]])
+            self.tree.focus(item=total["ArticleID"])
+        except KeyError:
+            pass
