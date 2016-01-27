@@ -16,8 +16,24 @@
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
 import re
+from .ptime import ticket_time
 from .pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError, FileLoader)
+
+
+def article_by_url(url):
+    sp = 0
+    t_id = a_id = None
+    while True:
+        m = re.search(r"(TicketID=(\d+))|((ArticleID=|#)(\d+))", url[sp:])
+        if m is None:
+            break
+        sp += m.end()
+        if m.group(2) is not None:
+            t_id = int(m.group(2))
+        elif m.group(5) is not None:
+            a_id = int(m.group(5))
+    return t_id, a_id
 
 
 class MessageLoader:
@@ -33,23 +49,34 @@ class MessageLoader:
         url = urlunsplit(url_beg + (urlencode(params), ""))
         pg = TicketsPage(self.core)
         lres = None
-        while True:
+        try:
+            lres = pg.load(url)
+        except LoginError:
+            lres = pg.login(self.runtime)
+        except ConnectionError:
             try:
-                lres = pg.load(url)
-                if lres is None:
-                    raise ConnectionError()
-                break
-            except LoginError:
+                self.echo("Login in Tickets.load_ticket")
                 lres = pg.login(self.runtime)
-                break
-            except ConnectionError:
-                try:
-                    self.echo("Login in Tickets.load_ticket")
-                    lres = pg.login(self.runtime)
-                except (LoginError, KeyError):
-                    lres = None
-            except KeyError:
+            except (LoginError, KeyError):
                 return
+        except KeyError:
+            return
+        if lres is None:
+            raise ConnectionError()
+        return self.describe_articles(lres["articles"])
+
+    def describe_articles(self, articles):
+        description = {}
+        for item in articles:
+            qd = dict(parse_qsl(urlsplit(item["article info"]).query))
+            ticket_id = int(qd["TicketID"])
+            article_id = int(qd["ArticleID"])
+            title = item["Subject"]
+            sender = item["From"]
+            mktime = ticket_time(item["Created"])
+            #, item["Type"]
+            tree_data[no] = item
+        return description
 
     def zoom_article(self, ticket_id, article_id):
         self.echo("Zoom article:", ticket_id, article_id)
@@ -85,17 +112,6 @@ class MessageLoader:
             pg = MessagePage(self.app_widgets["core"])
             mail_text = pg.load(url)
         return mail_text, mail_header
-
-    def menu_goto_url(self, evt=None):
-        cfg = {"url": ""}
-        DlgDetails(self, _("Go to ticket"),
-                   cfg=cfg, inputs=(("url", _("URL:")),))
-        if cfg["OK button"]:
-            url = cfg["url"]
-            if self.my_url is not None:
-                m = re.search(r"TicketID=(\d+)", url)
-                url = re.sub(r"TicketID=(\d+)", m.group(0), self.my_url)
-            self.load_ticket(url)
 
     def extract_url(self, ticket_id, article_id):
         return "%s?Action=AgentTicketZoom;TicketID=%d#%d" % (
