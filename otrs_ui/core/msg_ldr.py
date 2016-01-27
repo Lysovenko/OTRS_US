@@ -54,7 +54,6 @@ class MessageLoader:
     def zoom_article(self, ticket_id, article_id):
         self.echo("Zoom article:", ticket_id, article_id)
         url_beg = urlsplit(self.runtime.get("site"))[:3]
-        Action=AgentTicketZoom;;TicketID=370361;
         params = (
             ("Action", "AgentTicketZoom"), ("Subaction", "ArticleUpdate"),
             ("TicketID", ticket_id), ("ArticleID", article_id))
@@ -98,14 +97,12 @@ class MessageLoader:
                 url = re.sub(r"TicketID=(\d+)", m.group(0), self.my_url)
             self.load_ticket(url)
 
-    def menu_copy_url(self, evt=None):
-        self.text.clipboard_clear()
-        self.text.clipboard_append(re.sub(
-            '(;OTRSAgentInterface=[0-9a-f]+)*', '', self.my_url))
+    def extract_url(self, ticket_id, article_id):
+        return "%s?Action=AgentTicketZoom;TicketID=%d#%d" % (
+            self.runtime.get("site"), ticket_id, article_id)
 
     def detect_allowed_actions(self, act_hrefs):
         total = {}
-        allowed = {"AgentTicketLock": False}
         ac_sub = self.action_subaction
         ac_sub.clear()
         for href in act_hrefs:
@@ -115,15 +112,6 @@ class MessageLoader:
                 ac_sub[qd["Action"]] = qd.get("Subaction")
             except KeyError:
                 pass
-            if qd.get("Action") in allowed:
-                allowed[qd["Action"]] = True
         self.actions_params = total
-        econ = self.app_widgets["menu_ticket"].entryconfig
-        state = "normal" if allowed["AgentTicketLock"] else "disabled"
-        for l in (_("Lock"), _("Answer"), _("Close")):
-            econ(l, state=state)
-        try:
-            self.change_cur_article(self.tree_data[total["ArticleID"]])
-            self.tree.focus(item=total["ArticleID"])
         except KeyError:
             pass

@@ -37,7 +37,7 @@ class Config(dict):
         try:
             with open(self.path) as fp:
                 for line in iter(fp.readline, ''):
-                    if not line.isspace():
+                    if not line.isspace() and not line.startswith('#'):
                         nam, val = line.strip().split('=', 1)
                         cfgl.append((nam, eval(val)))
         except Exception:

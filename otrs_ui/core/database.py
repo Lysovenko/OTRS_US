@@ -21,7 +21,7 @@ import sqlite3 as sql
 
 class Database:
     "Sqlite3 database class"
-    def __init__(self, filename):
+    def __init__(self, filename, autoclose=True):
         if name == 'posix':
             path = expanduser("~/.config/otrs_us")
         elif name == 'nt':
@@ -47,7 +47,8 @@ class Database:
         for table in tables:
             self.execute("CREATE TABLE IF NOT EXISTS %s (%s)" % (
                 table, tables[table]))
-        atexit.register(self.close)
+        if autoclose:
+            atexit.register(self.close)
 
     def __bool__(self):
         return self.connection is not None
