@@ -63,19 +63,36 @@ class Database:
             self.connection.commit()
         return cursor.fetchall()
 
-    def update_ticket(self, id, number, mtime, flags, title):
-        tcts = self.execute("SELECT mtime, flags FROM tickets "
-                            "WHERE id=%d" % id, False)
+    def update_ticket(
+            self, id, number=None, mtime=None, flags=None, title=None,
+            info=None):
+        tcts = self.execute("SELECT number, mtime, flags, title, info "
+                            "FROM tickets WHERE id=%d" % id, False)
         if tcts:
-            fmtime, fflags = tcts[0]
-            if fmtime < mtime:
-                self.execute("UPDATE tickets SET mtime=%d, flags=%d "
-                             "WHERE id=%d" % (mtime, flags, id))
-                return True
-            return False
-        self.execute("INSERT INTO tickets VALUES(%d, %d, %d, %d, '%s', '')" % (
-            id, number, mtime, flags, title))
+            updict = {}
+            dnum, dmtime, dflags, dtitle, dinfo = tcts[0]
+            for i, j, k in ((number, dnum, "number"), (mtime, dmtime, "mtime"),
+                            (flags, dflags, "flags"), (title, dtitle, "title"),
+                            (info, dinfo, "info")):
+                if i is not None and i != j:
+                    updict[k] = repr(j)
+            if updict:
+                upstr = ", ".join("%s=%s" % (i, updict[i]) for i in updict)
+                self.execute("UPDATE tickets SET %s "
+                             "WHERE id=%d" % (upstr, id))
+            return dmtime < mtime
+        instup = tuple(j if i is None else repr(i) for i, j in (
+            (id, id), (number, '0'), (mtime, '0'), (flags, '0'),
+            (title, "'No subj'"), (info, "'None'")))
+        self.execute("INSERT INTO tickets "
+                     "VALUES(%s, %s, %s, %s, %s, %s)" % instup)
         return True
+
+    def ticket_fields(self, id, *fields):
+        rval = self.execute("SELECT %s FROM tickets WHERE id=%d" %
+                            (", ".join(fields), id), False)
+        if rval:
+            return rval[0]
 
     def article_description(self, id, ticket=None, ctime=None,
                             title=None, sender=None, flags=None):
@@ -84,10 +101,10 @@ class Database:
         if arts:
             dticket, dctime, dtitle, dsender, dflags = arts[0]
             updates = {}
-            if tickets is not None and tickets != dticket:
+            if ticket is not None and ticket != dticket:
                 dticket = ticket
                 updates["ticket"] = dticket
-            if flags is not None and flags & ART_SEEN and not dflags & ART_SEEN:
+            if flags is not None and flags & ART_SEEN:
                 dflags |= ART_SEEN
                 updates["flags"] = dflags
             if updates:

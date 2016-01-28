@@ -21,7 +21,7 @@ from .ptime import ticket_time
 from .pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError, FileLoader)
 from .database import ART_SEEN, ART_TEXT
-ticket_type_index = (
+TICKET_TYPES = (
     "agent-email-external", "agent-email-internal",
     "agent-note-external", "agent-note-internal",
     "agent-phone", "customer-email-external",
@@ -56,9 +56,12 @@ class MessageLoader:
 
     def zoom_ticket(self, ticket_id):
         if ticket_id not in self.runtime.get("changed tickets", ()):
-            return self.describe_articles(ticket_id)
+            info, = self.__db.ticket_fields(ticket_id, "info")
+            return self.describe_articles(ticket_id), info
         self.runtime["changed tickets"].remove(ticket_id)
-        return self.__update_ticket(ticket_id)
+        arts = self.__update_ticket(ticket_id)
+        info, = self.__db.ticket_fields(ticket_id, "info")
+        return arts, info
 
     def __update_ticket(self, ticket_id):
         self.echo("Zoom ticket:", ticket_id)
@@ -81,6 +84,13 @@ class MessageLoader:
             return
         if lres is None:
             raise ConnectionError()
+        # ticket properties aka info
+        if "info" in page:
+            self.ticket_info = page["info"]
+        allow = self.detect_allowed_actions(page.get("action_hrefs", []) +
+                                            page.get("art_act_hrefs", []))
+        info = "\n\n".join((repr(page.get("info", ())), repr(allow)))
+        self.__db.update_ticket(ticket_id, info=info)
         return self.describe_articles(lres["articles"])
 
     def describe_articles(self, articles):
@@ -96,7 +106,7 @@ class MessageLoader:
                 sender = item["From"]
                 ctime = ticket_time(item["Created"])
                 rcs = item["row"].spit()
-                flags = ticket_type_index.index(rcs[0])
+                flags = TICKET_TYPES.index(rcs[0])
                 if "UnreadArticles" not in rcs:
                     flags |= ART_SEEN
                 flags = self.__db.article_description(
@@ -122,15 +132,11 @@ class MessageLoader:
         mail_text = ""
         if page is None:
             return
-        if "info" in page:
-            self.ticket_info = page["info"]
         mail_header = page.get("mail_header", [])
         try:
             mail_text = page["message_text"]
         except KeyError:
             pass
-        # self.detect_allowed_actions(page.get("action_hrefs", []) +
-        #                             page.get("art_act_hrefs", []))
         try:
             self.queues = page["queues"]
         except KeyError:
@@ -156,15 +162,7 @@ class MessageLoader:
             self.runtime.get("site"), ticket_id, article_id)
 
     def detect_allowed_actions(self, act_hrefs):
-        total = {}
-        ac_sub = self.action_subaction
-        ac_sub.clear()
+        allowed = {"AgentTicketLock": False}
         for href in act_hrefs:
-            qd = dict(parse_qsl(urlsplit(href).query))
-            total.update(qd)
-            try:
-                ac_sub[qd["Action"]] = qd.get("Subaction")
-            except KeyError:
-                pass
-        self.actions_params = total
-
+            allowed[qd["Action"]] = qd.get("Subaction", True)
+        return allowed
