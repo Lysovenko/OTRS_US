@@ -77,7 +77,7 @@ class DashboardUpdater:
             self.__set_status("Ready")
             result = self.__result
             self.__result = None
-            if type(result) is not dict:
+            if not isinstance(result, dict):
                 return result
             pgl = result
             summary = {"Important": 0}

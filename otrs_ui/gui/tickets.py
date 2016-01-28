@@ -254,7 +254,7 @@ class Tickets(ttk.Frame):
         self.tree.focus_set()
 
     def enter_article(self, evt):
-        iid = evt if type(evt) == str else evt.widget.focus()
+        iid = evt if isinstance(evt, str) else evt.widget.focus()
         if iid:
             self.app_widgets["menu_ticket"].entryconfig(
                 _("Send message"), state="normal"
@@ -426,7 +426,7 @@ class Tickets(ttk.Frame):
             return
         res = []
         for item in self.ticket_info:
-            if type(item) == str:
+            if isinstance(item, str):
                 res.append(item.strip() + "\n")
             else:
                 res.append("%s\t%s\n" % tuple(i.strip() for i in item[:2]))

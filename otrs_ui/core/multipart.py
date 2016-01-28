@@ -25,12 +25,12 @@ def dump_multipart_text(data):
     result = []
     for name, content in data:
         result.append(b"--" + boundary)
-        if type(content) is str:
+        if isinstance(content, str):
             result.append((
                 'Content-Disposition: form-data; name="%s"' % name).encode())
             result.append(b'')
             result.append(content.encode())
-        elif type(content) is tuple:
+        elif isinstance(content, tuple):
             result.append((
                 'Content-Disposition: form-data; name="%s";'
                 ' filename="%s"' % (name, content[0])).encode())

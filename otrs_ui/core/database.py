@@ -17,6 +17,9 @@ import atexit
 from os import makedirs, name
 from os.path import isdir, expanduser, join
 import sqlite3 as sql
+ART_UNSEEN = 1 << 4
+ART_HAS_TEXT = 1 << 5
+ART_TYPE_MASK = 0xf
 
 
 class Database:
@@ -41,9 +44,9 @@ class Database:
             return
         tables = {
             "tickets": "id INT, number INT, mtime INT, flags INT, "
-            "title VARCHAR", "articles": "tid INT, aid INT, ctime INT, "
-            "title VARCHAR, sender VARCHAR, recipient VARCHAR, message TEXT, "
-            "flags INT"}
+            "title VARCHAR",
+            "articles": "id INT, ticket INT, ctime INT, title VARCHAR, "
+            "sender VARCHAR, flags INT, message TEXT"}
         for table in tables:
             self.execute("CREATE TABLE IF NOT EXISTS %s (%s)" % (
                 table, tables[table]))
@@ -53,26 +56,64 @@ class Database:
     def __bool__(self):
         return self.connection is not None
 
-    def execute(self, command):
+    def execute(self, command, commit=True):
         cursor = self.connection.cursor()
         cursor.execute(command)
-        self.connection.commit()
+        if commit:
+            self.connection.commit()
         return cursor.fetchall()
 
-    def update_ticket(self, tid, number, mtime, flags, title):
-        tcts = self.execute("SELECT * FROM tickets WHERE id=%d" % tid)
+    def update_ticket(self, id, number, mtime, flags, title):
+        tcts = self.execute("SELECT mtime, flags FROM tickets "
+                            "WHERE id=%d" % id, False)
         if tcts:
-            fmtime, fflags = tcts[0][1:3]
+            fmtime, fflags = tcts[0]
             if fmtime < mtime:
-                self.execute(
-                    "UPDATE tickets SET mtime=%d, flags=%d WHERE id=%d" % (
-                        mtime, flags, tid))
+                self.execute("UPDATE tickets SET mtime=%d, flags=%d "
+                             "WHERE id=%d" % (mtime, flags, id))
                 return True
             return False
         self.execute("INSERT INTO tickets VALUES(%d, %d, %d, %d, '%s')" % (
-            tid, number, mtime, flags, title))
+            id, number, mtime, flags, title))
         return True
+
+    def article_description(self, id, ticket=None, ctime=None,
+                            title=None, sender=None, flags=None):
+        arts = self.execute("SELECT ticket, ctime, title, seder, flags "
+                            "FROM articles WHERE id=%d" % id)
+        if arts:
+            dticket, dctime, dtitle, dsender, dflags = arts[0]
+            updates = {}
+            if tickets is not None and tickets != dticket:
+                dticket = ticket
+                updates["ticket"] = ticket
+            if flags is not None and flags & ART_UNSEEN != dflags & ART_UNSEEN:
+                dflags &= ~ART_UNSEEN
+                updates["flags"] = dflags
+            if updates:
+                us = ", ".join("%s=%s" % i for i in updates.items())
+                self.execute("UPDATE articles SET %s WHERE id=%d" % (us, id))
+            return dticket, dctime, dtitle, dsender, dflags
+        self.execute(
+            "INSERT INTO articles VALUES(%d, %d, %d, '%s', '%s', %d, '')" % (
+                id, ticket, ctime, title, sender, flags))
+
+    def article_message(self, id, message=None):
+        if message is None:
+            arts = self.execute("SELECT message FROM articles "
+                                "WHERE id=%d" % id)
+            if arts is None:
+                return
+            return arts[0][0]
+        self.execute("UPDATE articles SET message=%s, flags=flags | %d "
+                     "WHERE id=%d" % (repr(message), ART_HAS_TEXT, id))
 
     def close(self):
         if self.connection:
             self.connection.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, tp, val, tb):
+        self.close()

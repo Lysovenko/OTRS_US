@@ -19,6 +19,15 @@ import re
 from .ptime import ticket_time
 from .pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError, FileLoader)
+ticket_type_index = (
+    "agent-email-external", "agent-email-internal",
+    "agent-note-external", "agent-note-internal",
+    "agent-phone", "customer-email-external",
+    "customer-note-external", "customer-phone",
+    "customer-webrequest", "system-email-external",
+    "system-email-internal", "system-email-notification-ext",
+    "system-email-notification-int", "system-note-external",
+    "system-note-internal", "system-note-report")
 
 
 def article_by_url(url):
@@ -74,8 +83,10 @@ class MessageLoader:
             title = item["Subject"]
             sender = item["From"]
             mktime = ticket_time(item["Created"])
-            #, item["Type"]
-            tree_data[no] = item
+            rcs = item["row"].spit()
+            status = ticket_type_index.index(rcs[0])
+            if "UnreadArticles" in rcs:
+                status |= 1 << 4
         return description
 
     def zoom_article(self, ticket_id, article_id):
