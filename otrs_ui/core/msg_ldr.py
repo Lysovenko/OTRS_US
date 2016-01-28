@@ -15,10 +15,12 @@
 
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
+from threading import Thread, Lock
 import re
 from .ptime import ticket_time
 from .pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError, FileLoader)
+from .database import ART_SEEN, ART_TEXT
 ticket_type_index = (
     "agent-email-external", "agent-email-internal",
     "agent-note-external", "agent-note-internal",
@@ -50,8 +52,15 @@ class MessageLoader:
         self.echo = core.echo
         self.core = core
         self.runtime = core.call("runtime cfg")
+        self.__db = core.call("database")
 
     def zoom_ticket(self, ticket_id):
+        if ticket_id not in self.runtime.get("changed tickets", ()):
+            return self.describe_articles(ticket_id)
+        self.runtime["changed tickets"].remove(ticket_id)
+        return self.__update_ticket(ticket_id)
+
+    def __update_ticket(self, ticket_id):
         self.echo("Zoom ticket:", ticket_id)
         url_beg = urlsplit(self.runtime.get("site"))[:3]
         params = (("Action", "AgentTicketZoom"), ("TicketID", ticket_id))
@@ -75,21 +84,34 @@ class MessageLoader:
         return self.describe_articles(lres["articles"])
 
     def describe_articles(self, articles):
+        if isinstance(articles, int):
+            articles = self.__db.articles_description(articles)
         description = {}
         for item in articles:
-            qd = dict(parse_qsl(urlsplit(item["article info"]).query))
-            ticket_id = int(qd["TicketID"])
-            article_id = int(qd["ArticleID"])
-            title = item["Subject"]
-            sender = item["From"]
-            mktime = ticket_time(item["Created"])
-            rcs = item["row"].spit()
-            status = ticket_type_index.index(rcs[0])
-            if "UnreadArticles" in rcs:
-                status |= 1 << 4
+            if isinstance(item, dict):
+                qd = dict(parse_qsl(urlsplit(item["article info"]).query))
+                ticket_id = int(qd["TicketID"])
+                article_id = int(qd["ArticleID"])
+                title = item["Subject"]
+                sender = item["From"]
+                ctime = ticket_time(item["Created"])
+                rcs = item["row"].spit()
+                flags = ticket_type_index.index(rcs[0])
+                if "UnreadArticles" not in rcs:
+                    flags |= ART_SEEN
+                flags = self.__db.article_description(
+                    article_id, ticket_id, ctime, title, sender, flags)[4]
+            else:
+                article_id, ticket_id, ctime, title, sender, flags = item
+            description[article_id] = {
+                "TicketID": ticket_id, "ctime": ctime, "ArticleID": article_id,
+                "Title": title, "Sender": sender, "Flags": flags}
         return description
 
     def zoom_article(self, ticket_id, article_id):
+        art_descr = self.__db.article_description(article_id)
+        if art_descr[4] & ART_TEXT:
+            return self.__db.article_message(article_id)
         self.echo("Zoom article:", ticket_id, article_id)
         url_beg = urlsplit(self.runtime.get("site"))[:3]
         params = (
@@ -107,8 +129,8 @@ class MessageLoader:
             mail_text = page["message_text"]
         except KeyError:
             pass
-        self.detect_allowed_actions(page.get("action_hrefs", []) +
-                                    page.get("art_act_hrefs", []))
+        # self.detect_allowed_actions(page.get("action_hrefs", []) +
+        #                             page.get("art_act_hrefs", []))
         try:
             self.queues = page["queues"]
         except KeyError:
@@ -122,7 +144,12 @@ class MessageLoader:
             self.echo("Get message:", url)
             pg = MessagePage(self.app_widgets["core"])
             mail_text = pg.load(url)
-        return mail_text, mail_header
+        if mail_header:
+            mail_text.insert(0, ("\n\n",))
+        for i in mail_header:
+            mail_text.insert(0, ("%s\t%s\n" % i,))
+        self.__db.article_message(article_id, mail_text)
+        return mail_text
 
     def extract_url(self, ticket_id, article_id):
         return "%s?Action=AgentTicketZoom;TicketID=%d#%d" % (
@@ -140,5 +167,4 @@ class MessageLoader:
             except KeyError:
                 pass
         self.actions_params = total
-        except KeyError:
-            pass
+

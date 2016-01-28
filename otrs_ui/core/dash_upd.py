@@ -28,6 +28,9 @@ class DashboardUpdater:
         self.__result = None
         self.__page = DashboardPage(core)
         self.__db = core.call("database")
+        rtm = core.call("runtime cfg")
+        rtm["changed tickets"] = self.ts_changed = \
+            rtm.get("changed tickets", set())
 
     def get_status(self):
         self.__st_lock.acquire()
@@ -88,6 +91,7 @@ class DashboardUpdater:
                     if self.__db.update_ticket(
                             int(tid), int(item["number"]), dashb_time(item),
                             item["marker"], item["title"]):
+                        self.ts_changed.add(int(tid))
                         summary[name] = True
                         if item["marker"] & 2:
                             summary["Important"] += 1
@@ -103,4 +107,4 @@ class DashboardUpdater:
         t.start()
 
     def get_info(self):
-        return 'cyrrently %d threads' % active_count()
+        return "currently %d threads" % active_count()

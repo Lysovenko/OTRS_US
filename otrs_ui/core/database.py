@@ -17,8 +17,8 @@ import atexit
 from os import makedirs, name
 from os.path import isdir, expanduser, join
 import sqlite3 as sql
-ART_UNSEEN = 1 << 4
-ART_HAS_TEXT = 1 << 5
+ART_SEEN = 1 << 8
+ART_TEXT = 1 << 5
 ART_TYPE_MASK = 0xf
 
 
@@ -44,9 +44,9 @@ class Database:
             return
         tables = {
             "tickets": "id INT, number INT, mtime INT, flags INT, "
-            "title VARCHAR",
+            "title VARCHAR, info TEXT",
             "articles": "id INT, ticket INT, ctime INT, title VARCHAR, "
-            "sender VARCHAR, flags INT, message TEXT"}
+            "sender VARCHAR, reciever VARCHAR, flags INT, message TEXT"}
         for table in tables:
             self.execute("CREATE TABLE IF NOT EXISTS %s (%s)" % (
                 table, tables[table]))
@@ -73,7 +73,7 @@ class Database:
                              "WHERE id=%d" % (mtime, flags, id))
                 return True
             return False
-        self.execute("INSERT INTO tickets VALUES(%d, %d, %d, %d, '%s')" % (
+        self.execute("INSERT INTO tickets VALUES(%d, %d, %d, %d, '%s', '')" % (
             id, number, mtime, flags, title))
         return True
 
@@ -86,17 +86,28 @@ class Database:
             updates = {}
             if tickets is not None and tickets != dticket:
                 dticket = ticket
-                updates["ticket"] = ticket
-            if flags is not None and flags & ART_UNSEEN != dflags & ART_UNSEEN:
-                dflags &= ~ART_UNSEEN
+                updates["ticket"] = dticket
+            if flags is not None and flags & ART_SEEN and not dflags & ART_SEEN:
+                dflags |= ART_SEEN
                 updates["flags"] = dflags
             if updates:
                 us = ", ".join("%s=%s" % i for i in updates.items())
                 self.execute("UPDATE articles SET %s WHERE id=%d" % (us, id))
             return dticket, dctime, dtitle, dsender, dflags
+        if any(i is None for i in (ticket, ctime, title, sender, flags)):
+            return
         self.execute(
-            "INSERT INTO articles VALUES(%d, %d, %d, '%s', '%s', %d, '')" % (
+            "INSERT INTO articles "
+            "VALUES(%d, %d, %d, '%s', '%s', '', %d, '')" % (
                 id, ticket, ctime, title, sender, flags))
+        return ticket, ctime, title, sender, flags
+
+    def articles_description(self, ticket):
+        rval = self.execute("SELECT id, ticket, ctime, title, seder, flags "
+                            "FROM articles WHERE ticket=%d" % ticket, False)
+        if rval:
+            return rval
+        return ()
 
     def article_message(self, id, message=None):
         if message is None:
@@ -106,7 +117,7 @@ class Database:
                 return
             return arts[0][0]
         self.execute("UPDATE articles SET message=%s, flags=flags | %d "
-                     "WHERE id=%d" % (repr(message), ART_HAS_TEXT, id))
+                     "WHERE id=%d" % (repr(message), ART_TEXT, id))
 
     def close(self):
         if self.connection:

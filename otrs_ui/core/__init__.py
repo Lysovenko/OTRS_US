@@ -49,6 +49,6 @@ def get_core():
         cfg["refresh_time"] = TimeUnit("0 s")
     actor.register("core cfg", lambda x: x, cfg)
     actor.register("runtime cfg", lambda x: x, dict(cfg))
-    db = Database("core.db")
+    db = Database("core.db", True)
     actor.register("database", lambda x: x, db)
     return actor

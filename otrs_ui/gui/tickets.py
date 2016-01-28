@@ -19,6 +19,7 @@ from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
 import re
 from ..core import version
+from ..core.msg_ldr import MessageLoader, article_by_url
 from ..core.pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError, FileLoader)
 from .dialogs import AboutBox, DlgDetails
