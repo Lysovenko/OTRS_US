@@ -88,9 +88,9 @@ class MessageLoader:
             self.ticket_info = page["info"]
         allow = self.detect_allowed_actions(page.get("action_hrefs", []) +
                                             page.get("art_act_hrefs", []))
-        info = "\n\n".join((repr(page.get("info", ())), repr(allow)))
-        # TODO: take original flags
-        flags = TIC_UPD
+        info = ";;".join((repr(page.get("info", ())), repr(allow)))
+        flags, = self.__db.ticket_fields(ticket_id, "flags")
+        flags |= TIC_UPD
         self.__db.update_ticket(ticket_id, info=info, flags=flags)
         return self.describe_articles(page["articles"])
 
@@ -115,7 +115,7 @@ class MessageLoader:
             else:
                 article_id, ticket_id, ctime, title, sender, flags = item
             description[article_id] = {
-                "TicketID": ticket_id, "ctime": ctime, "ArticleID": article_id,
+                "TicketID": ticket_id, "ctime": ctime,
                 "Title": title, "Sender": sender, "Flags": flags}
         return description
 
@@ -152,7 +152,7 @@ class MessageLoader:
             pg = MessagePage(self.app_widgets["core"])
             mail_text = pg.load(url)
         if mail_header:
-            mail_text.insert(0, ("\n\n",))
+            mail_text.insert(0, (";;",))
         for i in mail_header:
             mail_text.insert(0, ("%s\t%s\n" % i,))
         self.__db.article_message(article_id, mail_text)

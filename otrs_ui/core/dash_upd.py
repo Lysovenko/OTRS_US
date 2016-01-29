@@ -92,7 +92,7 @@ class DashboardUpdater:
                     tid, = parse_qs(urlsplit(item["href"]).query)["TicketID"]
                     if self.__db.update_ticket(
                             int(tid), int(item["number"]), dashb_time(item),
-                            item["marker"], item["title"]):
+                            title=item["title"]):
                         self.ts_changed.add(int(tid))
                         summary[name] = True
                         if item["marker"] & 2:

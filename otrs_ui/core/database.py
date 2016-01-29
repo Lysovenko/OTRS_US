@@ -77,7 +77,8 @@ class Database:
                             (flags, dflags, "flags"), (title, dtitle, "title"),
                             (info, dinfo, "info")):
                 if i is not None and i != j:
-                    updict[k] = repr(j)
+                    # TODO: escape more accurately sql datatypes
+                    updict[k] = repr(i).replace("\\'", "''")
             if updict:
                 upstr = ", ".join("%s=%s" % (i, updict[i]) for i in updict)
                 self.execute("UPDATE tickets SET %s "
@@ -85,7 +86,7 @@ class Database:
             return None if mtime is None else dmtime < mtime
         instup = tuple(j if i is None else repr(i) for i, j in (
             (id, id), (number, '0'), (mtime, '0'), (flags, '0'),
-            (title, "'No subj'"), (info, "'None'")))
+            (title, "'No subj'"), (info, "';;'")))
         self.execute("INSERT INTO tickets "
                      "VALUES(%s, %s, %s, %s, %s, %s)" % instup)
         return True

@@ -15,6 +15,7 @@
 
 from tkinter import ttk, StringVar
 from tkinter.messagebox import showerror, showinfo
+from time import ctime
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
 import re
@@ -114,11 +115,13 @@ class Tickets(ttk.Frame):
         return frame
 
     def load_ticket(self, ticket_id):
+        articles, info = self.loader.zoom_ticket(ticket_id)
         self.app_widgets["menu_ticket"].entryconfig(
             _("Send message"), state="disabled")
-        arts, info = self.loader.zoom_ticket(ticket_id)
-        self.get_tickets_page(arts)
-        self.set_menu_active()
+        self.fill_tree(articles)
+        # lres = pg.load(url)
+        # self.get_tickets_page(lres)
+        # self.set_menu_active()
 
     def get_tickets_page(self, page):
         mail_text = ""
@@ -202,31 +205,19 @@ class Tickets(ttk.Frame):
         self.cur_article = article
 
     def fill_tree(self, articles):
-        if articles is None:
-            raise ConnectionError()
-        tree_data = {}
-        self.url_begin = (urlsplit(self.runt_cfg["site"])[:2] +
-                          (urlsplit(articles[0]["article info"])[2],))
         tree = self.tree
         for i in reversed(self.articles_range):
             tree.delete(i)
-        del self.articles_range[:]
-        for item in articles:
-            qd = dict(parse_qsl(urlsplit(item["article info"]).query))
-            item["article info"] = qd
+        self.articles_range = list(articles)
+        self.articles_range.sort(key=lambda x: articles[x]["ctime"])
+        for art_id in self.articles_range:
+            item = articles[art_id]
             item["editable"] = False
-            no = qd["ArticleID"]
-            tree_data[no] = item
-            self.articles_range.append(no)
             tree.insert(
-                "", "end", no, text=item["Subject"],
-                values=(item["From"], item["Created"], item["Type"]))
-        for i in list(self.tree_data.keys()):
-            if i not in tree_data:
-                del self.tree_data[i]
-        for i in tree_data:
-            if i not in self.tree_data:
-                self.tree_data[i] = tree_data[i]
+                "", "end", art_id, text=item["Title"],
+                values=(item["Sender"], ctime(item["ctime"]),
+                        "%x" % item["Flags"]))
+        self.tree_data = articles
         self.app_widgets["notebook"].select(self)
         self.my_tab = self.app_widgets["notebook"].select()
         self.tree.focus(item=self.articles_range[0])
