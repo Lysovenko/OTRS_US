@@ -25,6 +25,7 @@ from ..core.pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError, FileLoader)
 from .dialogs import AboutBox, DlgDetails
 from .ttext import TicText
+EDITABLE = -1
 
 
 def autoscroll(sbar, first, last):
@@ -224,23 +225,20 @@ class Tickets(ttk.Frame):
         self.tree.focus_set()
 
     def enter_article(self, evt):
-        iid = evt if isinstance(evt, str) else evt.widget.focus()
+        iid = int(evt) if isinstance(evt, str) else int(evt.widget.focus())
         if iid:
             self.app_widgets["menu_ticket"].entryconfig(
                 _("Send message"), state="normal"
-                if iid == "editable" else "disabled")
+                if iid == EDITABLE else "disabled")
             ca = self.tree_data[iid]
             self.change_cur_article(ca)
             if "article text" in ca:
                 self.show_email(ca)
                 return
-            params = [("Action", "AgentTicketZoom"),
-                      ("Subaction", "ArticleUpdate")]
-            for i in ("Count", "TicketID", "ArticleID"):
-                params.append((i, ca["article info"][i]))
-            url = urlunsplit(self.url_begin + (urlencode(params), ""))
-            pg = TicketsPage(self.app_widgets["core"])
-            self.get_tickets_page(pg.load(url))
+            mail_text = self.loader.zoom_article(ca["TicketID"], iid)
+            mail = {"editable": False, "article header": (),
+                    "article text": mail_text}
+            self.show_email(mail)
 
     def set_menu_active(self):
         econ = self.app_widgets["menubar"].entryconfig

@@ -22,6 +22,8 @@ ART_TEXT = 1 << 5
 ART_TYPE_MASK = 0xf
 TIC_SEEN = 1 << 8
 TIC_UPD = 1
+# TODO: escape more accurately sql datatypes
+sql_repr = lambda x: repr(x).replace("\\'", "''").replace("\\\\", "\\")
 
 
 class Database:
@@ -77,14 +79,13 @@ class Database:
                             (flags, dflags, "flags"), (title, dtitle, "title"),
                             (info, dinfo, "info")):
                 if i is not None and i != j:
-                    # TODO: escape more accurately sql datatypes
-                    updict[k] = repr(i).replace("\\'", "''")
+                    updict[k] = sql_repr(i)
             if updict:
                 upstr = ", ".join("%s=%s" % (i, updict[i]) for i in updict)
                 self.execute("UPDATE tickets SET %s "
                              "WHERE id=%d" % (upstr, id))
             return None if mtime is None else dmtime < mtime
-        instup = tuple(j if i is None else repr(i) for i, j in (
+        instup = tuple(j if i is None else sql_repr(i) for i, j in (
             (id, id), (number, '0'), (mtime, '0'), (flags, '0'),
             (title, "'No subj'"), (info, "';;'")))
         self.execute("INSERT INTO tickets "
@@ -137,7 +138,7 @@ class Database:
                 return
             return arts[0][0]
         self.execute("UPDATE articles SET message=%s, flags=flags | %d "
-                     "WHERE id=%d" % (repr(message), ART_TEXT, id))
+                     "WHERE id=%d" % (sql_repr(message), ART_TEXT, id))
 
     def close(self):
         if self.connection:

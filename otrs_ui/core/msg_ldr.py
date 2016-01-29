@@ -122,14 +122,15 @@ class MessageLoader:
     def zoom_article(self, ticket_id, article_id):
         art_descr = self.__db.article_description(article_id)
         if art_descr[4] & ART_TEXT:
-            return self.__db.article_message(article_id)
+            return eval(self.__db.article_message(article_id))
         self.echo("Zoom article:", ticket_id, article_id)
         url_beg = urlsplit(self.runtime.get("site"))[:3]
         params = (
             ("Action", "AgentTicketZoom"), ("Subaction", "ArticleUpdate"),
             ("TicketID", ticket_id), ("ArticleID", article_id))
         url = urlunsplit(url_beg + (urlencode(params), ""))
-        page = TicketsPage(self.core)
+        pg = TicketsPage(self.core)
+        page = pg.load(url)
         mail_text = ""
         if page is None:
             return
@@ -149,13 +150,13 @@ class MessageLoader:
         if "mail_src" in page:
             url = urlunsplit(url_beg[:2] + urlsplit(page["mail_src"])[2:])
             self.echo("Get message:", url)
-            pg = MessagePage(self.app_widgets["core"])
+            pg = MessagePage(self.core)
             mail_text = pg.load(url)
         if mail_header:
-            mail_text.insert(0, (";;",))
+            mail_text.insert(0, ("\n",))
         for i in mail_header:
             mail_text.insert(0, ("%s\t%s\n" % i,))
-        self.__db.article_message(article_id, mail_text)
+        self.__db.article_message(article_id, repr(mail_text))
         return mail_text
 
     def extract_url(self, ticket_id, article_id):
