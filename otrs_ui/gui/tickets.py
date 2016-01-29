@@ -43,6 +43,7 @@ class Tickets(ttk.Frame):
         self.echo = appw["core"].echo
         self.runt_cfg = appw["core"].call("runtime cfg")
         self.core_cfg = appw["core"].call("core cfg")
+        self.loader = MessageLoader(appw["core"])
         self.pw = pw = ttk.Panedwindow(self, orient="vertical")
         frame = self.make_tree()
         pw.add(frame)
@@ -112,34 +113,11 @@ class Tickets(ttk.Frame):
         self.text_curinfo = None
         return frame
 
-    def load_ticket(self, url):
-        self.echo("load ticket:", url)
-        self.my_url = url
+    def load_ticket(self, ticket_id):
         self.app_widgets["menu_ticket"].entryconfig(
             _("Send message"), state="disabled")
-        pg = TicketsPage(self.app_widgets["core"])
-        lres = None
-        while True:
-            try:
-                lres = pg.load(url)
-                if lres is None:
-                    raise ConnectionError()
-                self.fill_tree(lres["articles"])
-                break
-            except LoginError:
-                lres = pg.login(self.runt_cfg)
-                break
-            except ConnectionError:
-                try:
-                    self.echo("Login in Tickets.load_ticket")
-                    lres = pg.login(self.runt_cfg)
-                except (LoginError, KeyError):
-                    self.go_dasboard(None)
-                    lres = None
-            except KeyError:
-                showerror(_("Error"), _("Wrong Ticket"))
-                return
-        self.get_tickets_page(lres)
+        arts, info = self.loader.zoom_ticket(ticket_id)
+        self.get_tickets_page(arts)
         self.set_menu_active()
 
     def get_tickets_page(self, page):

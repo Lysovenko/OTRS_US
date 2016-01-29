@@ -83,9 +83,11 @@ class DashboardUpdater:
             if not isinstance(result, dict):
                 return result
             pgl = result
+            result = {}
             summary = {"Important": 0}
             for name in ("Reminder", "New", "Open"):
                 summary[name] = False
+                tarr = []
                 for item in pgl[name]:
                     tid, = parse_qs(urlsplit(item["href"]).query)["TicketID"]
                     if self.__db.update_ticket(
@@ -96,7 +98,11 @@ class DashboardUpdater:
                         if item["marker"] & 2:
                             summary["Important"] += 1
                         item["marker"] |= 4
-            return pgl, summary
+                    ritem = dict(item)
+                    ritem["TicketID"] = int(tid)
+                    tarr.append(ritem)
+                result[name] = tarr
+            return result, summary
 
     def login(self, who):
         self.__who = who

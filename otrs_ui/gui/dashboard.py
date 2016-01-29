@@ -143,7 +143,7 @@ class Dashboard(ttk.Frame):
                 data.sort(reverse=True, key=dashb_time)
             new = tuple(i["number"] for i in data)
             self.tree_data.update(
-                (i["number"], (i["href"], i["title"])) for i in data)
+                (i["number"], (i["TicketID"], i["title"])) for i in data)
             self.ticket_range[name] = new
             for item in data:
                 if item["marker"] & 2:
@@ -180,9 +180,7 @@ class Dashboard(ttk.Frame):
     def enter_ticket(self, evt):
         iid = evt.widget.focus()
         if iid:
-            self.app_widgets["tickets"].load_ticket(
-                urlunsplit(
-                    self.urlbegin + urlsplit(self.tree_data[iid][0])[2:]))
+            self.app_widgets["tickets"].load_ticket(self.tree_data[iid][0])
 
     def login(self, dialog=False):
         core = self.app_widgets["core"]

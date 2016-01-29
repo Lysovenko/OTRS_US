@@ -16,7 +16,7 @@
 
 from time import strptime, mktime, localtime, strftime, time
 import re
-ticket_time = lambda x: mktime(strptime(x, "%Y/%m/%d %H:%M:%S"))
+ticket_time = lambda x: mktime(strptime(x, "%Y-%m-%d %H:%M:%S"))
 
 
 def dashb_time(item):

@@ -20,6 +20,8 @@ import sqlite3 as sql
 ART_SEEN = 1 << 8
 ART_TEXT = 1 << 5
 ART_TYPE_MASK = 0xf
+TIC_SEEN = 1 << 8
+TIC_UPD = 1
 
 
 class Database:
@@ -80,7 +82,7 @@ class Database:
                 upstr = ", ".join("%s=%s" % (i, updict[i]) for i in updict)
                 self.execute("UPDATE tickets SET %s "
                              "WHERE id=%d" % (upstr, id))
-            return dmtime < mtime
+            return None if mtime is None else dmtime < mtime
         instup = tuple(j if i is None else repr(i) for i, j in (
             (id, id), (number, '0'), (mtime, '0'), (flags, '0'),
             (title, "'No subj'"), (info, "'None'")))
@@ -96,7 +98,7 @@ class Database:
 
     def article_description(self, id, ticket=None, ctime=None,
                             title=None, sender=None, flags=None):
-        arts = self.execute("SELECT ticket, ctime, title, seder, flags "
+        arts = self.execute("SELECT ticket, ctime, title, sender, flags "
                             "FROM articles WHERE id=%d" % id)
         if arts:
             dticket, dctime, dtitle, dsender, dflags = arts[0]
@@ -104,7 +106,7 @@ class Database:
             if ticket is not None and ticket != dticket:
                 dticket = ticket
                 updates["ticket"] = dticket
-            if flags is not None and flags & ART_SEEN:
+            if flags is not None and (flags & ART_SEEN) > (dflags & ART_SEEN):
                 dflags |= ART_SEEN
                 updates["flags"] = dflags
             if updates:
@@ -120,7 +122,7 @@ class Database:
         return ticket, ctime, title, sender, flags
 
     def articles_description(self, ticket):
-        rval = self.execute("SELECT id, ticket, ctime, title, seder, flags "
+        rval = self.execute("SELECT id, ticket, ctime, title, sender, flags "
                             "FROM articles WHERE ticket=%d" % ticket, False)
         if rval:
             return rval
