@@ -48,9 +48,10 @@ class Database:
             return
         tables = {
             "tickets": "id INT, number INT, mtime INT, flags INT, "
-            "title VARCHAR, info TEXT",
+            "title VARCHAR, allow INT, info TEXT",
             "articles": "id INT, ticket INT, ctime INT, title VARCHAR, "
-            "sender VARCHAR, reciever VARCHAR, flags INT, message TEXT"}
+            "sender VARCHAR, reciever VARCHAR, flags INT, message TEXT",
+            "allows": "id INT, value VARCHAR"}
         for table in tables:
             self.execute("CREATE TABLE IF NOT EXISTS %s (%s)" % (
                 table, tables[table]))
@@ -75,6 +76,8 @@ class Database:
         if tcts:
             updict = {}
             dnum, dmtime, dflags, dtitle, dinfo = tcts[0]
+            if flags is None and mtime is not None and dmtime < mtime:
+                flags = dflags & (~TIC_UPD)
             for i, j, k in ((number, dnum, "number"), (mtime, dmtime, "mtime"),
                             (flags, dflags, "flags"), (title, dtitle, "title"),
                             (info, dinfo, "info")):
@@ -87,9 +90,9 @@ class Database:
             return None if mtime is None else dmtime < mtime
         instup = tuple(j if i is None else sql_repr(i) for i, j in (
             (id, id), (number, '0'), (mtime, '0'), (flags, '0'),
-            (title, "'No subj'"), (info, "';;'")))
+            (title, "'No subj'"), (None, '-1'), (info, "'()'")))
         self.execute("INSERT INTO tickets "
-                     "VALUES(%s, %s, %s, %s, %s, %s)" % instup)
+                     "VALUES(%s, %s, %s, %s, %s, %s, %s)" % instup)
         return True
 
     def ticket_fields(self, id, *fields):
@@ -97,6 +100,27 @@ class Database:
                             (", ".join(fields), id), False)
         if rval:
             return rval[0]
+
+    def ticket_allows(self, id, allows=None):
+        if allows is None:
+            # TODO: make more elegant query
+            allow_id = self.ticket_fields(id, "allow")
+            rv = self.execute("SELECT value FROM allows WHERE id=%d" %
+                              allow_id, False)
+            if rv:
+                return rv[0][0]
+            return
+        rv = self.execute("SELECT id FROM allows WHERE value=%s" %
+                          sql_repr(allows), False)
+        if rv:
+            rv = rv[0][0]
+        else:
+            rv = self.execute("SELECT count() FROM allows", False)
+            rv = rv[0][0]
+            self.execute("INSERT INTO allows "
+                         "VALUES(%d, %s)" % (rv, sql_repr(allows)))
+        self.execute("UPDATE tickets SET allow=%d WHERE id=%d" % (rv, id))
+        return rv
 
     def article_description(self, id, ticket=None, ctime=None,
                             title=None, sender=None, flags=None):

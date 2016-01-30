@@ -115,11 +115,12 @@ class Tickets(ttk.Frame):
         self.text_curinfo = None
         return frame
 
-    def load_ticket(self, ticket_id):
-        articles, info = self.loader.zoom_ticket(ticket_id)
+    def load_ticket(self, ticket_id, force=False):
+        articles, info, allowed = self.loader.zoom_ticket(ticket_id, force)
         self.app_widgets["menu_ticket"].entryconfig(
             _("Send message"), state="disabled")
         self.fill_tree(articles)
+        self.ticket_info = info
         # lres = pg.load(url)
         # self.get_tickets_page(lres)
         # self.set_menu_active()

@@ -52,15 +52,19 @@ class MessageLoader:
         self.echo = core.echo
         self.core = core
         self.runtime = core.call("runtime cfg")
+        self.cfg = core.call("core cfg")
         self.__db = core.call("database")
 
-    def zoom_ticket(self, ticket_id):
+    def zoom_ticket(self, ticket_id, force_update=None):
         info, flags = self.__db.ticket_fields(ticket_id, "info", "flags")
-        if flags & TIC_UPD:
-            return self.describe_articles(ticket_id), info
+        if flags & TIC_UPD and not force_update:
+            info = eval(info)
+            allowed = eval(self.__db.ticket_allows(ticket_id))
+            return self.describe_articles(ticket_id), info, allowed
         arts = self.__update_ticket(ticket_id)
-        info, = self.__db.ticket_fields(ticket_id, "info")
-        return arts, info
+        info = eval(self.__db.ticket_fields(ticket_id, "info")[0])
+        allowed = eval(self.__db.ticket_allows(ticket_id))
+        return arts, info, allowed
 
     def __update_ticket(self, ticket_id):
         self.echo("Zoom ticket:", ticket_id)
@@ -88,10 +92,11 @@ class MessageLoader:
             self.ticket_info = page["info"]
         allow = self.detect_allowed_actions(page.get("action_hrefs", []) +
                                             page.get("art_act_hrefs", []))
-        info = ";;".join((repr(page.get("info", ())), repr(allow)))
+        info = repr(page.get("info", ()))
         flags, = self.__db.ticket_fields(ticket_id, "flags")
         flags |= TIC_UPD
         self.__db.update_ticket(ticket_id, info=info, flags=flags)
+        self.__db.ticket_allows(ticket_id, allow)
         return self.describe_articles(page["articles"])
 
     def describe_articles(self, articles):
@@ -140,11 +145,11 @@ class MessageLoader:
         except KeyError:
             pass
         try:
-            self.queues = page["queues"]
+            self.cfg["queues"] = page["queues"]
         except KeyError:
             pass
         try:
-            self.answers = page["answers"]
+            self.cfg["answers"] = page["answers"]
         except (KeyError, IndexError):
             self.answers = None
         if "mail_src" in page:
@@ -171,4 +176,5 @@ class MessageLoader:
                 allowed[qd["Action"]] = qd.get("Subaction", True)
             except KeyError:
                 pass
-        return allowed
+        allowed = tuple(sorted(allowed.items()))
+        return repr(allowed)
