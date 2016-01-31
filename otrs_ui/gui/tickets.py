@@ -20,7 +20,7 @@ from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
 import re
 from ..core import version
-from ..core.msg_ldr import MessageLoader, article_by_url
+from ..core.msg_ldr import MessageLoader, article_by_url, article_type
 from ..core.pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError, FileLoader)
 from .dialogs import AboutBox, DlgDetails
@@ -57,7 +57,7 @@ class Tickets(ttk.Frame):
         self.articles_range = []
         self.tree_data = {}
         self.url_begin = None
-        self.cur_article = {}
+        self.cur_article = -2
         self.my_tab = None
         self.my_url = None
         self.ticket_info = None
@@ -121,42 +121,14 @@ class Tickets(ttk.Frame):
             _("Send message"), state="disabled")
         self.fill_tree(articles)
         self.ticket_info = info
-        # lres = pg.load(url)
-        # self.get_tickets_page(lres)
+        self.detect_allowed_actions(allowed)
+        self.queues = self.core_cfg.get("queues")
+        self.answers = self.core_cfg.get("answers")
+        for show in reversed(self.articles_range):
+            if "system" not in article_type(articles[show]["Flags"]):
+                break
+        self.enter_article(show)
         # self.set_menu_active()
-
-    def get_tickets_page(self, page):
-        mail_text = ""
-        if page is None:
-            return
-        if "info" in page:
-            self.ticket_info = page["info"]
-        mail_header = page.get("mail_header", [])
-        try:
-            mail_text = page["message_text"]
-        except KeyError:
-            pass
-        self.detect_allowed_actions(page.get("action_hrefs", []) +
-                                    page.get("art_act_hrefs", []))
-        try:
-            self.queues = page["queues"]
-        except KeyError:
-            pass
-        try:
-            self.answers = page["answers"]
-        except (KeyError, IndexError):
-            self.answers = None
-        if "article text" in self.cur_article:
-            mail_text = self.cur_article["article text"]
-        elif "mail_src" in page:
-            url = urlunsplit(
-                self.url_begin[:2] + urlsplit(page["mail_src"])[2:])
-            self.echo("Get message:", url)
-            pg = MessagePage(self.app_widgets["core"])
-            mail_text = pg.load(url)
-        self.cur_article["article text"] = mail_text
-        self.cur_article["article header"] = mail_header
-        self.show_email(self.cur_article)
 
     def show_email(self, article):
         snapshot = article.get("snapshot")
@@ -171,40 +143,27 @@ class Tickets(ttk.Frame):
                 text.insert("end", *i)
         else:
             text.insert("1.0", snapshot)
-        text["state"] = "normal" if article["editable"] else "disabled"
+        text["state"] = "normal" if article[EDITABLE] else "disabled"
 
-    def detect_allowed_actions(self, act_hrefs):
-        total = {}
-        allowed = {"AgentTicketLock": False}
-        ac_sub = self.action_subaction
-        ac_sub.clear()
-        for href in act_hrefs:
-            qd = dict(parse_qsl(urlsplit(href).query))
-            total.update(qd)
-            try:
-                ac_sub[qd["Action"]] = qd.get("Subaction")
-            except KeyError:
-                pass
-            if qd.get("Action") in allowed:
-                allowed[qd["Action"]] = True
-        self.actions_params = total
+    def detect_allowed_actions(self, allowed):
+        allowed = dict(allowed)
+        self.actions_params = allowed
         econ = self.app_widgets["menu_ticket"].entryconfig
-        state = "normal" if allowed["AgentTicketLock"] else "disabled"
+        state = "normal" if allowed.get("AgentTicketLock") else "disabled"
         for l in (_("Lock"), _("Answer"), _("Close")):
             econ(l, state=state)
-        try:
-            self.change_cur_article(self.tree_data[total["ArticleID"]])
-            self.tree.focus(item=total["ArticleID"])
-        except KeyError:
-            pass
 
     def change_cur_article(self, article):
-        ca = self.cur_article
-        if ca is article:
-            return
-        if ca.get("editable"):
-            ca["snapshot"] = self.text.get("1.0", "end")
+        if self.cur_article == article:
+            return self.tree_data[article]
+        try:
+            ca = self.tree_data[self.cur_article]
+            if ca.get(EDITABLE):
+                ca["snapshot"] = self.text.get("1.0", "end")
+        except KeyError:
+            pass
         self.cur_article = article
+        return self.tree_data[article]
 
     def fill_tree(self, articles):
         tree = self.tree
@@ -214,7 +173,7 @@ class Tickets(ttk.Frame):
         self.articles_range.sort(key=lambda x: articles[x]["ctime"])
         for art_id in self.articles_range:
             item = articles[art_id]
-            item["editable"] = False
+            item[EDITABLE] = False
             tree.insert(
                 "", "end", art_id, text=item["Title"],
                 values=(item["Sender"], ctime(item["ctime"]),
@@ -226,20 +185,20 @@ class Tickets(ttk.Frame):
         self.tree.focus_set()
 
     def enter_article(self, evt):
-        iid = int(evt) if isinstance(evt, str) else int(evt.widget.focus())
+        iid = (int(evt) if isinstance(evt, (str, int, float))
+               else int(evt.widget.focus()))
         if iid:
             self.app_widgets["menu_ticket"].entryconfig(
                 _("Send message"), state="normal"
                 if iid == EDITABLE else "disabled")
-            ca = self.tree_data[iid]
-            self.change_cur_article(ca)
+            ca = self.change_cur_article(iid)
             if "article text" in ca:
                 self.show_email(ca)
                 return
             mail_text = self.loader.zoom_article(ca["TicketID"], iid)
-            mail = {"editable": False, "article header": (),
-                    "article text": mail_text}
-            self.show_email(mail)
+            ca.update(((EDITABLE, False), ("article header", ()),
+                       ("article text", mail_text)))
+            self.show_email(ca)
 
     def set_menu_active(self):
         econ = self.app_widgets["menubar"].entryconfig
@@ -295,7 +254,7 @@ class Tickets(ttk.Frame):
     def menu_answer(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
             return
-        if "editable" in self.tree_data or not self.answers:
+        if EDITABLE in self.tree_data or not self.answers:
             return
         cfg = {"type": self.answers}
         DlgDetails(self, _("Answer type"), cfg=cfg, selects=(
@@ -311,13 +270,13 @@ class Tickets(ttk.Frame):
             inputs, error = pg.load(url)
             if inputs:
                 txt = dict(inputs).get("Body", "")
-                ca = {"editable": True, "article text": (), "inputs": inputs,
+                ca = {EDITABLE: True, "article text": (), "inputs": inputs,
                       "snapshot": txt}
-                self.articles_range.append("editable")
-                self.tree.insert("", "end", "editable", text=_("Edit"))
-                self.tree_data["editable"] = ca
-                self.enter_article("editable")
-                self.tree.focus("editable")
+                self.articles_range.append(EDITABLE)
+                self.tree.insert("", "end", EDITABLE, text=_("Edit"))
+                self.tree_data[EDITABLE] = ca
+                self.enter_article(EDITABLE)
+                self.tree.focus(EDITABLE)
             else:
                 showerror(_("Answer"), (error if error else "Can't answer"))
 
@@ -404,7 +363,7 @@ class Tickets(ttk.Frame):
     def menu_forward(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
             return
-        if "editable" in self.tree_data or not self.answers:
+        if EDITABLE in self.tree_data or not self.answers:
             return
         params = [("Action", "AgentTicketForward")]
         url = self.extract_url(params, "menu_note", (
@@ -416,13 +375,13 @@ class Tickets(ttk.Frame):
             return
         cfg = dict(inputs)
         txt = cfg.get("Body", "")
-        ca = {"editable": True, "article text": (), "inputs": inputs,
+        ca = {EDITABLE: True, "article text": (), "inputs": inputs,
               "snapshot": txt}
-        self.articles_range.append("editable")
-        self.tree.insert("", "end", "editable", text=_("Edit"))
-        self.tree_data["editable"] = ca
-        self.enter_article("editable")
-        self.tree.focus("editable")
+        self.articles_range.append(EDITABLE)
+        self.tree.insert("", "end", EDITABLE, text=_("Edit"))
+        self.tree_data[EDITABLE] = ca
+        self.enter_article(EDITABLE)
+        self.tree.focus(EDITABLE)
 
     def menu_reload(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
@@ -448,9 +407,9 @@ class Tickets(ttk.Frame):
 
     def menu_send(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select() or \
-           self.tree.focus() != "editable":
+           self.tree.focus() != EDITABLE:
             return
-        inputs = self.tree_data["editable"]["inputs"]
+        inputs = self.tree_data[EDITABLE]["inputs"]
         cfg = dict(inputs)
         cfg.pop("FileUpload")
         cfg["CustomerTicketCounterToCustomer"] = "1"
@@ -499,9 +458,9 @@ class Tickets(ttk.Frame):
                 return
             self.app_widgets["menu_ticket"].entryconfig(
                 _("Send message"), state="disabled")
-            self.tree.delete("editable")
-            self.tree_data.pop("editable")
-            self.articles_range.pop(self.articles_range.index("editable"))
+            self.tree.delete(EDITABLE)
+            self.tree_data.pop(EDITABLE)
+            self.articles_range.pop(self.articles_range.index(EDITABLE))
             self.tree.focus(item=self.articles_range[-1])
             self.menu_reload()
 
@@ -519,7 +478,7 @@ class Tickets(ttk.Frame):
         self.app_widgets["menu_ticket"].entryconfig(
             _("Send message"), state="normal")
         self.set_menu_active()
-        if "editable" in self.tree_data:
+        if EDITABLE in self.tree_data:
             return
         params = [("Action", "AgentTicketEmail")]
         url = self.extract_url(
@@ -532,15 +491,15 @@ class Tickets(ttk.Frame):
         self.tree_data.clear()
         for i in reversed(self.articles_range):
             self.tree.delete(i)
-        self.articles_range = ["editable"]
+        self.articles_range = [EDITABLE]
         cfg = dict(inputs)
         txt = cfg.get("Body", "")
-        ca = {"editable": True, "article text": (), "inputs": inputs,
+        ca = {EDITABLE: True, "article text": (), "inputs": inputs,
               "snapshot": txt}
-        self.tree.insert("", "end", "editable", text=_("Edit"))
-        self.tree_data["editable"] = ca
-        self.enter_article("editable")
-        self.tree.focus("editable")
+        self.tree.insert("", "end", EDITABLE, text=_("Edit"))
+        self.tree_data[EDITABLE] = ca
+        self.enter_article(EDITABLE)
+        self.tree.focus(EDITABLE)
         self.echo('New email ticket')
 
     def menu_new_phone(self, evt=None):

@@ -103,10 +103,9 @@ class Database:
 
     def ticket_allows(self, id, allows=None):
         if allows is None:
-            # TODO: make more elegant query
-            allow_id = self.ticket_fields(id, "allow")
-            rv = self.execute("SELECT value FROM allows WHERE id=%d" %
-                              allow_id, False)
+            rv = self.execute(
+                "SELECT value FROM tickets INNER JOIN allows ON "
+                "allow=allows.id where tickets.id=%d" % id, False)
             if rv:
                 return rv[0][0]
             return
