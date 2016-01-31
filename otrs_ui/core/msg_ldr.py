@@ -89,6 +89,11 @@ class MessageLoader:
         if page is None:
             raise ConnectionError()
         try:
+            if page["answers"][1]:
+                self.cfg["answers"] = page["answers"]
+        except (KeyError, IndexError):
+            pass
+        try:
             self.cfg["queues"] = page["queues"]
         except KeyError:
             pass
@@ -150,10 +155,6 @@ class MessageLoader:
             mail_text = page["message_text"]
         except KeyError:
             pass
-        try:
-            self.cfg["answers"] = page["answers"]
-        except (KeyError, IndexError):
-            self.answers = None
         if "mail_src" in page:
             url = urlunsplit(url_beg[:2] + urlsplit(page["mail_src"])[2:])
             self.echo("Get message:", url)
@@ -186,8 +187,6 @@ class MessageLoader:
             ("Action", "AgentTicketMove"), ("QueueID", ""),
             ("DestQueueID", where), ("TicketID", ticket_id),
             ("ChallengeToken", self.runtime["ChallengeToken"])]
-        # self.extract_url(params, "menu_move", (
-        #     "TicketID", "ChallengeToken", "OTRSAgentInterface"))
         url = self.runtime["site"]
         pg = TicketsPage(self.core)
         try:
@@ -195,3 +194,12 @@ class MessageLoader:
             # TODO: update page from lres like: self.get_tickets_page(lres)
         except LoginError:
             pass
+
+    def load_article_pattern(self, ticket_id, article_id, ans_id):
+        params = [("Action", "AgentTicketCompose"),
+                  ("ReplyAll", ""), ("ResponseID", ans_id),
+                  ("TicketID", ticket_id), ("ArticleID", article_id),
+                  ("ChallengeToken", self.runtime["ChallengeToken"])]
+        url = "%s?%s" % (self.runtime["site"], urlencode(params))
+        pg = AnswerPage(self.app_widgets["core"])
+        return pg.load(url)

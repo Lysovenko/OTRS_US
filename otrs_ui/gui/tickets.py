@@ -134,7 +134,7 @@ class Tickets(ttk.Frame):
         self.text_curinfo = None
         return frame
 
-    def load_ticket(self, ticket_id, force=False):
+    def load_ticket(self, ticket_id, force=False, prefered=None):
         self.ticket_id = ticket_id
         articles, info, allowed = self.loader.zoom_ticket(ticket_id, force)
         self.app_widgets["menu_ticket"].entryconfig(
@@ -144,9 +144,13 @@ class Tickets(ttk.Frame):
         self.detect_allowed_actions(allowed)
         self.queues = self.core_cfg.get("queues")
         self.answers = self.core_cfg.get("answers")
-        for show in reversed(self.articles_range):
-            if "system" not in article_type(articles[show]["Flags"]):
-                break
+        if prefered in self.articles_range:
+            show = prefered
+        else:
+            for show in reversed(self.articles_range):
+
+                if "system" not in article_type(articles[show]["Flags"]):
+                    break
         self.enter_article(show)
         self.tree.focus(show)
         self.set_menu_active()
@@ -271,14 +275,8 @@ class Tickets(ttk.Frame):
         DlgDetails(self, _("Answer type"), cfg=cfg, selects=(
             ("type", _("Answer type:")),))
         if cfg["OK button"]:
-            params = [("Action", "AgentTicketCompose"),
-                      ("ReplyAll", ""), ("ResponseID", cfg["type"])]
-            i = "ArticleID"
-            self.actions_params[i] = self.cur_article["article info"][i]
-            url = self.extract_url(params, "menu_answer", (
-                "TicketID", "ArticleID", "ChallengeToken"))
-            pg = AnswerPage(self.app_widgets["core"])
-            inputs, error = pg.load(url)
+            inputs, error = self.loader.load_article_pattern(
+                self.ticket_id, self.cur_article, cfg["type"])
             if inputs:
                 txt = dict(inputs).get("Body", "")
                 ca = {EDITABLE: True, "article text": (), "inputs": inputs,
