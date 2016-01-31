@@ -104,14 +104,14 @@ class Page:
         return True
 
     def dump_data(self, page, data):
-        if "pg_dum_to" not in self.core_cfg:
+        if "pg_dump_to" not in self.core_cfg:
             return
         try:
-            path = self.core_cfg["pg_dum_to"][0]
+            path = self.core_cfg["pg_dump_to"][0]
         except Exception as err:
             print("Exception: {0}".format(err))
             return
-        classes = self.core_cfg["pg_dum_to"][1:]
+        classes = self.core_cfg["pg_dump_to"][1:]
         cl_name = str(self.__hash__).split()[3]
         if cl_name not in classes:
             return

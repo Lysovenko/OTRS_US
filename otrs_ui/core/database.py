@@ -104,8 +104,8 @@ class Database:
     def ticket_allows(self, id, allows=None):
         if allows is None:
             rv = self.execute(
-                "SELECT value FROM tickets INNER JOIN allows ON "
-                "allow=allows.id where tickets.id=%d" % id, False)
+                "SELECT value FROM allows WHERE id IN "
+                "(SELECT allow FROM tickets WHERE id=%d)" % id, False)
             if rv:
                 return rv[0][0]
             return
@@ -114,7 +114,7 @@ class Database:
         if rv:
             rv = rv[0][0]
         else:
-            rv = self.execute("SELECT count() FROM allows", False)
+            rv = self.execute("SELECT COUNT() FROM allows", False)
             rv = rv[0][0]
             self.execute("INSERT INTO allows "
                          "VALUES(%d, %s)" % (rv, sql_repr(allows)))

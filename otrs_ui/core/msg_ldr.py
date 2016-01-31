@@ -88,6 +88,10 @@ class MessageLoader:
             return
         if page is None:
             raise ConnectionError()
+        try:
+            self.cfg["queues"] = page["queues"]
+        except KeyError:
+            pass
         # ticket properties aka info
         if "info" in page:
             self.ticket_info = page["info"]
@@ -133,7 +137,8 @@ class MessageLoader:
         url_beg = urlsplit(self.runtime.get("site"))[:3]
         params = (
             ("Action", "AgentTicketZoom"), ("Subaction", "ArticleUpdate"),
-            ("TicketID", ticket_id), ("ArticleID", article_id))
+            ("TicketID", ticket_id), ("ArticleID", article_id),
+            ("OTRSAgentInterface", self.runtime["OTRSAgentInterface"]))
         url = urlunsplit(url_beg + (urlencode(params), ""))
         pg = TicketsPage(self.core)
         page = pg.load(url)
@@ -143,10 +148,6 @@ class MessageLoader:
         mail_header = page.get("mail_header", [])
         try:
             mail_text = page["message_text"]
-        except KeyError:
-            pass
-        try:
-            self.cfg["queues"] = page["queues"]
         except KeyError:
             pass
         try:
@@ -179,3 +180,18 @@ class MessageLoader:
                 pass
         allowed = tuple(sorted(allowed.items()))
         return repr(allowed)
+
+    def move_ticket(self, ticket_id, where):
+        params = [
+            ("Action", "AgentTicketMove"), ("QueueID", ""),
+            ("DestQueueID", where), ("TicketID", ticket_id),
+            ("ChallengeToken", self.runtime["ChallengeToken"])]
+        # self.extract_url(params, "menu_move", (
+        #     "TicketID", "ChallengeToken", "OTRSAgentInterface"))
+        url = self.runtime["site"]
+        pg = TicketsPage(self.core)
+        try:
+            lres = pg.load(url, urlencode(params).encode())
+            # TODO: update page from lres like: self.get_tickets_page(lres)
+        except LoginError:
+            pass

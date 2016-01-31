@@ -28,7 +28,7 @@ class DashboardUpdater:
         self.__result = None
         self.__page = DashboardPage(core)
         self.__db = core.call("database")
-        rtm = core.call("runtime cfg")
+        self.runtime = rtm = core.call("runtime cfg")
         rtm["changed tickets"] = self.ts_changed = \
             rtm.get("changed tickets", set())
 
@@ -102,6 +102,7 @@ class DashboardUpdater:
                     ritem["TicketID"] = int(tid)
                     tarr.append(ritem)
                 result[name] = tarr
+            self.runtime.update(pgl["inputs"])
             return result, summary
 
     def login(self, who):

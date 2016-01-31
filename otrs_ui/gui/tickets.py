@@ -17,7 +17,6 @@ from tkinter import ttk, StringVar
 from tkinter.messagebox import showerror, showinfo
 from time import ctime
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
-from urllib.error import URLError
 import re
 from ..core import version
 from ..core.msg_ldr import MessageLoader, article_by_url, article_type
@@ -59,7 +58,7 @@ class Tickets(ttk.Frame):
         self.url_begin = None
         self.cur_article = -2
         self.my_tab = None
-        self.my_url = None
+        self.ticket_id = None
         self.ticket_info = None
         self.action_subaction = {}
         self.actions_params = {}
@@ -93,6 +92,26 @@ class Tickets(ttk.Frame):
                 ("o", self.menu_owner), ("n", self.menu_new_email),
                 ("h", self.menu_new_phone), ("j", self.menu_ticket_merge)):
             frame.bind_all("<Control-%s>" % k, f)
+        tag_clrs = {
+            "agent-email-external": "#D3E5B5",
+            "agent-email-internal": "#ffd1d1",
+            "agent-note-external": "#d1d1d1",
+            "agent-note-internal": "#FFCCCC",
+            "agent-phone": "#d1e8d1",
+            "customer-email-external": "#D4DEFC",
+            "customer-note-external": "#D4DEFC",
+            "customer-phone": "#FCB24B",
+            "customer-webrequest": "#FCB24B",
+            "system-email-external": "#ffffd1",
+            "system-email-internal": "#ffffd1",
+            "system-email-notification-ext": "#ffffd1",
+            "system-email-notification-int": "#ffffd1",
+            "system-note-external": "#ffffd1",
+            "system-note-internal": "#ffffd1",
+            "system-note-report": "#ffffd1"}
+        tag_clrs.update(self.app_widgets["config"].get("art_type_clrs", ()))
+        for nam, clr in tag_clrs.items():
+            tree.tag_configure(nam, background=clr)
         return frame
 
     def go_dasboard(self, evt):
@@ -116,6 +135,7 @@ class Tickets(ttk.Frame):
         return frame
 
     def load_ticket(self, ticket_id, force=False):
+        self.ticket_id = ticket_id
         articles, info, allowed = self.loader.zoom_ticket(ticket_id, force)
         self.app_widgets["menu_ticket"].entryconfig(
             _("Send message"), state="disabled")
@@ -128,7 +148,8 @@ class Tickets(ttk.Frame):
             if "system" not in article_type(articles[show]["Flags"]):
                 break
         self.enter_article(show)
-        # self.set_menu_active()
+        self.tree.focus(show)
+        self.set_menu_active()
 
     def show_email(self, article):
         snapshot = article.get("snapshot")
@@ -174,10 +195,11 @@ class Tickets(ttk.Frame):
         for art_id in self.articles_range:
             item = articles[art_id]
             item[EDITABLE] = False
+            tags = (article_type(item["Flags"]),)
             tree.insert(
                 "", "end", art_id, text=item["Title"],
                 values=(item["Sender"], ctime(item["ctime"]),
-                        "%x" % item["Flags"]))
+                        "%x" % item["Flags"]), tags=tags)
         self.tree_data = articles
         self.app_widgets["notebook"].select(self)
         self.my_tab = self.app_widgets["notebook"].select()
@@ -238,18 +260,7 @@ class Tickets(ttk.Frame):
         DlgDetails(self, _("Change queue"), cfg=cfg, selects=(
             ("queue", _("Queue:")),))
         if cfg["OK button"]:
-            params = [
-                ("Action", "AgentTicketMove"), ("QueueID", ""),
-                ("DestQueueID", cfg["queue"])]
-            self.extract_url(params, "menu_move", (
-                "TicketID", "ChallengeToken", "OTRSAgentInterface"))
-            url = urlunsplit(self.url_begin + ("", ""))
-            pg = TicketsPage(self.app_widgets["core"])
-            try:
-                lres = pg.load(url, urlencode(params).encode())
-                self.get_tickets_page(lres)
-            except LoginError:
-                pass
+            self.loader.move_ticket(self.ticket_id, cfg["queue"])
 
     def menu_answer(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
@@ -386,8 +397,8 @@ class Tickets(ttk.Frame):
     def menu_reload(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
             return
-        if self.my_url:
-            self.load_ticket(self.my_url)
+        if self.ticket_id:
+            self.load_ticket(self.ticket_id, True)
 
     def menu_goto_url(self, evt=None):
         cfg = {"url": ""}
