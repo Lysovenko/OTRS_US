@@ -264,7 +264,24 @@ class Tickets(ttk.Frame):
         DlgDetails(self, _("Change queue"), cfg=cfg, selects=(
             ("queue", _("Queue:")),))
         if cfg["OK button"]:
-            self.loader.move_ticket(self.ticket_id, cfg["queue"])
+            rv = self.loader.move_ticket(self.ticket_id, cfg["queue"])
+            if rv is None:
+                return
+        else:
+            return
+        articles, info, allowed = rv
+        self.fill_tree(articles)
+        self.ticket_info = info
+        self.detect_allowed_actions(allowed)
+        if prefered in self.articles_range:
+            show = prefered
+        else:
+            for show in reversed(self.articles_range):
+                if "system" not in article_type(articles[show]["Flags"]):
+                    break
+        self.enter_article(show)
+        self.tree.focus(show)
+        self.set_menu_active()
 
     def menu_answer(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():

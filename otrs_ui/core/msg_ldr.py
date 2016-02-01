@@ -88,7 +88,9 @@ class MessageLoader:
             return
         if page is None:
             raise ConnectionError()
-        # TODO: separate this part as tickets pg. treater
+        return self.__treat_ticket_page(ticket_id, page)
+
+    def __treat_ticket_page(self, ticket_id, page):
         try:
             if page["answers"][1]:
                 self.cfg["answers"] = page["answers"]
@@ -187,11 +189,17 @@ class MessageLoader:
             ("ChallengeToken", self.runtime["ChallengeToken"])]
         url = self.runtime["site"]
         pg = TicketsPage(self.core)
+        page = None
         try:
-            lres = pg.load(url, urlencode(params).encode())
-            # TODO: update page from lres like: self.get_tickets_page(lres)
+            page = pg.load(url, urlencode(params).encode())
         except LoginError:
-            pass
+            return
+        if page is None:
+            return
+        arts = self.__treat_ticket_page(ticket_id, page)
+        info = eval(self.__db.ticket_fields(ticket_id, "info")[0])
+        allowed = eval(self.__db.ticket_allows(ticket_id))
+        return arts, info, allowed
 
     def load_article_pattern(self, ticket_id, article_id, ans_id):
         params = [("Action", "AgentTicketCompose"),
