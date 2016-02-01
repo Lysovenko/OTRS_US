@@ -88,6 +88,7 @@ class MessageLoader:
             return
         if page is None:
             raise ConnectionError()
+        # TODO: separate this part as tickets pg. treater
         try:
             if page["answers"][1]:
                 self.cfg["answers"] = page["answers"]
@@ -97,9 +98,6 @@ class MessageLoader:
             self.cfg["queues"] = page["queues"]
         except KeyError:
             pass
-        # ticket properties aka info
-        if "info" in page:
-            self.ticket_info = page["info"]
         allow = self.detect_allowed_actions(page.get("action_hrefs", []) +
                                             page.get("art_act_hrefs", []))
         info = repr(page.get("info", ()))
