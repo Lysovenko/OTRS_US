@@ -55,7 +55,6 @@ class Tickets(ttk.Frame):
         pw.pack(fill="both")
         self.articles_range = []
         self.tree_data = {}
-        self.url_begin = None
         self.cur_article = -2
         self.my_tab = None
         self.ticket_id = None
@@ -433,7 +432,7 @@ class Tickets(ttk.Frame):
 
     def menu_send(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select() or \
-           self.tree.focus() != EDITABLE:
+           self.tree.focus() != str(EDITABLE):
             return
         inputs = self.tree_data[EDITABLE]["inputs"]
         cfg = dict(inputs)
@@ -452,10 +451,8 @@ class Tickets(ttk.Frame):
             ("DynamicField_TicketFreeText15", _("Requires review:")),
             ("ArticleTypeID", _("Article type:"))))
         if cfg["OK button"]:
+            # DODO: move form formation logic into core
             cfg["Body"] = self.text.get("1.0", "end")
-            pg = AnswerSender(self.app_widgets["core"])
-            url = urlunsplit(self.url_begin + ("", ""))
-            form = [(i[0], cfg.get(i[0], ("", b""))) for i in inputs]
             email = None
             for i in ("ToCustomer", "To", "CustomerInitialValue"):
                 if i in cfg and cfg[i]:
@@ -467,18 +464,18 @@ class Tickets(ttk.Frame):
             if '<' in email:
                 email = email[email.find("<") + 1:email.find(">")]
             pos = 0
-            for i in range(len(form)):
-                if form[i][0] == "CustomerTicketText":
+            for i in range(len(inputs)):
+                if inputs[i][0] == "CustomerTicketText":
                     pos = i + 1
                     break
-            for i in reversed((
-                    ("CustomerInitialValue_1", email),
-                    ("CustomerKey_1", ""),
-                    ("CustomerQueue_1", email),
-                    ("CustomerTicketText_1", email))):
-                form.insert(pos, i)
+            add = (
+                ("CustomerInitialValue_1", email), ("CustomerKey_1", ""),
+                ("CustomerQueue_1", email), ("CustomerTicketText_1", email))
+            cfg.update(add)
+            for i in reversed(add):
+                inputs.insert(pos, i)
             try:
-                pg.send(url, form)
+                self.loader.send_multiprat(cfg, inputs)
             except LoginError:
                 showerror(_("Send"), _("The ticket was logged off"))
                 return
@@ -497,7 +494,7 @@ class Tickets(ttk.Frame):
                 params.append((i, self.actions_params[i]))
             except KeyError as err:
                 self.echo("In %s KeyError: %s" % (where, err))
-        return urlunsplit(self.url_begin + (urlencode(params), ""))
+        # return urlunsplit(self.url_begin + (urlencode(params), ""))
 
     def menu_new_email(self, evt=None):
         self.my_url = None
@@ -549,13 +546,8 @@ class Tickets(ttk.Frame):
             ("Day", _("Day:")), ("Year", _("Year:")),
             ("Hour", _("Hour:")), ("Minute", _("Minute:"))))
         if cfg["OK button"]:
-            self.send_multiprat(cfg, inputs)
-
-    def send_multiprat(self, cfg, inputs):
-        pg = AnswerSender(self.app_widgets["core"])
-        url = urlunsplit(self.url_begin + ("", ""))
-        pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
-        self.menu_reload()
+            self.loader.send_multiprat(cfg, inputs)
+            self.menu_reload()
 
     def menu_download(self, evt=None):
         cfg = {"URL": "", "path": self.core_cfg.get("dld_fldr", "")}

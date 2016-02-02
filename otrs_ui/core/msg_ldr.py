@@ -207,5 +207,10 @@ class MessageLoader:
                   ("TicketID", ticket_id), ("ArticleID", article_id),
                   ("ChallengeToken", self.runtime["ChallengeToken"])]
         url = "%s?%s" % (self.runtime["site"], urlencode(params))
-        pg = AnswerPage(self.app_widgets["core"])
+        pg = AnswerPage(self.core)
         return pg.load(url)
+
+    def send_multiprat(self, cfg, inputs):
+        pg = AnswerSender(self.core)
+        url = self.runtime["site"]
+        pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
