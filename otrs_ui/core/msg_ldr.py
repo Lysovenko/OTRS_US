@@ -172,7 +172,7 @@ class MessageLoader:
             self.runtime.get("site"), ticket_id, article_id)
 
     def detect_allowed_actions(self, act_hrefs):
-        allowed = {"AgentTicketLock": False}
+        allowed = {}
         for href in act_hrefs:
             qd = dict(parse_qsl(urlsplit(href).query))
             try:
@@ -187,6 +187,9 @@ class MessageLoader:
             ("Action", "AgentTicketMove"), ("QueueID", ""),
             ("DestQueueID", where), ("TicketID", ticket_id),
             ("ChallengeToken", self.runtime["ChallengeToken"])]
+        return self.__send_rewuest(params)
+
+    def __send_rewuest(self, params):
         url = self.runtime["site"]
         pg = TicketsPage(self.core)
         page = None
@@ -200,6 +203,13 @@ class MessageLoader:
         info = eval(self.__db.ticket_fields(ticket_id, "info")[0])
         allowed = eval(self.__db.ticket_allows(ticket_id))
         return arts, info, allowed
+
+    def lock_ticket(self, ticket_id, subact):
+        params = [
+            ("Action", "AgentTicketLock"), ("Subaction", subact),
+            ("TicketID", ticket_id),
+            ("ChallengeToken", self.runtime["ChallengeToken"])]
+        return self.__send_rewuest(params)
 
     def load_article_pattern(self, ticket_id, article_id, ans_id):
         params = [("Action", "AgentTicketCompose"),

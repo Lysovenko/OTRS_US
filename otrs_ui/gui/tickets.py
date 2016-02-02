@@ -59,7 +59,6 @@ class Tickets(ttk.Frame):
         self.my_tab = None
         self.ticket_id = None
         self.ticket_info = None
-        self.action_subaction = {}
         self.actions_params = {}
         self.queues = {}
 
@@ -138,6 +137,9 @@ class Tickets(ttk.Frame):
         articles, info, allowed = self.loader.zoom_ticket(ticket_id, force)
         self.app_widgets["menu_ticket"].entryconfig(
             _("Send message"), state="disabled")
+        self.__update_tick_face(prefered, articles, info, allowed)
+
+    def __update_tick_face(self, prefered, articles, info, allowed):
         self.fill_tree(articles)
         self.ticket_info = info
         self.detect_allowed_actions(allowed)
@@ -237,23 +239,19 @@ class Tickets(ttk.Frame):
             return
         title = _("Ticket Lock")
         try:
-            subact = self.action_subaction["AgentTicketLock"]
+            subact = self.actions_params["AgentTicketLock"]
         except KeyError:
             showerror(title, _("You are late. Sorry."))
             return
-        params = [("Action", "AgentTicketLock"), ("Subaction", subact)]
-        url = self.extract_url(params, "menu_lock", (
-            "TicketID", "ChallengeToken", "OTRSAgentInterface"))
-        pg = TicketsPage(self.app_widgets["core"])
-        lres = pg.load(url)
-        self.get_tickets_page(lres)
-        if lres:
-            if subact == "Lock":
-                showinfo(title, _("The ticket was successfully locked"))
-            else:
-                showinfo(title, _("The ticket was successfully unlocked"))
-        else:
+        lres = self.loader.lock_ticket(self.ticket_id, subact)
+        if lres is None:
             showerror(title, _("The operation was failed"))
+            return
+        if subact == "Lock":
+            showinfo(title, _("The ticket was successfully locked"))
+        else:
+            showinfo(title, _("The ticket was successfully unlocked"))
+        self.__update_tick_face(int(self.tree.focus()), *lres)
 
     def menu_move(self, evt=None):
         if not self.queues or \
@@ -268,19 +266,7 @@ class Tickets(ttk.Frame):
                 return
         else:
             return
-        articles, info, allowed = rv
-        self.fill_tree(articles)
-        self.ticket_info = info
-        self.detect_allowed_actions(allowed)
-        if prefered in self.articles_range:
-            show = prefered
-        else:
-            for show in reversed(self.articles_range):
-                if "system" not in article_type(articles[show]["Flags"]):
-                    break
-        self.enter_article(show)
-        self.tree.focus(show)
-        self.set_menu_active()
+        self.__update_tick_face(int(self.tree.focus()), *rv)
 
     def menu_answer(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
