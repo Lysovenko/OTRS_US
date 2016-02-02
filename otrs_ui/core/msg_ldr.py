@@ -57,7 +57,11 @@ class MessageLoader:
         self.__db = core.call("database")
 
     def zoom_ticket(self, ticket_id, force_update=None):
-        info, flags = self.__db.ticket_fields(ticket_id, "info", "flags")
+        rv = self.__db.ticket_fields(ticket_id, "info", "flags")
+        if rv:
+            info, flags = rv
+        else:
+            flags = 0
         if flags & TIC_UPD and not force_update:
             info = eval(info)
             allowed = eval(self.__db.ticket_allows(ticket_id))
@@ -187,9 +191,9 @@ class MessageLoader:
             ("Action", "AgentTicketMove"), ("QueueID", ""),
             ("DestQueueID", where), ("TicketID", ticket_id),
             ("ChallengeToken", self.runtime["ChallengeToken"])]
-        return self.__send_rewuest(params)
+        return self.__send_request_tp(ticket_id, params)
 
-    def __send_rewuest(self, params):
+    def __send_request_tp(self, ticket_id, params):
         url = self.runtime["site"]
         pg = TicketsPage(self.core)
         page = None
@@ -209,35 +213,47 @@ class MessageLoader:
             ("Action", "AgentTicketLock"), ("Subaction", subact),
             ("TicketID", ticket_id),
             ("ChallengeToken", self.runtime["ChallengeToken"])]
-        return self.__send_rewuest(params)
+        return self.__send_request_tp(ticket_id, params)
 
     def load_article_pattern(self, ticket_id, article_id, ans_id):
         params = [("Action", "AgentTicketCompose"),
                   ("ReplyAll", ""), ("ResponseID", ans_id),
                   ("TicketID", ticket_id), ("ArticleID", article_id),
                   ("ChallengeToken", self.runtime["ChallengeToken"])]
-        url = "%s?%s" % (self.runtime["site"], urlencode(params))
-        pg = AnswerPage(self.core)
-        return pg.load(url)
+        return self.__send_request_ap(params)
 
     def load_note_pattern(self, ticket_id):
         params = [
             ("Action", "AgentTicketNote"), ("TicketID", ticket_id),
             ("ChallengeToken", self.runtime["ChallengeToken"])]
-        url = "%s?%s" % (self.runtime["site"], urlencode(params))
-        pg = AnswerPage(self.core)
-        return pg.load(url)
+        return self.__send_request_ap(params)
 
     def load_owners_pattern(self, ticket_id):
         params = [
             ("Action", "AgentTicketOwner"), ("TicketID", ticket_id)]
-        url = "%s?%s" % (self.runtime["site"], urlencode(params))
-        pg = AnswerPage(self.core)
-        return pg.load(url)
+        return self.__send_request_ap(params)
 
     def load_close_pattern(self, ticket_id):
         params = [
             ("Action", "AgentTicketClose"), ("TicketID", ticket_id)]
+        return self.__send_request_ap(params)
+
+    def load_forward_pattern(self, ticket_id, article_id):
+        params = [
+            ("Action", "AgentTicketForward"), ("TicketID", ticket_id),
+            ("ArticleID", article_id)]
+        return self.__send_request_ap(params)
+
+    def load_merge_pattern(self, ticket_id):
+        params = [
+            ("Action", "AgentTicketMerge"), ("TicketID", ticket_id)]
+        return self.__send_request_ap(params)
+
+    def load_new_mail_pattern(self):
+        params = [("Action", "AgentTicketEmail")]
+        return self.__send_request_ap(params)
+
+    def __send_request_ap(self, params):
         url = "%s?%s" % (self.runtime["site"], urlencode(params))
         pg = AnswerPage(self.core)
         return pg.load(url)
@@ -246,3 +262,11 @@ class MessageLoader:
         pg = AnswerSender(self.core)
         url = self.runtime["site"]
         pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])
+
+    def download_file(self, url, downpath):
+        if url.startswith("/"):
+            m = re.search(r"^https?://[^/]+", self.runt_cfg["site"])
+            url = m.group(0) + url
+        fl = FileLoader(self.core)
+        fl.set_save_path(downpath)
+        fl.load(url)

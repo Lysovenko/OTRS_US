@@ -16,12 +16,9 @@
 from tkinter import ttk, StringVar
 from tkinter.messagebox import showerror, showinfo
 from time import ctime
-from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
-import re
 from ..core import version
 from ..core.msg_ldr import MessageLoader, article_by_url, article_type
-from ..core.pgload import (
-    TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError, FileLoader)
+from ..core.pgload import LoginError
 from .dialogs import AboutBox, DlgDetails
 from .ttext import TicText
 EDITABLE = -1
@@ -133,8 +130,11 @@ class Tickets(ttk.Frame):
         return frame
 
     def load_ticket(self, ticket_id, force=False, prefered=None):
-        self.ticket_id = ticket_id
         articles, info, allowed = self.loader.zoom_ticket(ticket_id, force)
+        if articles is None:
+            showerror(_("Error"), _("Ticket load was failed"))
+            return
+        self.ticket_id = ticket_id
         self.app_widgets["menu_ticket"].entryconfig(
             _("Send message"), state="disabled")
         self.__update_tick_face(prefered, articles, info, allowed)
@@ -364,11 +364,8 @@ class Tickets(ttk.Frame):
             return
         if EDITABLE in self.tree_data or not self.answers:
             return
-        params = [("Action", "AgentTicketForward")]
-        url = self.extract_url(params, "menu_note", (
-            "TicketID", "ArticleID"))
-        pg = AnswerPage(self.app_widgets["core"])
-        inputs, error = pg.load(url)
+        inputs, error = self.loader.load_forward_pattern(
+            self.ticket_id, self.cur_article)
         if not inputs:
             showerror(_("Forward"), error)
             return
@@ -393,16 +390,13 @@ class Tickets(ttk.Frame):
         DlgDetails(self, _("Go to ticket"),
                    cfg=cfg, inputs=(("url", _("URL:")),))
         if cfg["OK button"]:
-            url = cfg["url"]
-            if self.my_url is not None:
-                m = re.search(r"TicketID=(\d+)", url)
-                url = re.sub(r"TicketID=(\d+)", m.group(0), self.my_url)
-            self.load_ticket(url)
+            ticket_id, prefered = article_by_url(cfg["url"])
+            self.load_ticket(ticket_id, True, prefered)
 
     def menu_copy_url(self, evt=None):
         self.text.clipboard_clear()
-        self.text.clipboard_append(re.sub(
-            '(;OTRSAgentInterface=[0-9a-f]+)*', '', self.my_url))
+        self.text.clipboard_append(
+            self.loader.extract_url(self.ticket_id, self.cur_article))
 
     def menu_send(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select() or \
@@ -468,7 +462,6 @@ class Tickets(ttk.Frame):
                 params.append((i, self.actions_params[i]))
             except KeyError as err:
                 self.echo("In %s KeyError: %s" % (where, err))
-        # return urlunsplit(self.url_begin + (urlencode(params), ""))
 
     def menu_new_email(self, evt=None):
         self.my_url = None
@@ -477,11 +470,7 @@ class Tickets(ttk.Frame):
         self.set_menu_active()
         if EDITABLE in self.tree_data:
             return
-        params = [("Action", "AgentTicketEmail")]
-        url = self.extract_url(
-            params, "menu_new_email", ("OTRSAgentInterface",))
-        pg = AnswerPage(self.app_widgets["core"])
-        inputs, error = pg.load(url)
+        inputs, error = self.loader.load_new_mail_pattern()
         if not inputs:
             showerror(_("New email"), error)
             return
@@ -505,11 +494,7 @@ class Tickets(ttk.Frame):
     def menu_ticket_merge(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
             return
-        params = [("Action", "AgentTicketMerge")]
-        url = self.extract_url(
-            params, "ticket_merge", ("TicketID", "OTRSAgentInterface"))
-        pg = AnswerPage(self.app_widgets["core"])
-        inputs, error = pg.load(url)
+        inputs, error = self.loader.load_merge_pattern(self.ticket_id)
         cfg = dict(inputs)
         DlgDetails(self, _("Merge"), cfg=cfg, inputs=(
             ("MainTicketNumber", _("Ticket number:")),
@@ -528,10 +513,4 @@ class Tickets(ttk.Frame):
         DlgDetails(self, _("Download"), cfg=cfg, inputs=(
             ("URL", _("Address:")), ("path", _("Path:"))))
         if cfg["OK button"]:
-            fl = FileLoader(self.app_widgets["core"])
-            fl.set_save_path(cfg["path"])
-            url = cfg["URL"]
-            if url.startswith("/"):
-                m = re.search(r"^https?://[^/]+", self.runt_cfg["site"])
-                url = m.group(0) + url
-            fl.load(url)
+            self.loader.download_file(self, cfg["URL"], cfg["path"])
