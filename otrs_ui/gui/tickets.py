@@ -294,11 +294,7 @@ class Tickets(ttk.Frame):
     def menu_note(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
             return
-        params = [("Action", "AgentTicketNote")]
-        url = self.extract_url(
-            params, "menu_note", ("TicketID", "OTRSAgentInterface"))
-        pg = AnswerPage(self.app_widgets["core"])
-        inputs, error = pg.load(url)
+        inputs, error = self.loader.load_note_pattern(self.ticket_id)
         cfg = dict(inputs)
         cfg.pop("FileUpload")
         DlgDetails(self, _("Note"), cfg=cfg, focus_on="Body", inputs=(
@@ -309,16 +305,12 @@ class Tickets(ttk.Frame):
             ("Day", _("Day:")), ("Year", _("Year:")),
             ("Hour", _("Hour:")), ("Minute", _("Minute:"))))
         if cfg["OK button"]:
-            self.send_multiprat(cfg, inputs)
+            self.loader.send_multiprat(cfg, inputs)
 
     def menu_owner(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
             return
-        params = [("Action", "AgentTicketOwner")]
-        url = self.extract_url(
-            params, "menu_note", ("TicketID", "OTRSAgentInterface"))
-        pg = AnswerPage(self.app_widgets["core"])
-        inputs, error = pg.load(url)
+        inputs, error = self.loader.load_owners_pattern(self.ticket_id)
         if not inputs:
             showerror(_("Change owner"), error)
         cfg = dict(inputs)
@@ -334,16 +326,12 @@ class Tickets(ttk.Frame):
         if cfg["OK button"] and cfg.get("NewOwnerID"):
             if not cfg["Body"]:
                 cfg["Body"] = "Owner was changed using OTRS_US %s" % version
-            self.send_multiprat(cfg, inputs)
+            self.loader.send_multiprat(cfg, inputs)
 
     def menu_close(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
             return
-        params = [("Action", "AgentTicketClose")]
-        url = self.extract_url(
-            params, "menu_close", ("TicketID",))
-        pg = AnswerPage(self.app_widgets["core"])
-        inputs, error = pg.load(url)
+        inputs, error = self.loader.load_close_pattern(self.ticket_id)
         if not inputs:
             showerror(_("Close"), error)
             return
@@ -358,7 +346,7 @@ class Tickets(ttk.Frame):
         if cfg["OK button"]:
             if not cfg["Body"]:
                 cfg["Body"] = "Closed using OTRS_US %s" % version
-            self.send_multiprat(cfg, inputs)
+            self.loader.send_multiprat(cfg, inputs)
 
     def menu_info(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():

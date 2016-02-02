@@ -220,6 +220,28 @@ class MessageLoader:
         pg = AnswerPage(self.core)
         return pg.load(url)
 
+    def load_note_pattern(self, ticket_id):
+        params = [
+            ("Action", "AgentTicketNote"), ("TicketID", ticket_id),
+            ("ChallengeToken", self.runtime["ChallengeToken"])]
+        url = "%s?%s" % (self.runtime["site"], urlencode(params))
+        pg = AnswerPage(self.core)
+        return pg.load(url)
+
+    def load_owners_pattern(self, ticket_id):
+        params = [
+            ("Action", "AgentTicketOwner"), ("TicketID", ticket_id)]
+        url = "%s?%s" % (self.runtime["site"], urlencode(params))
+        pg = AnswerPage(self.core)
+        return pg.load(url)
+
+    def load_close_pattern(self, ticket_id):
+        params = [
+            ("Action", "AgentTicketClose"), ("TicketID", ticket_id)]
+        url = "%s?%s" % (self.runtime["site"], urlencode(params))
+        pg = AnswerPage(self.core)
+        return pg.load(url)
+
     def send_multiprat(self, cfg, inputs):
         pg = AnswerSender(self.core)
         url = self.runtime["site"]
