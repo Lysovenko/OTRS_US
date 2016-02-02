@@ -73,10 +73,14 @@ class TimeUnit:
         else:
             raise ValueError("Bad time units %s" % units)
 
-    __init__ = update
-
     def __repr__(self):
-        return "'%g s'" % self.__seconds
+        secs = self.__seconds
+        for d, l in ((604800, 'w'), (86400, 'd'), (3600, 'h'), (60, 'm')):
+            if not secs % d:
+                return "'%d %s'" % (secs // d, l)
+        if secs < 1:
+            return "'%g ms'" % secs * 1000
+        return "'%g s'" % secs
 
     def __str__(self):
         return "%g s" % self.__seconds
@@ -84,5 +88,10 @@ class TimeUnit:
     def seconds(self):
         return self.__seconds
 
+    def __int__(self):
+        return int(self.__seconds)
+
     def miliseconds(self):
         return self.__seconds * 1000
+
+    __init__ = update

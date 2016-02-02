@@ -17,6 +17,7 @@ import atexit
 from os import makedirs, name
 from os.path import isdir, expanduser, join
 import sqlite3 as sql
+from time import time
 ART_SEEN = 1 << 8
 ART_TEXT = 1 << 5
 ART_TYPE_MASK = 0xf
@@ -48,7 +49,7 @@ class Database:
             return
         tables = {
             "tickets": "id INT, number INT, mtime INT, flags INT, "
-            "title VARCHAR, allow INT, info TEXT",
+            "title VARCHAR, allow INT, info TEXT, relevance INT",
             "articles": "id INT, ticket INT, ctime INT, title VARCHAR, "
             "sender VARCHAR, reciever VARCHAR, flags INT, message TEXT",
             "allows": "id INT, value VARCHAR"}
@@ -80,7 +81,8 @@ class Database:
                 flags = dflags & (~TIC_UPD)
             for i, j, k in ((number, dnum, "number"), (mtime, dmtime, "mtime"),
                             (flags, dflags, "flags"), (title, dtitle, "title"),
-                            (info, dinfo, "info")):
+                            (info, dinfo, "info"),
+                            (int(time()), 0, "relevance")):
                 if i is not None and i != j:
                     updict[k] = sql_repr(i)
             if updict:
@@ -90,9 +92,9 @@ class Database:
             return None if mtime is None else dmtime < mtime
         instup = tuple(j if i is None else sql_repr(i) for i, j in (
             (id, id), (number, '0'), (mtime, '0'), (flags, '0'),
-            (title, "'No subj'"), (None, '-1'), (info, "'()'")))
+            (title, "'No subj'"), (-1, 0), (info, "'()'"), (int(time()), 0)))
         self.execute("INSERT INTO tickets "
-                     "VALUES(%s, %s, %s, %s, %s, %s, %s)" % instup)
+                     "VALUES(%s, %s, %s, %s, %s, %s, %s, %s)" % instup)
         return True
 
     def ticket_fields(self, id, *fields):
@@ -172,3 +174,9 @@ class Database:
 
     def __exit__(self, tp, val, tb):
         self.close()
+
+    def delete_irrelevant(self, min_relevance):
+        self.execute(
+            "delete from articles where ticket in (select id from tickets "
+            "where relevance<%d)" % min_relevance)
+        self.execute("delete from tickets where relevance<%d" % min_relevance)
