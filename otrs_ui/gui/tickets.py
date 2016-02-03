@@ -149,7 +149,6 @@ class Tickets(ttk.Frame):
             show = prefered
         else:
             for show in reversed(self.articles_range):
-
                 if "system" not in article_type(articles[show]["Flags"]):
                     break
         self.enter_article(show)
@@ -454,14 +453,6 @@ class Tickets(ttk.Frame):
             self.articles_range.pop(self.articles_range.index(EDITABLE))
             self.tree.focus(item=self.articles_range[-1])
             self.menu_reload()
-
-    def extract_url(self, params, where, keys):
-        self.actions_params["ArticleID"] = self.tree.focus()
-        for i in keys:
-            try:
-                params.append((i, self.actions_params[i]))
-            except KeyError as err:
-                self.echo("In %s KeyError: %s" % (where, err))
 
     def menu_new_email(self, evt=None):
         self.my_url = None
