@@ -504,4 +504,4 @@ class Tickets(ttk.Frame):
         DlgDetails(self, _("Download"), cfg=cfg, inputs=(
             ("URL", _("Address:")), ("path", _("Path:"))))
         if cfg["OK button"]:
-            self.loader.download_file(self, cfg["URL"], cfg["path"])
+            self.loader.download_file(cfg["URL"], cfg["path"])

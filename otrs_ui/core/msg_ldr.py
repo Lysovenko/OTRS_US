@@ -265,7 +265,7 @@ class MessageLoader:
 
     def download_file(self, url, downpath):
         if url.startswith("/"):
-            m = re.search(r"^https?://[^/]+", self.runt_cfg["site"])
+            m = re.search(r"^https?://[^/]+", self.runtime["site"])
             url = m.group(0) + url
         fl = FileLoader(self.core)
         fl.set_save_path(downpath)
