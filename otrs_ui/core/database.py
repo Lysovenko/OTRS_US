@@ -159,7 +159,7 @@ class Database:
         if message is None:
             arts = self.execute("SELECT message FROM articles "
                                 "WHERE id=%d" % id)
-            if arts is None:
+            if not arts:
                 return
             return arts[0][0]
         self.execute("UPDATE articles SET message=%s, flags=flags | %d "

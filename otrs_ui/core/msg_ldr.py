@@ -107,7 +107,8 @@ class MessageLoader:
         allow = self.detect_allowed_actions(page.get("action_hrefs", []) +
                                             page.get("art_act_hrefs", []))
         info = repr(page.get("info", ()))
-        flags, = self.__db.ticket_fields(ticket_id, "flags")
+        flags = self.__db.ticket_fields(ticket_id, "flags")
+        flags = 0 if flags is None else flags[0]
         flags |= TIC_UPD
         self.__db.update_ticket(ticket_id, info=info, flags=flags)
         self.__db.ticket_allows(ticket_id, allow)
