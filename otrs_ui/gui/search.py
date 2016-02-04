@@ -58,8 +58,49 @@ class Search(ttk.Frame):
         sexpr = self.entry.get()
         if not sexpr:
             return
+        res = None
+        if res is not None:
+            self.fill_tree(res)
+            runt_cfg["dash_inputs"] = res[0].pop("inputs", {})
         self.echo("Serch: %s" % sexpr)
         self.echo(self.runt_cfg["dash_inputs"])
 
-    def enter_ticket(self, evt=None):
-        pass
+    def fill_tree(self, data):
+        tshow = TimeConv(
+            yday=_("yest."), mago=_("min."), dago=_("days"))
+        self.tree_data.clear()
+        tree = self.tree
+        totw = sum(int(tree.column(i, "width")) for i in ("#0", "modified"))
+        tree.column("#0", width=totw-80, anchor="center")
+        tree.column("modified", width=80, anchor="center")
+        old_focus = tree.focus()
+        for i in reversed(self.ticket_range):
+            tree.delete(i)
+        if data and "Changed" in data[0]:
+            data.sort(reverse=True, key=dashb_time)
+        new = tuple(i["number"] for i in data)
+        self.tree_data.update(
+            (i["number"], (i["TicketID"], i["title"])) for i in data)
+        self.ticket_range = new
+        for item in data:
+            tags = ("new",) if item["marker"] & 1 else ()
+            tc = item.get("Changed", 0)
+            if tc:
+                tshow.set_modified(tc)
+                tc = tshow.relative()
+            tree.insert(
+                "", "end", item["number"], text=item["title"],
+                tags=tags, values=(tc,))
+        if old_focus in self.ticket_range:
+            tree.focus(old_focus)
+        else:
+            try:
+                tree.focus(self.ticket_range[0])
+            except IndexError:
+                pass
+
+    def enter_ticket(self, evt):
+        iid = evt.widget.focus()
+        if iid:
+            self.app_widgets["tickets"].load_ticket(
+                self.tree_data[int(iid)][0])

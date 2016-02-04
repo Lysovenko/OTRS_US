@@ -137,7 +137,6 @@ class Dashboard(ttk.Frame):
             old_focus = tree.focus()
             for i in reversed(self.ticket_range.get(name, ())):
                 tree.delete(i)
-            old = self.ticket_range.get(name, ())
             data = pgl[name]
             if data and "Changed" in data[0]:
                 data.sort(reverse=True, key=dashb_time)

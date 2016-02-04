@@ -36,7 +36,10 @@ class TimeConv:
         self.dago = dago
 
     def set_modified(self, modified):
-        self.time = strptime(modified, "%m/%d/%Y %H:%M")
+        if isinstance(modified, str):
+            self.time = strptime(modified, "%m/%d/%Y %H:%M")
+        else:
+            self.time = int(modified)
 
     def relative(self):
         cur = self.cur
