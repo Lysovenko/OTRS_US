@@ -16,8 +16,6 @@
 from os import system
 from os.path import dirname, join
 from time import strftime
-from urllib.parse import urlsplit, urlunsplit
-from urllib.error import URLError
 from tkinter import ttk, PhotoImage
 from tkinter.messagebox import showerror
 from .tickets import autoscroll
@@ -42,7 +40,6 @@ class Dashboard(ttk.Frame):
             pw.add(frame)
             pw.pane(frame, weight=1)
         pw.pack(fill="both")
-        self.urlbegin = ("", "")
         self.important = PhotoImage(
             file=join(dirname(__file__), "important.gif"))
         self.updater = DashboardUpdater(appw["core"])
@@ -203,7 +200,6 @@ class Dashboard(ttk.Frame):
         if cfg["OK button"]:
             for i in ("site", "user", "password"):
                 runt_cfg[i] = cfg[i]
-            self.urlbegin = urlsplit(cfg["site"])[:2]
             if cfg["remember_passwd"]:
                 for i in ("site", "user", "password"):
                     core_cfg[i] = cfg[i]

@@ -39,7 +39,7 @@ class TimeConv:
         if isinstance(modified, str):
             self.time = strptime(modified, "%m/%d/%Y %H:%M")
         else:
-            self.time = int(modified)
+            self.time = localtime(modified)
 
     def relative(self):
         cur = self.cur

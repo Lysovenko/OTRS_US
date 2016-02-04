@@ -13,9 +13,10 @@
 # limitations under the License.
 "Making the Search widget"
 
-from tkinter import ttk, Text, StringVar
-from os.path import isdir, join, dirname
+from tkinter import ttk
 from .tickets import autoscroll
+from ..core.search import Searcher
+from ..core.ptime import TimeConv
 
 
 class Search(ttk.Frame):
@@ -23,10 +24,11 @@ class Search(ttk.Frame):
         ttk.Frame.__init__(self, parent)
         self.app_widgets = appw
         self.echo = appw["core"].echo
-        self.runt_cfg = appw["core"].call("runtime cfg")
+        self.searcher = Searcher(appw["core"])
         self.tree_data = {}
         self.add_control()
         self.make_tree()
+        self.ticket_range = []
 
     def add_control(self):
         self.grid_columnconfigure(0, weight=1)
@@ -42,7 +44,8 @@ class Search(ttk.Frame):
         self.entry.bind("<KeyPress-Return>", self.search)
 
     def make_tree(self):
-        self.tree = tree = ttk.Treeview(self, selectmode="extended")
+        self.tree = tree = ttk.Treeview(self, selectmode="extended",
+                                        columns=("modified",))
         tree.grid(column=0, row=1, sticky="nwes")
         vsb = ttk.Scrollbar(self, command=tree.yview, orient="vertical")
         vsb.grid(column=1, row=0, sticky="ns")
@@ -51,19 +54,16 @@ class Search(ttk.Frame):
             self, command=tree.xview, orient="horizontal")
         hsb.grid(column=0, row=1, sticky="ew")
         tree["xscrollcommand"] = lambda f, l: autoscroll(hsb, f, l)
-        tree.tag_bind("page", "<Return>", self.enter_ticket)
-        tree.tag_bind("page", "<Double-Button-1>", self.enter_ticket)
+        tree.bind("<Return>", self.enter_ticket)
+        tree.bind("<Double-Button-1>", self.enter_ticket)
 
     def search(self, evt=None):
         sexpr = self.entry.get()
         if not sexpr:
             return
-        res = None
+        res = self.searcher.search(sexpr)
         if res is not None:
             self.fill_tree(res)
-            runt_cfg["dash_inputs"] = res[0].pop("inputs", {})
-        self.echo("Serch: %s" % sexpr)
-        self.echo(self.runt_cfg["dash_inputs"])
 
     def fill_tree(self, data):
         tshow = TimeConv(
@@ -77,20 +77,19 @@ class Search(ttk.Frame):
         for i in reversed(self.ticket_range):
             tree.delete(i)
         if data and "Changed" in data[0]:
-            data.sort(reverse=True, key=dashb_time)
+            data.sort(reverse=True, key=lambda x: x["Changed"])
         new = tuple(i["number"] for i in data)
         self.tree_data.update(
             (i["number"], (i["TicketID"], i["title"])) for i in data)
         self.ticket_range = new
         for item in data:
-            tags = ("new",) if item["marker"] & 1 else ()
             tc = item.get("Changed", 0)
             if tc:
                 tshow.set_modified(tc)
                 tc = tshow.relative()
             tree.insert(
                 "", "end", item["number"], text=item["title"],
-                tags=tags, values=(tc,))
+                values=(tc,))
         if old_focus in self.ticket_range:
             tree.focus(old_focus)
         else:

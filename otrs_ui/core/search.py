@@ -15,5 +15,21 @@
 "Search request sender"
 
 
-def send_request(where, request):
-    return
+class Searcher:
+    def __init__(self, core):
+        self.__db = core.call("database")
+
+    def db_search(self, query):
+        results = self.__db.execute(
+            "SELECT id, number, title, mtime FROM tickets WHERE id IN "
+            "(SELECT DISTINCT ticket FROM articles WHERE message LIKE "
+            "'%s')" % query, False)
+        if not results:
+            return
+        result = []
+        for i, num, tit, mt in results:
+            result.append(
+                {"number": num, "TicketID": i, "title": tit, "Changed": mt})
+        return result
+
+    search = db_search
