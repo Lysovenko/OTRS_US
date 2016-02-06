@@ -30,6 +30,7 @@ class Dashboard(ttk.Frame):
         self.app_widgets = appw
         self.root = appw["root"]
         self.echo = appw["core"].echo
+        self.runtime = appw["core"].call("runtime cfg")
         self.tree = {}
         self.tree_data = {}
         self.ticket_range = {}
@@ -91,8 +92,8 @@ class Dashboard(ttk.Frame):
         if status == "Complete":
             res = self.updater.get_result()
             if res is not None:
-                self.fill_trees(res)
-                runt_cfg["dash_inputs"] = res[0].pop("inputs", {})
+                self.fill_trees(res[0])
+                self.show_status(res[1])
             self.login_failed = 0
         if status in ("URLError", "Empty"):
             self.on_url_error(self.updater.get_result())
@@ -100,10 +101,8 @@ class Dashboard(ttk.Frame):
         if refresh.seconds() > 10:
             self.root.after(int(refresh.miliseconds()), self.update)
 
-    def show_status(self, trees):
-        if trees is None:
-            return
-        ding = " ".join(i for i in ("Reminder", "New", "Open") if trees[i])
+    def show_status(self, summary):
+        ding = " ".join(i for i in ("Reminder", "New", "Open") if summary[i])
         if ding:
             message = "%s: %s" % (
                 strftime("%H:%M:%S"), ding)
@@ -115,13 +114,12 @@ class Dashboard(ttk.Frame):
             imp_cmd = self.app_widgets["core"].call("core cfg").get("snd_imp")
             if snd_cmd:
                 system(snd_cmd)
-            if imp_cmd and trees["Important"]:
-                system(imp_cmd)
+            if imp_cmd:
+                summary["Important"].discard(self.runtime.get("now editing"))
+                if summary["Important"]:
+                    system(imp_cmd)
 
-    def fill_trees(self, upd):
-        if upd is None:
-            raise ConnectionError()
-        pgl, summary = upd
+    def fill_trees(self, pgl):
         tshow = TimeConv(
             yday=_("yest."), mago=_("min."), dago=_("days"))
         self.tree_data.clear()
@@ -161,7 +159,6 @@ class Dashboard(ttk.Frame):
                     tree.focus(self.ticket_range[name][0])
                 except IndexError:
                     pass
-        self.show_status(summary)
 
     def activate(self, evt):
         "make selection jumps between trees"

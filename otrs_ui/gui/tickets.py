@@ -39,7 +39,7 @@ class Tickets(ttk.Frame):
         ttk.Frame.__init__(self, parent)
         self.app_widgets = appw
         self.echo = appw["core"].echo
-        self.runt_cfg = appw["core"].call("runtime cfg")
+        self.runtime = appw["core"].call("runtime cfg")
         self.core_cfg = appw["core"].call("core cfg")
         self.loader = MessageLoader(appw["core"])
         self.pw = pw = ttk.Panedwindow(self, orient="vertical")
@@ -151,6 +151,7 @@ class Tickets(ttk.Frame):
             for show in reversed(self.articles_range):
                 if "system" not in article_type(articles[show]["Flags"]):
                     break
+        self.runtime["now editing"] = None
         self.enter_article(show)
         self.tree.focus(show)
         self.set_menu_active()
@@ -291,6 +292,7 @@ class Tickets(ttk.Frame):
                 self.tree_data[EDITABLE] = ca
                 self.enter_article(EDITABLE)
                 self.tree.focus(EDITABLE)
+                self.runtime["now editing"] = self.ticket_id
             else:
                 showerror(_("Answer"), (error if error else "Can't answer"))
 
@@ -381,6 +383,7 @@ class Tickets(ttk.Frame):
         self.tree_data[EDITABLE] = ca
         self.enter_article(EDITABLE)
         self.tree.focus(EDITABLE)
+        self.runtime["now editing"] = self.ticket_id
 
     def menu_reload(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
@@ -458,6 +461,7 @@ class Tickets(ttk.Frame):
             self.tree.delete(EDITABLE)
             self.tree_data.pop(EDITABLE)
             self.articles_range.pop(self.articles_range.index(EDITABLE))
+            self.runtime["now editing"] = None
             self.tree.focus(item=self.articles_range[-1])
             self.menu_reload()
 

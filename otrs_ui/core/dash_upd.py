@@ -29,8 +29,6 @@ class DashboardUpdater:
         self.__page = DashboardPage(core)
         self.__db = core.call("database")
         self.runtime = rtm = core.call("runtime cfg")
-        rtm["changed tickets"] = self.ts_changed = \
-            rtm.get("changed tickets", set())
 
     def get_status(self):
         self.__st_lock.acquire()
@@ -84,19 +82,19 @@ class DashboardUpdater:
                 return result
             pgl = result
             result = {}
-            summary = {"Important": 0}
+            summary = {"Important": set()}
             for name in ("Reminder", "New", "Open"):
-                summary[name] = False
+                summary[name] = set()
                 tarr = []
                 for item in pgl[name]:
                     tid, = parse_qs(urlsplit(item["href"]).query)["TicketID"]
+                    tid = int(tid)
                     if self.__db.update_ticket(
-                            int(tid), int(item["number"]), dashb_time(item),
+                            tid, int(item["number"]), dashb_time(item),
                             title=item["title"]):
-                        self.ts_changed.add(int(tid))
-                        summary[name] = True
+                        summary[name].add(tid)
                         if item["marker"] & 2:
-                            summary["Important"] += 1
+                            summary["Important"].add(tid)
                         item["marker"] |= 4
                     ritem = dict(item)
                     ritem["TicketID"] = int(tid)
