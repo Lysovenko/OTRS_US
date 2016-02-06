@@ -260,7 +260,11 @@ class Tickets(ttk.Frame):
         DlgDetails(self, _("Change queue"), cfg=cfg, selects=(
             ("queue", _("Queue:")),))
         if cfg["OK button"]:
-            rv = self.loader.move_ticket(self.ticket_id, cfg["queue"])
+            try:
+                rv = self.loader.move_ticket(self.ticket_id, cfg["queue"])
+            except KeyError:
+                showerror(_("Error"), _("Unexpected error"))
+                return
             if rv is None:
                 return
         else:
@@ -390,6 +394,9 @@ class Tickets(ttk.Frame):
                    cfg=cfg, inputs=(("url", _("URL:")),))
         if cfg["OK button"]:
             ticket_id, prefered = article_by_url(cfg["url"])
+            if ticket_id is None:
+                showerror(_("Error"), _("Wrong URL"))
+                return
             self.load_ticket(ticket_id, True, prefered)
 
     def menu_copy_url(self, evt=None):
