@@ -1,4 +1,4 @@
-# Copyright 2015 Serhiy Lysovenko
+# Copyright 2015-2016 Serhiy Lysovenko
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ class Search(ttk.Frame):
                                         columns=("modified",))
         tree.grid(column=0, row=1, sticky="nwes")
         vsb = ttk.Scrollbar(self, command=tree.yview, orient="vertical")
-        vsb.grid(column=1, row=0, sticky="ns")
+        vsb.grid(column=1, row=1, sticky="ns")
         tree["yscrollcommand"] = lambda f, l: autoscroll(vsb, f, l)
         hsb = ttk.Scrollbar(
             self, command=tree.xview, orient="horizontal")
