@@ -20,7 +20,7 @@ from tkinter import ttk, PhotoImage
 from tkinter.messagebox import showerror
 from .tickets import autoscroll
 from ..core.dash_upd import DashboardUpdater
-from ..core.ptime import TimeConv, dashb_time
+from ..core.ptime import TimeConv
 from .dialogs import DlgLogin
 
 
@@ -133,8 +133,8 @@ class Dashboard(ttk.Frame):
             for i in reversed(self.ticket_range.get(name, ())):
                 tree.delete(i)
             data = pgl[name]
-            if data and "Changed" in data[0]:
-                data.sort(reverse=True, key=dashb_time)
+            if data and "mtime" in data[0]:
+                data.sort(reverse=True, key=lambda x: x["mtime"])
             new = tuple(i["number"] for i in data)
             self.tree_data.update(
                 (i["number"], (i["TicketID"], i["title"])) for i in data)
@@ -145,7 +145,7 @@ class Dashboard(ttk.Frame):
                 else:
                     image = ""
                 tags = ("new",) if item["marker"] & 1 else ()
-                tc = item.get("Changed", "")
+                tc = item.get("mtime", 0)
                 if tc:
                     tshow.set_modified(tc)
                     tc = tshow.relative()

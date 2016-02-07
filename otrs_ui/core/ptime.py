@@ -16,14 +16,13 @@
 
 from time import strptime, mktime, localtime, strftime, time
 import re
-ticket_time = lambda x: mktime(strptime(x, "%Y-%m-%d %H:%M:%S"))
 
 
-def dashb_time(item):
+def unix_time(expr, fmt):
     try:
-        return mktime(strptime(item["Changed"], "%m/%d/%Y %H:%M"))
+        return int(mktime(strptime(expr, fmt)))
     except KeyError:
-        return time()
+        return int(time())
 
 
 class TimeConv:
@@ -36,10 +35,7 @@ class TimeConv:
         self.dago = dago
 
     def set_modified(self, modified):
-        if isinstance(modified, str):
-            self.time = strptime(modified, "%m/%d/%Y %H:%M")
-        else:
-            self.time = localtime(modified)
+        self.time = localtime(modified)
 
     def relative(self):
         cur = self.cur
@@ -77,16 +73,16 @@ class TimeUnit:
             raise ValueError("Bad time units %s" % units)
 
     def __repr__(self):
+        return "'%s'" % self.__str__()
+
+    def __str__(self):
         secs = self.__seconds
         for d, l in ((604800, 'w'), (86400, 'd'), (3600, 'h'), (60, 'm')):
             if not secs % d:
-                return "'%d %s'" % (secs // d, l)
+                return "%d %s" % (secs // d, l)
         if secs < 1:
-            return "'%g ms'" % secs * 1000
-        return "'%g s'" % secs
-
-    def __str__(self):
-        return "%g s" % self.__seconds
+            return "%g ms" % secs * 1000
+        return "%g s" % secs
 
     def seconds(self):
         return self.__seconds

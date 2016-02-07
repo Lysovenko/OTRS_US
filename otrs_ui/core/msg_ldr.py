@@ -17,7 +17,7 @@ from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.error import URLError
 from threading import Thread, Lock
 import re
-from .ptime import ticket_time
+from .ptime import unix_time
 from .pgload import (
     TicketsPage, MessagePage, AnswerPage, AnswerSender, LoginError, FileLoader)
 from .database import ART_SEEN, ART_TEXT, TIC_UPD, ART_TYPE_MASK
@@ -125,7 +125,7 @@ class MessageLoader:
                 article_id = int(qd["ArticleID"])
                 title = item["Subject"]
                 sender = item["From"]
-                ctime = ticket_time(item["Created"])
+                ctime = unix_time(item["Created"], self.cfg["art_tm_fmt"])
                 rcs = item["row"].split()
                 flags = ARTICLE_TYPES.index(rcs[0])
                 if "UnreadArticles" not in rcs:

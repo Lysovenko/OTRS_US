@@ -177,6 +177,6 @@ class Database:
 
     def delete_irrelevant(self, min_relevance):
         self.execute(
-            "delete from articles where ticket in (select id from tickets "
-            "where relevance<%d)" % min_relevance)
-        self.execute("delete from tickets where relevance<%d" % min_relevance)
+            "DELETE FROM articles WHERE ticket in (SELECT id FROM tickets "
+            "WHERE relevance<%d)" % min_relevance)
+        self.execute("DELETE FROM tickets WHERE relevance<%d" % min_relevance)

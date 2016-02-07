@@ -76,14 +76,14 @@ class Search(ttk.Frame):
         old_focus = tree.focus()
         for i in reversed(self.ticket_range):
             tree.delete(i)
-        if data and "Changed" in data[0]:
-            data.sort(reverse=True, key=lambda x: x["Changed"])
+        if data and "mtime" in data[0]:
+            data.sort(reverse=True, key=lambda x: x["mtime"])
         new = tuple(i["number"] for i in data)
         self.tree_data.update(
             (i["number"], (i["TicketID"], i["title"])) for i in data)
         self.ticket_range = new
         for item in data:
-            tc = item.get("Changed", 0)
+            tc = item.get("mtime", 0)
             if tc:
                 tshow.set_modified(tc)
                 tc = tshow.relative()

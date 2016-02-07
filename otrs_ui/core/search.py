@@ -29,7 +29,7 @@ class Searcher:
         result = []
         for i, num, tit, mt in results:
             result.append(
-                {"number": num, "TicketID": i, "title": tit, "Changed": mt})
+                {"number": num, "TicketID": i, "title": tit, "mtime": mt})
         return result
 
     search = db_search

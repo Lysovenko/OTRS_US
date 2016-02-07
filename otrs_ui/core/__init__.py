@@ -43,10 +43,14 @@ class Interactor(dict):
 def get_core():
     actor = Interactor()
     cfg = Config("core.cfg")
+    # set defaults
     try:
         cfg["refresh_time"] = TimeUnit(cfg["refresh_time"])
     except Exception:
         cfg["refresh_time"] = TimeUnit("0 s")
+    for i, j in (("tct_tm_fmt", "%m/%d/%Y %H:%M"),
+                 ("art_tm_fmt", "%Y-%m-%d %H:%M:%S")):
+        cfg[i] = cfg.get(i, j)
     actor.register("core cfg", lambda x: x, cfg)
     actor.register("runtime cfg", lambda x: x, dict(cfg))
     db = Database("core.db", True)

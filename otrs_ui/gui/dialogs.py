@@ -174,6 +174,14 @@ class DlgSettings(Dialog):
         self.dld_fldr.set(str(cfg.get("dld_fldr", "")))
         edld_fldr = Entry(master, width=30, textvariable=self.dld_fldr)
         edld_fldr.grid(column=1, row=7, sticky="e")
+        self.tct_tm_fmt = StringVar()
+        self.tct_tm_fmt.set(str(cfg.get("tct_tm_fmt")))
+        etct_tm_fmt = Entry(master, width=30, textvariable=self.tct_tm_fmt)
+        etct_tm_fmt.grid(column=1, row=8, sticky="e")
+        self.art_tm_fmt = StringVar()
+        self.art_tm_fmt.set(str(cfg.get("art_tm_fmt")))
+        eart_tm_fmt = Entry(master, width=30, textvariable=self.art_tm_fmt)
+        eart_tm_fmt.grid(column=1, row=9, sticky="e")
         lab = Label(master, text=_("Refresh time:"))
         lab.grid(column=0, row=3, sticky="w")
         lab = Label(master, text=_("Sound command:"))
@@ -184,6 +192,10 @@ class DlgSettings(Dialog):
         lab.grid(column=0, row=6, sticky="w")
         lab = Label(master, text=_("Download folder:"))
         lab.grid(column=0, row=7, sticky="w")
+        lab = Label(master, text=_("Ticket time format:"))
+        lab.grid(column=0, row=8, sticky="w")
+        lab = Label(master, text=_("Article time format:"))
+        lab.grid(column=0, row=9, sticky="w")
         return etime
 
     def apply(self):
@@ -195,6 +207,8 @@ class DlgSettings(Dialog):
         self.config["site"] = self.site.get()
         self.config["user"] = self.login.get()
         self.config["password"] = self.password.get()
+        self.config["tct_tm_fmt"] = self.tct_tm_fmt.get()
+        self.config["art_tm_fmt"] = self.art_tm_fmt.get()
         self.config["OK button"] = True
 
     def validate(self):

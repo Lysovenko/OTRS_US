@@ -18,7 +18,7 @@ from threading import Thread, Lock, active_count
 from urllib.error import URLError
 from urllib.parse import urlsplit, parse_qs
 from .pgload import DashboardPage, LoginError
-from .ptime import dashb_time
+from .ptime import unix_time
 
 
 class DashboardUpdater:
@@ -28,7 +28,8 @@ class DashboardUpdater:
         self.__result = None
         self.__page = DashboardPage(core)
         self.__db = core.call("database")
-        self.runtime = rtm = core.call("runtime cfg")
+        self.runtime = core.call("runtime cfg")
+        self.core_cfg = core.call("core cfg")
 
     def get_status(self):
         self.__st_lock.acquire()
@@ -89,15 +90,18 @@ class DashboardUpdater:
                 for item in pgl[name]:
                     tid, = parse_qs(urlsplit(item["href"]).query)["TicketID"]
                     tid = int(tid)
+                    mtime = unix_time(item["Changed"],
+                                      self.core_cfg["tct_tm_fmt"])
                     if self.__db.update_ticket(
-                            tid, int(item["number"]), dashb_time(item),
+                            tid, int(item["number"]), mtime,
                             title=item["title"]):
                         summary[name].add(tid)
                         if item["marker"] & 2:
                             summary["Important"].add(tid)
                         item["marker"] |= 4
                     ritem = dict(item)
-                    ritem["TicketID"] = int(tid)
+                    ritem["TicketID"] = tid
+                    ritem["mtime"] = mtime
                     tarr.append(ritem)
                 result[name] = tarr
             self.runtime.update(pgl["inputs"])
