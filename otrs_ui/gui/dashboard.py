@@ -30,13 +30,16 @@ class Dashboard(ttk.Frame):
         self.app_widgets = appw
         self.root = appw["root"]
         self.echo = appw["core"].echo
+        self.config = config = appw["config"]
+        config["dashboard_seq"] = config.get(
+            "dashboard_seq", ("Reminder", "New", "Open"))
         self.runtime = appw["core"].call("runtime cfg")
         self.tree = {}
         self.tree_data = {}
         self.ticket_range = {}
         self.pw = pw = ttk.Panedwindow(
             self, orient="vertical", takefocus=False)
-        for i in ("Reminder", "New", "Open"):
+        for i in config["dashboard_seq"]:
             frame = self.make_tree(i)
             pw.add(frame)
             pw.pane(frame, weight=1)

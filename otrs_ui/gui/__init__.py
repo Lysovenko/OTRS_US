@@ -32,13 +32,13 @@ class Face:
         root.protocol("WM_DELETE_WINDOW", self.on_delete)
         self.root = root
         self.core = core
-        self.config = Config("face.cfg")
-        root.geometry(self.config.get("geometry"))
+        self.config = config = Config("face.cfg")
+        root.geometry(config.get("geometry"))
         root.grid_columnconfigure(0, weight=1)
         root.grid_rowconfigure(0, weight=1)
         self.notebook = ntbk = ttk.Notebook(root, takefocus=False)
         self.app_widgets = appw = {
-            "core": core, "config": self.config, "root": root,
+            "core": core, "config": config, "root": root,
             "notebook": ntbk}
         # Dashboard, Tickets, -Customers, -Admin, -Forums, Search
         ntbk.grid(column=0, row=0, sticky="senw")
