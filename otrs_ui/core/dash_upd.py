@@ -90,7 +90,7 @@ class DashboardUpdater:
                 for item in pgl[name]:
                     tid, = parse_qs(urlsplit(item["href"]).query)["TicketID"]
                     tid = int(tid)
-                    mtime = unix_time(item["Changed"],
+                    mtime = unix_time(item.get("Changed", ''),
                                       self.core_cfg["tct_tm_fmt"])
                     if self.__db.update_ticket(
                             tid, int(item["number"]), mtime,

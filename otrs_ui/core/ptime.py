@@ -21,7 +21,7 @@ import re
 def unix_time(expr, fmt):
     try:
         return int(mktime(strptime(expr, fmt)))
-    except KeyError:
+    except ValueError:
         return int(time())
 
 
