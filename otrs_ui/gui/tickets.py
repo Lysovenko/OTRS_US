@@ -107,6 +107,7 @@ class Tickets(ttk.Frame):
         tag_clrs.update(self.app_widgets["config"].get("art_type_clrs", ()))
         for nam, clr in tag_clrs.items():
             tree.tag_configure(nam, background=clr)
+        tree.tag_configure("hightlighted", foreground="red")
         return frame
 
     def go_dasboard(self, evt):
@@ -140,7 +141,10 @@ class Tickets(ttk.Frame):
         self.__update_tick_face(prefered, articles, info, allowed)
 
     def __update_tick_face(self, prefered, articles, info, allowed):
-        self.fill_tree(articles)
+        if isinstance(prefered, set):
+            self.fill_tree(articles, prefered)
+        else:
+            self.fill_tree(articles)
         self.ticket_info = info
         self.detect_allowed_actions(allowed)
         self.queues = self.core_cfg.get("queues")
@@ -149,7 +153,8 @@ class Tickets(ttk.Frame):
             show = prefered
         else:
             for show in reversed(self.articles_range):
-                if "system" not in article_type(articles[show]["Flags"]):
+                if show in prefered if isinstance(prefered, set) else \
+                   "system" not in article_type(articles[show]["Flags"]):
                     break
         self.runtime["now editing"] = None
         self.enter_article(show)
@@ -191,7 +196,7 @@ class Tickets(ttk.Frame):
         self.cur_article = article
         return self.tree_data[article]
 
-    def fill_tree(self, articles):
+    def fill_tree(self, articles, selected=()):
         tree = self.tree
         for i in reversed(self.articles_range):
             tree.delete(i)
@@ -201,6 +206,7 @@ class Tickets(ttk.Frame):
             item = articles[art_id]
             item[EDITABLE] = False
             tags = (article_type(item["Flags"]),)
+            tags += ("hightlighted",) if art_id in selected else ()
             tree.insert(
                 "", "end", art_id, text=item["Title"],
                 values=(item["Sender"], ctime(item["ctime"]),

@@ -20,16 +20,21 @@ class Searcher:
         self.__db = core.call("database")
 
     def db_search(self, query):
-        results = self.__db.execute(
-            "SELECT id, number, title, mtime FROM tickets WHERE id IN "
-            "(SELECT DISTINCT ticket FROM articles WHERE message LIKE "
-            "'%s')" % query, False)
-        if not results:
-            return
+        sql = self.__db.execute
         result = []
-        for i, num, tit, mt in results:
-            result.append(
-                {"number": num, "TicketID": i, "title": tit, "mtime": mt})
+        sql("CREATE TEMPORARY TABLE artsfound (id INT, ticket INT)")
+        sql("INSERT INTO artsfound SELECT id, ticket FROM articles "
+            "WHERE message LIKE '%s'" % query.replace("'", '"'))
+        for tid, in sql("SELECT DISTINCT ticket FROM artsfound", False):
+            arts = sql("SELECT id FROM artsfound WHERE ticket=%d" % tid, False)
+            arts = set(list(zip(*arts))[0])
+            num, tit, mt = sql(
+                "SELECT number, title, mtime FROM tickets "
+                "WHERE id=%d" % tid, False)[0]
+            result.append({
+                "number": num, "TicketID": tid, "title": tit,
+                "mtime": mt, "articles": arts})
+        sql("DROP TABLE artsfound")
         return result
 
     search = db_search
