@@ -48,6 +48,26 @@ def article_by_url(url):
     return t_id, a_id
 
 
+def shrink_tupled_text(ttext):
+    if not ttext:
+        return
+    i = 0
+    item = ttext.pop(i)
+    prevt = () if item[1:] == ((),) else item[1:]
+    saved = [item[0]]
+    while i < len(ttext):
+        item = ttext.pop(i)
+        curt = () if item[1:] == ((),) else item[1:]
+        if prevt == curt:
+            saved.append(item[0])
+        else:
+            ttext.insert(i, (''.join(saved),) + prevt)
+            i += 1
+            prevt = curt
+            saved = [item[0]]
+    ttext.insert(i, (''.join(saved),) + prevt)
+
+
 class MessageLoader:
     def __init__(self, core):
         self.echo = core.echo
@@ -167,8 +187,9 @@ class MessageLoader:
             mail_text = pg.load(url)
         if mail_header:
             mail_text.insert(0, ("\n",))
-        for i in mail_header:
+        for i in reversed(mail_header):
             mail_text.insert(0, ("%s\t%s\n" % i,))
+        shrink_tupled_text(mail_text)
         self.__db.article_message(article_id, repr(mail_text))
         return mail_text
 
