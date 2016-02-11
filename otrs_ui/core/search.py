@@ -24,7 +24,8 @@ class Searcher:
         result = []
         sql("CREATE TEMPORARY TABLE artsfound (id INT, ticket INT)")
         sql("INSERT INTO artsfound SELECT id, ticket FROM articles "
-            "WHERE message LIKE '%s'" % query.replace("'", '"'))
+            "WHERE message LIKE '%%%s%%'" %
+            '%'.join(query.replace("'", "''").split()))
         for tid, in sql("SELECT DISTINCT ticket FROM artsfound", False):
             arts = sql("SELECT id FROM artsfound WHERE ticket=%d" % tid, False)
             arts = set(list(zip(*arts))[0])
