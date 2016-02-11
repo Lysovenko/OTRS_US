@@ -16,7 +16,7 @@
 from .settings import Config
 from .database import Database
 from .ptime import TimeUnit
-version = "0.7"
+version = "0.8"
 
 
 class Interactor(dict):
@@ -44,10 +44,11 @@ def get_core():
     actor = Interactor()
     cfg = Config("core.cfg")
     # set defaults
-    try:
-        cfg["refresh_time"] = TimeUnit(cfg["refresh_time"])
-    except Exception:
-        cfg["refresh_time"] = TimeUnit("0 s")
+    for i, j in (("refresh_time", "1 m"), ("still_relevant", "4 w")):
+        try:
+            cfg[i] = TimeUnit(cfg[i])
+        except Exception:
+            cfg[i] = TimeUnit(j)
     for i, j in (("tct_tm_fmt", "%m/%d/%Y %H:%M"),
                  ("art_tm_fmt", "%Y-%m-%d %H:%M:%S")):
         cfg[i] = cfg.get(i, j)
@@ -55,4 +56,5 @@ def get_core():
     actor.register("runtime cfg", lambda x: x, dict(cfg))
     db = Database("core.db", True)
     actor.register("database", lambda x: x, db)
+    db.delete_irrelevant(cfg["still_relevant"])
     return actor

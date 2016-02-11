@@ -101,8 +101,8 @@ class Dashboard(ttk.Frame):
         if status in ("URLError", "Empty"):
             self.on_url_error(self.updater.get_result())
         refresh = core_cfg.get("refresh_time")
-        if refresh.seconds() > 10:
-            self.root.after(int(refresh.miliseconds()), self.update)
+        if refresh > 10:
+            self.root.after(int(refresh * 1e3), self.update)
 
     def show_status(self, summary):
         ding = " ".join(i for i in ("Reminder", "New", "Open") if summary[i])

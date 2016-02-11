@@ -122,7 +122,7 @@ class Face:
             core_cfg.update(cfg)
             if not irt and core_cfg["refresh_time"]:
                 self.root.after(
-                    int(core_cfg["refresh_time"].miliseconds()),
+                    int(core_cfg["refresh_time"] * 1e3),
                     self.app_widgets["dashboard"].update)
 
 

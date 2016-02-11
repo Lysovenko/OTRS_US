@@ -16,6 +16,7 @@ from tkinter.ttk import (
     Button, Checkbutton, Separator, Frame, Entry, Label, Combobox)
 from tkinter.scrolledtext import ScrolledText
 from tkinter import IntVar, StringVar, Toplevel
+from ..core.ptime import TimeUnit
 
 
 class Dialog(Toplevel):
@@ -139,83 +140,42 @@ class DlgSettings(Dialog):
         "place user dialog widgets"
         self.config = cfg
         self.config["OK button"] = False
-        self.site = StringVar()
-        self.site.set(cfg.get("site", ""))
-        self.login = StringVar()
-        self.login.set(cfg.get("user", ""))
-        self.password = StringVar()
-        self.password.set(cfg.get("password", ""))
-        site = Entry(master, width=30, textvariable=self.site)
-        site.grid(column=1, row=0, sticky="e")
-        Label(master, text=_("Site:")).grid(column=0, row=0, sticky="w")
-        loge = Entry(master, width=30, textvariable=self.login)
-        loge.grid(column=1, row=1, sticky="e")
-        Label(master, text=_("Username:")).grid(column=0, row=1, sticky="w")
-        pase = Entry(master, width=30, textvariable=self.password, show="?")
-        pase.grid(column=1, row=2, sticky="e")
-        Label(master, text=_("Password:")).grid(column=0, row=2, sticky="w")
-        self.time = StringVar()
-        self.snd_cmd = StringVar()
-        self.time.set(str(cfg.get("refresh_time")))
-        self.snd_cmd.set(str(cfg.get("snd_cmd", "")))
-        etime = Entry(master, width=30, textvariable=self.time)
-        etime.grid(column=1, row=3, sticky="e")
-        esnd_cmd = Entry(master, width=30, textvariable=self.snd_cmd)
-        esnd_cmd.grid(column=1, row=4, sticky="e")
-        self.snd_err = StringVar()
-        self.snd_err.set(str(cfg.get("snd_err", "")))
-        esnd_err = Entry(master, width=30, textvariable=self.snd_err)
-        esnd_err.grid(column=1, row=5, sticky="e")
-        self.snd_imp = StringVar()
-        self.snd_imp.set(str(cfg.get("snd_imp", "")))
-        esnd_err = Entry(master, width=30, textvariable=self.snd_imp)
-        esnd_err.grid(column=1, row=6, sticky="e")
-        self.dld_fldr = StringVar()
-        self.dld_fldr.set(str(cfg.get("dld_fldr", "")))
-        edld_fldr = Entry(master, width=30, textvariable=self.dld_fldr)
-        edld_fldr.grid(column=1, row=7, sticky="e")
-        self.tct_tm_fmt = StringVar()
-        self.tct_tm_fmt.set(str(cfg.get("tct_tm_fmt")))
-        etct_tm_fmt = Entry(master, width=30, textvariable=self.tct_tm_fmt)
-        etct_tm_fmt.grid(column=1, row=8, sticky="e")
-        self.art_tm_fmt = StringVar()
-        self.art_tm_fmt.set(str(cfg.get("art_tm_fmt")))
-        eart_tm_fmt = Entry(master, width=30, textvariable=self.art_tm_fmt)
-        eart_tm_fmt.grid(column=1, row=9, sticky="e")
-        lab = Label(master, text=_("Refresh time:"))
-        lab.grid(column=0, row=3, sticky="w")
-        lab = Label(master, text=_("Sound command:"))
-        lab.grid(column=0, row=4, sticky="w")
-        lab = Label(master, text=_("Error sound command:"))
-        lab.grid(column=0, row=5, sticky="w")
-        lab = Label(master, text=_("Important sound command:"))
-        lab.grid(column=0, row=6, sticky="w")
-        lab = Label(master, text=_("Download folder:"))
-        lab.grid(column=0, row=7, sticky="w")
-        lab = Label(master, text=_("Ticket time format:"))
-        lab.grid(column=0, row=8, sticky="w")
-        lab = Label(master, text=_("Article time format:"))
-        lab.grid(column=0, row=9, sticky="w")
-        return etime
+        self.strvars = svars = {}
+        self.entries = ents = {}
+        for r, (i, d) in enumerate((
+                ("site", _("Site:")), ("user", _("Username:")),
+                ("password", _("Password:")),
+                ("refresh_time", _("Refresh time:")),
+                ("snd_cmd", _("Sound command:")),
+                ("snd_err", _("Error sound command:")),
+                ("snd_imp", _("Important sound command:")),
+                ("dld_fldr", _("Download folder:")),
+                ("tct_tm_fmt", _("Ticket time format:")),
+                ("art_tm_fmt", _("Article time format:")),
+                ("still_relevant", _("Time to hold ticket:")))):
+            svars[i] = sv = StringVar()
+            sv.set(str(cfg.get(i, "")))
+            ents[i] = en = Entry(master, width=30, textvariable=sv)
+            Label(master, text=d).grid(column=0, row=r, sticky="w")
+            en.grid(column=1, row=r, sticky="e")
+        ents["password"]["show"] = "?"
+        return ents["refresh_time"]
 
     def apply(self):
         "On ok button pressed"
-        self.config["snd_cmd"] = self.snd_cmd.get()
-        self.config["snd_imp"] = self.snd_imp.get()
-        self.config["snd_err"] = self.snd_err.get()
-        self.config["dld_fldr"] = self.dld_fldr.get()
-        self.config["site"] = self.site.get()
-        self.config["user"] = self.login.get()
-        self.config["password"] = self.password.get()
-        self.config["tct_tm_fmt"] = self.tct_tm_fmt.get()
-        self.config["art_tm_fmt"] = self.art_tm_fmt.get()
+        for i in ("snd_cmd", "snd_imp", "snd_err", "dld_fldr", "site", "user",
+                  "password", "tct_tm_fmt", "art_tm_fmt"):
+            self.config[i] = self.strvars[i].get()
         self.config["OK button"] = True
 
     def validate(self):
+        imd = {}
         try:
-            self.config["refresh_time"].update(self.time.get())
+            for i in ("refresh_time", "still_relevant"):
+                imd[i] = TimeUnit(self.strvars[i].get())
         except ValueError:
-            return self.etime
+            return self.entries[i]
+        self.config.update(imd)
         return None
 
 

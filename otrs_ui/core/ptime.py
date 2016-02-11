@@ -52,45 +52,24 @@ class TimeConv:
         return strftime("%d/%m/%y", self.time)
 
 
-class TimeUnit:
+class TimeUnit(float):
     "time units parser"
-    def update(self, value):
-        m = re.search(r"(\d+([,.])?\d*)\s*((s)|(m)|(h)|(ms))?$", value)
+    def __new__(self, value):
+        m = re.search(r"^\s*(\d*[,.]?\d*)\s*(s|m|h|ms|d|w)?\s*$", value)
         if m is None:
             raise ValueError("Bad time %s" % value)
-        mantisa, dec_sep, units = (m.group(i) for i in range(1, 4))
-        if dec_sep == ",":
-            mantisa = mantisa.replace(',', '.')
-        if units == "s":
-            self.__seconds = float(mantisa)
-        elif units == "m":
-            self.__seconds = float(mantisa) * 60
-        elif units == "h":
-            self.__seconds = float(mantisa) * 3600
-        elif units == "ms":
-            self.__seconds = float(mantisa) * 1e-3
-        else:
-            raise ValueError("Bad time units %s" % units)
+        return float.__new__(self, float(m.group(1).replace(',', '.')) * {
+            "w": 604800, "d": 86400, "h": 3600, "m": 60, "s": 1,
+            None: 1, "ms": 1e-3}[m.group(2)])
 
     def __repr__(self):
         return "'%s'" % self.__str__()
 
     def __str__(self):
-        secs = self.__seconds
+        secs = self.real
         for d, l in ((604800, 'w'), (86400, 'd'), (3600, 'h'), (60, 'm')):
             if not secs % d:
                 return "%d %s" % (secs // d, l)
         if secs < 1:
             return "%g ms" % secs * 1000
         return "%g s" % secs
-
-    def seconds(self):
-        return self.__seconds
-
-    def __int__(self):
-        return int(self.__seconds)
-
-    def miliseconds(self):
-        return self.__seconds * 1000
-
-    __init__ = update

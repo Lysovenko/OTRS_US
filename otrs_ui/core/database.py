@@ -175,7 +175,8 @@ class Database:
     def __exit__(self, tp, val, tb):
         self.close()
 
-    def delete_irrelevant(self, min_relevance):
+    def delete_irrelevant(self, still_relevant):
+        min_relevance = int(time() - still_relevant)
         self.execute(
             "DELETE FROM articles WHERE ticket in (SELECT id FROM tickets "
             "WHERE relevance<%d)" % min_relevance)
