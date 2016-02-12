@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 "interactor"
-from .settings import Config
+from .settings import Config, Password
 from .database import Database
 from .ptime import TimeUnit
 version = "0.8"
@@ -44,11 +44,14 @@ def get_core():
     actor = Interactor()
     cfg = Config("core.cfg")
     # set defaults
-    for i, j in (("refresh_time", "1 m"), ("still_relevant", "4 w")):
+    for item, obj, defv in (
+            ("refresh_time", TimeUnit, "1 m"),
+            ("still_relevant", TimeUnit, "4 w"),
+            ("password", Password, "")):
         try:
-            cfg[i] = TimeUnit(cfg[i])
+            cfg[item] = obj(cfg[item])
         except Exception:
-            cfg[i] = TimeUnit(j)
+            cfg[item] = obj(defv)
     for i, j in (("tct_tm_fmt", "%m/%d/%Y %H:%M"),
                  ("art_tm_fmt", "%Y-%m-%d %H:%M:%S")):
         cfg[i] = cfg.get(i, j)

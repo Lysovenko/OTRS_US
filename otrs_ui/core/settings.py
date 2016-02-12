@@ -17,6 +17,8 @@ import atexit
 from os import makedirs, name
 from os.path import isdir, expanduser, join
 from hashlib import md5
+from sys import version
+from base64 import b64encode, b64decode
 
 
 class Config(dict):
@@ -53,3 +55,24 @@ class Config(dict):
             for n, v in self.items():
                 fp.write("%s=%s\n" % (n, repr(v)))
         self.hash = md5(repr(self).encode()).digest()
+
+
+class Password(str):
+    def __new__(self, enc_pwd, encoded=True):
+        if not encoded:
+            return str.__new__(self, enc_pwd)
+        try:
+            lep = list(b64decode(enc_pwd, b"@$"))
+        except ValueError:
+            return str.__new__(self, enc_pwd)
+        k = list(md5(version.encode()).digest())
+        lk = len(k)
+        rb = [j ^ k[i % lk] for i, j in enumerate(lep)]
+        return str.__new__(self, bytes(rb).decode())
+
+    def __repr__(self):
+        k = list(md5(version.encode()).digest())
+        lk = len(k)
+        lep = list(self.encode())
+        rb = [j ^ k[i % lk] for i, j in enumerate(lep)]
+        return repr(b64encode(bytes(rb), b"@$").decode())

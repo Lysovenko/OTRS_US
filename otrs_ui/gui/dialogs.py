@@ -17,6 +17,7 @@ from tkinter.ttk import (
 from tkinter.scrolledtext import ScrolledText
 from tkinter import IntVar, StringVar, Toplevel
 from ..core.ptime import TimeUnit
+from ..core.settings import Password
 
 
 class Dialog(Toplevel):
@@ -131,7 +132,7 @@ class DlgLogin(Dialog):
         self.config["remember_passwd"] = self.to_remember.get()
         self.config["site"] = self.site.get()
         self.config["user"] = self.login.get()
-        self.config["password"] = self.password.get()
+        self.config["password"] = Password(self.password.get(), False)
         self.config["OK button"] = True
 
 
@@ -166,6 +167,7 @@ class DlgSettings(Dialog):
         for i in ("snd_cmd", "snd_imp", "snd_err", "dld_fldr", "site", "user",
                   "password", "tct_tm_fmt", "art_tm_fmt"):
             self.config[i] = self.strvars[i].get()
+        self.config["password"] = Password(self.config["password"], False)
         self.config["OK button"] = True
 
     def validate(self):

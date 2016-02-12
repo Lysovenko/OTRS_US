@@ -228,7 +228,11 @@ class Tickets(ttk.Frame):
             if "article text" in ca:
                 self.show_email(ca)
                 return
-            mail_text = self.loader.zoom_article(ca["TicketID"], iid)
+            try:
+                mail_text = self.loader.zoom_article(ca["TicketID"], iid)
+            except AttributeError:
+                showerror(_("Error"), _("Can't download article %d") % iid)
+                mail_text = []
             ca.update(((EDITABLE, False), ("article header", ()),
                        ("article text", mail_text)))
             self.show_email(ca)

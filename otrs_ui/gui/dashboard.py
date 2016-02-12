@@ -186,12 +186,9 @@ class Dashboard(ttk.Frame):
         if 2 < self.login_failed:
             dialog = True
         for i in ("site", "user", "password"):
-            cfg[i] = runt_cfg.get(i, core_cfg.get(i))
-        if None in cfg.values():
+            cfg[i] = runt_cfg.get(i, core_cfg.get(i, ""))
+        if not all(cfg.values()):
             dialog = True
-            for i, v in cfg.items():
-                if v is None:
-                    cfg[i] = ""
         if dialog:
             DlgLogin(self,  _("Login"), cfg=cfg)
         else:
@@ -200,8 +197,7 @@ class Dashboard(ttk.Frame):
         if cfg["OK button"]:
             for i in ("site", "user", "password"):
                 runt_cfg[i] = cfg[i]
-            if cfg["remember_passwd"]:
-                for i in ("site", "user", "password"):
+                if cfg["remember_passwd"]:
                     core_cfg[i] = cfg[i]
             self.echo("Login in Dashboard.login")
             self.updater.login(cfg)
