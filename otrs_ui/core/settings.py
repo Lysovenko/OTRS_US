@@ -68,7 +68,10 @@ class Password(str):
         k = list(md5(version.encode()).digest())
         lk = len(k)
         rb = [j ^ k[i % lk] for i, j in enumerate(lep)]
-        return str.__new__(self, bytes(rb).decode())
+        try:
+            return str.__new__(self, bytes(rb).decode())
+        except UnicodeDecodeError:
+            return str.__new__(self, "")
 
     def __repr__(self):
         k = list(md5(version.encode()).digest())
