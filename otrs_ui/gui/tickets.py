@@ -44,9 +44,11 @@ class Tickets(ttk.Frame):
         self.loader = MessageLoader(appw["core"])
         self.pw = pw = ttk.Panedwindow(self, orient="vertical")
         frame = self.make_tree()
+        self.make_binds(frame)
         pw.add(frame)
         pw.pane(frame, weight=1)
         frame = self.make_text_field()
+        self.make_binds(frame)
         pw.add(frame)
         pw.pane(frame, weight=2)
         pw.pack(fill="both")
@@ -58,6 +60,20 @@ class Tickets(ttk.Frame):
         self.ticket_info = None
         self.actions_params = {}
         self.queues = {}
+
+    def make_binds(self, frame):
+        binds = (
+            ("Escape", self.go_dasboard), ("Control-i", self.menu_info),
+            ("Control-r", self.menu_reload), ("Control-l", self.menu_lock),
+            ("Control-m", self.menu_move), ("Control-a", self.menu_answer),
+            ("Control-s", self.menu_send), ("Control-t", self.menu_note),
+            ("Control-e", self.menu_close), ("Control-w", self.menu_forward),
+            ("Control-o", self.menu_owner), ("Control-n", self.menu_new_email),
+            ("Control-h", self.menu_new_phone),
+            ("Control-j", self.menu_ticket_merge))
+        for i in frame.winfo_children():
+            for k, f in binds:
+                i.bind("<%s>" % k, f)
 
     def make_tree(self):
         frame = ttk.Frame(self.pw)
@@ -78,15 +94,6 @@ class Tickets(ttk.Frame):
         tree.column("mode", width=70, anchor="center")
         tree.bind("<Double-Button-1>", self.enter_article)
         tree.bind("<Return>", self.enter_article)
-        for k, f in (
-                ("Escape", self.go_dasboard), ("i", self.menu_info),
-                ("r", self.menu_reload), ("l", self.menu_lock),
-                ("m", self.menu_move), ("a", self.menu_answer),
-                ("s", self.menu_send), ("t", self.menu_note),
-                ("e", self.menu_close), ("w", self.menu_forward),
-                ("o", self.menu_owner), ("n", self.menu_new_email),
-                ("h", self.menu_new_phone), ("j", self.menu_ticket_merge)):
-            frame.bind_all("<Control-%s>" % k, f)
         tag_clrs = {
             "agent-email-external": "#D3E5B5",
             "agent-email-internal": "#ffd1d1",
@@ -112,7 +119,7 @@ class Tickets(ttk.Frame):
 
     def go_dasboard(self, evt):
         self.app_widgets["notebook"].select(0)
-        self.app_widgets["notebook"].hide(self)
+        # self.app_widgets["notebook"].hide(self)
         self.app_widgets["dashboard"].tree["New"].focus_set()
         self.set_menu_active()
 
