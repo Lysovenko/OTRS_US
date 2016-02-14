@@ -75,11 +75,8 @@ class MessageParser(BasicParser):
             self.message_text.append(
                 ("".join(self.data_handler), tuple(self.curtags)))
         else:
-            tspl = []
-            for i in self.data_handler:
-                tspl += i.split()
-            if tspl:
-                self.message_text.append((" ".join(tspl), tuple(self.curtags)))
+            tspl = "".join(self.data_handler).split()
+            self.message_text.append((" ".join(tspl), tuple(self.curtags)))
         del self.data_handler[:]
 
 
