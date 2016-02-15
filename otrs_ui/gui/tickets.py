@@ -119,9 +119,7 @@ class Tickets(ttk.Frame):
 
     def go_dasboard(self, evt):
         self.app_widgets["notebook"].select(0)
-        # self.app_widgets["notebook"].hide(self)
         self.app_widgets["dashboard"].tree["New"].focus_set()
-        self.set_menu_active()
 
     def make_text_field(self):
         frame = ttk.Frame(self.pw)
@@ -166,7 +164,6 @@ class Tickets(ttk.Frame):
         self.runtime["now editing"] = None
         self.enter_article(show)
         self.tree.focus(show)
-        self.set_menu_active()
 
     def show_email(self, article):
         snapshot = article.get("snapshot")
@@ -244,7 +241,7 @@ class Tickets(ttk.Frame):
                        ("article text", mail_text)))
             self.show_email(ca)
 
-    def set_menu_active(self):
+    def set_menu_active(self, evt):
         econ = self.app_widgets["menubar"].entryconfig
         if self.my_tab == self.app_widgets["notebook"].select():
             econ(_("Ticket"), state="normal")
@@ -486,7 +483,6 @@ class Tickets(ttk.Frame):
         self.my_url = None
         self.app_widgets["menu_ticket"].entryconfig(
             _("Send message"), state="normal")
-        self.set_menu_active()
         if EDITABLE in self.tree_data:
             return
         inputs, error = self.loader.load_new_mail_pattern()

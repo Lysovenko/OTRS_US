@@ -40,15 +40,14 @@ class Face:
         self.app_widgets = appw = {
             "core": core, "config": config, "root": root,
             "notebook": ntbk}
-        # Dashboard, Tickets, -Customers, -Admin, -Forums, Search
+        for name, obj, lab in (
+                ("dashboard", Dashboard, _("Dashboard")),
+                ("tickets", Tickets, _("Ticket")),
+                ("search", Search, _("Search"))):
+            appw[name] = obj(ntbk, appw)
+            ntbk.add(appw[name], text=lab)
         ntbk.grid(column=0, row=0, sticky="senw")
-        appw["dashboard"] = Dashboard(ntbk, appw)
-        ntbk.add(appw["dashboard"], text=_("Dashboard"))
-        appw["tickets"] = Tickets(ntbk, appw)
-        ntbk.add(appw["tickets"], text=_("Ticket"))
-        ntbk.hide(appw["tickets"])
-        appw["search"] = Search(ntbk, appw)
-        ntbk.add(appw["search"], text=_("Search"))
+        ntbk.bind("<<NotebookTabChanged>>", appw["tickets"].set_menu_active)
         self.status = StringVar()
         st_lab = ttk.Label(root, textvariable=self.status)
         core.register("print_status", self.status.set)

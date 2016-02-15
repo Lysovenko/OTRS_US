@@ -54,7 +54,7 @@ def get_core():
             cfg[item] = obj(defv)
     for i, j in (("tct_tm_fmt", "%m/%d/%Y %H:%M"),
                  ("art_tm_fmt", "%Y-%m-%d %H:%M:%S")):
-        cfg[i] = cfg.get(i, j)
+        cfg.setdefault(i, j)
     actor.register("core cfg", lambda x: x, cfg)
     actor.register("runtime cfg", lambda x: x, dict(cfg))
     db = Database("core.db", True)

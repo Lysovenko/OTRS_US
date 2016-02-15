@@ -31,8 +31,7 @@ class Dashboard(ttk.Frame):
         self.root = appw["root"]
         self.echo = appw["core"].echo
         self.config = config = appw["config"]
-        config["dashboard_seq"] = config.get(
-            "dashboard_seq", ("Reminder", "New", "Open"))
+        config.setdefault("dashboard_seq", ("Reminder", "New", "Open"))
         self.runtime = appw["core"].call("runtime cfg")
         self.tree = {}
         self.tree_data = {}
