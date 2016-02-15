@@ -48,6 +48,7 @@ class Face:
             ntbk.add(appw[name], text=lab)
         ntbk.grid(column=0, row=0, sticky="senw")
         ntbk.bind("<<NotebookTabChanged>>", appw["tickets"].set_menu_active)
+        self.root.bind_all("<Control-Tab>", self.circle_tabs)
         self.status = StringVar()
         st_lab = ttk.Label(root, textvariable=self.status)
         core.register("print_status", self.status.set)
@@ -105,6 +106,11 @@ class Face:
         add_cmd(label=_("Merge to ticket"), command=tcts.menu_ticket_merge,
                 accelerator="Ctrl+J")
         add_cmd(label=_("Copy URL"), command=tcts.menu_copy_url)
+
+    def circle_tabs(self, evt):
+        tl = self.notebook.tabs()
+        i = tl.index(self.notebook.select()) + 1
+        self.notebook.select(tl[i % len(tl)])
 
     def on_delete(self):
         self.config["geometry"] = self.root.geometry()
