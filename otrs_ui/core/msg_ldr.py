@@ -197,6 +197,11 @@ class MessageLoader:
         return "%s?Action=AgentTicketZoom;TicketID=%d#%d" % (
             self.runtime.get("site"), ticket_id, article_id)
 
+    def extract_eml_url(self, ticket_id, article_id):
+        return ("%s?Action=AgentTicketPlain;Subaction=Download;"
+                "ArticleID=%d;TicketID=%d" %
+                (self.runtime.get("site"), article_id, ticket_id))
+
     def detect_allowed_actions(self, act_hrefs):
         allowed = {}
         for href in act_hrefs:

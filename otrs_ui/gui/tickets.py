@@ -16,6 +16,7 @@
 from tkinter import ttk, StringVar
 from tkinter.messagebox import showerror, showinfo
 from time import ctime
+import os
 from ..core import version
 from ..core.msg_ldr import MessageLoader, article_by_url, article_type
 from ..core.pgload import LoginError
@@ -94,6 +95,7 @@ class Tickets(ttk.Frame):
         tree.column("mode", width=70, anchor="center")
         tree.bind("<Double-Button-1>", self.enter_article)
         tree.bind("<Return>", self.enter_article)
+        tree.bind("<Control-Return>", self.menu_download_eml)
         tag_clrs = {
             "agent-email-external": "#D3E5B5",
             "agent-email-internal": "#ffd1d1",
@@ -524,7 +526,20 @@ class Tickets(ttk.Frame):
             self.menu_reload()
 
     def menu_download(self, evt=None):
-        cfg = {"URL": "", "path": self.core_cfg.get("dld_fldr", "")}
+        self.download_file("", self.core_cfg.get("dld_fldr", ""))
+
+    def menu_download_eml(self, evt):
+        art_id = int(evt.widget.focus())
+        if art_id <= 0 or not self.ticket_id:
+            return
+        url = self.loader.extract_eml_url(self.ticket_id, art_id)
+        pth = os.path.join(
+            self.core_cfg.get("dld_fldr", ""),
+            "Tickest-%d_Article-%d.eml" % (self.ticket_id, art_id))
+        self.download_file(url, pth)
+
+    def download_file(self, url, fldr):
+        cfg = {"URL": url, "path": fldr}
         DlgDetails(self, _("Download"), cfg=cfg, inputs=(
             ("URL", _("Address:")), ("path", _("Path:"))))
         if cfg["OK button"]:
