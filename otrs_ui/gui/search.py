@@ -76,20 +76,19 @@ class Search(ttk.Frame):
         old_focus = tree.focus()
         for i in reversed(self.ticket_range):
             tree.delete(i)
-        if data and "mtime" in data[0]:
-            data.sort(reverse=True, key=lambda x: x["mtime"])
-        new = tuple(i["number"] for i in data)
+        data.sort(reverse=True, key=lambda x: x["mtime"])
+        r_id = lambda x: "T%d" % x["TicketID"]
         self.tree_data.update(
-            (i["number"], (i["TicketID"], i["articles"])) for i in data)
-        self.ticket_range = new
+            (r_id(i), (i["TicketID"], i["articles"], i["number"]))
+            for i in data)
+        self.ticket_range = tuple(r_id(i) for i in data)
         for item in data:
             tc = item.get("mtime", 0)
             if tc:
                 tshow.set_modified(tc)
                 tc = tshow.relative()
             tree.insert(
-                "", "end", item["number"], text=item["title"],
-                values=(tc,))
+                "", "end", r_id(item), text=item["title"], values=(tc,))
         if old_focus in self.ticket_range:
             tree.focus(old_focus)
         else:
@@ -101,5 +100,5 @@ class Search(ttk.Frame):
     def enter_ticket(self, evt):
         iid = evt.widget.focus()
         if iid:
-            td = self.tree_data[int(iid)]
+            td = self.tree_data[iid]
             self.app_widgets["tickets"].load_ticket(td[0], prefered=td[1])

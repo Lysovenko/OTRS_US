@@ -137,10 +137,10 @@ class Dashboard(ttk.Frame):
             data = pgl[name]
             if data and "mtime" in data[0]:
                 data.sort(reverse=True, key=lambda x: x["mtime"])
-            new = tuple(i["number"] for i in data)
+            r_id = lambda x: "T%d" % x["TicketID"]
             self.tree_data.update(
-                (i["number"], (i["TicketID"], i["title"])) for i in data)
-            self.ticket_range[name] = new
+                (r_id(i), (i["TicketID"], i["title"])) for i in data)
+            self.ticket_range[name] = tuple(r_id(i) for i in data)
             for item in data:
                 if item["marker"] & 2:
                     image = self.important
@@ -152,7 +152,7 @@ class Dashboard(ttk.Frame):
                     tshow.set_modified(tc)
                     tc = tshow.relative()
                 tree.insert(
-                    "", "end", item["number"], text=item["title"], image=image,
+                    "", "end", r_id(item), text=item["title"], image=image,
                     tags=tags, values=(tc,))
             if old_focus in self.ticket_range[name]:
                 tree.focus(old_focus)
