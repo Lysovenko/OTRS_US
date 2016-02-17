@@ -30,6 +30,7 @@ class TicketsParser(BasicParser):
         self.opt_val = None
         self.on_div_end = {"ArticleBody": self.stop_data_handling}
         self.label = ""
+        self.headline = ""
         self.message_text = []
         self.articles = []
         self.info = []
@@ -82,6 +83,9 @@ class TicketsParser(BasicParser):
                 self.data_handler = self.message_text
             return
         if tag == "title" or (tag == "h2" and "WidgetSimple" in div_cls):
+            self.data_handler = []
+            return
+        if tag == "h1" and "Headline" in div_cls:
             self.data_handler = []
             return
         if tag == "label":
@@ -149,6 +153,10 @@ class TicketsParser(BasicParser):
             return
         if tag == "title" or (tag == "h2" and "WidgetSimple" in div_cls):
             self.info.append("".join(self.data_handler))
+            self.data_handler = None
+            return
+        if tag == "h1" and "Headline" in div_cls:
+            self.headline = "".join(self.data_handler)
             self.data_handler = None
             return
         if tag == "label":

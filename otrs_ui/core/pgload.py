@@ -146,7 +146,7 @@ class TicketsPage(Page):
         res = {}
         for i in ("message_text", "articles", "info", "mail_header",
                   "action_hrefs", "queues", "mail_src", "art_act_hrefs",
-                  "answers"):
+                  "answers", "headline"):
             attr = getattr(parser, i)
             if attr:
                 res[i] = attr
