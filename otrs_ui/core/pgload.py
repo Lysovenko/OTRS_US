@@ -164,7 +164,17 @@ class TicketsPage(Page):
             res["message_text"] = [(i,) for i in res["message_text"]]
         except KeyError:
             pass
+        self.parse_headline(res)
         return res
+
+    @staticmethod:
+    def parese_headline(ddict):
+        try:
+            spl = ddict["headline"].split()
+            ddict["number"] = int(spl[0].split("#")[1])
+            ddict["title"] = " ".join(spl[2:])
+        except Exception:
+            return
 
 
 class MessagePage(Page):

@@ -127,10 +127,12 @@ class MessageLoader:
         allow = self.detect_allowed_actions(page.get("action_hrefs", []) +
                                             page.get("art_act_hrefs", []))
         info = repr(page.get("info", ()))
-        flags = self.__db.ticket_fields(ticket_id, "flags")
-        flags = 0 if flags is None else flags[0]
+        rv = self.__db.ticket_fields(ticket_id, "number", "title", "flags")
+        number, title, flags = rv if rv else None, None, 0
+        number = None if number else page.get("number")
+        title = None if title else page.get("title")
         flags |= TIC_UPD
-        self.__db.update_ticket(ticket_id, info=info, flags=flags)
+        self.__db.update_ticket(ticket_id, number, None, flags, title, info)
         self.__db.ticket_allows(ticket_id, allow)
         return self.describe_articles(page["articles"])
 
