@@ -167,8 +167,8 @@ class TicketsPage(Page):
         self.parse_headline(res)
         return res
 
-    @staticmethod:
-    def parese_headline(ddict):
+    @staticmethod
+    def parse_headline(ddict):
         try:
             spl = ddict["headline"].split()
             ddict["number"] = int(spl[0].split("#")[1])

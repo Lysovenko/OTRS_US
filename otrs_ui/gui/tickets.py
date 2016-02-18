@@ -513,6 +513,7 @@ class Tickets(ttk.Frame):
             return
         inputs, error = self.loader.load_merge_pattern(self.ticket_id)
         cfg = dict(inputs)
+        self.app_widgets["search"].main_tic_num(cfg)
         DlgDetails(self, _("Merge"), cfg=cfg, inputs=(
             ("MainTicketNumber", _("Ticket number:")),
             ("InformSender", _("Inform user")), ("To", _("To:")),

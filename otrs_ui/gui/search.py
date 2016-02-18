@@ -102,3 +102,9 @@ class Search(ttk.Frame):
         if iid:
             td = self.tree_data[iid]
             self.app_widgets["tickets"].load_ticket(td[0], prefered=td[1])
+
+    def main_tic_num(self, cfg):
+        iid = self.tree.focus()
+        if iid:
+            td = self.tree_data[iid]
+            cfg["MainTicketNumber"] = str(td[2])
