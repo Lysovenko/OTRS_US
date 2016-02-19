@@ -262,6 +262,11 @@ class MessageLoader:
             ("Action", "AgentTicketOwner"), ("TicketID", ticket_id)]
         return self.__send_request_ap(params)
 
+    def load_customers_pattern(self, ticket_id):
+        params = [
+            ("Action", "AgentTicketCustomer"), ("TicketID", ticket_id)]
+        return self.__send_request_ap(params)
+
     def load_close_pattern(self, ticket_id):
         params = [
             ("Action", "AgentTicketClose"), ("TicketID", ticket_id)]
@@ -287,7 +292,7 @@ class MessageLoader:
         pg = AnswerPage(self.core)
         return pg.load(url)
 
-    def send_multiprat(self, cfg, inputs):
+    def send_form(self, cfg, inputs):
         pg = AnswerSender(self.core)
         url = self.runtime["site"]
         pg.send(url, [(i[0], cfg.get(i[0], ("", b""))) for i in inputs])

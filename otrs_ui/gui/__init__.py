@@ -95,6 +95,7 @@ class Face:
         add_cmd(label=_("Note"), command=tcts.menu_note, accelerator="Ctrl+T")
         add_cmd(label=_("Owner"), command=tcts.menu_owner,
                 accelerator="Ctrl+O")
+        add_cmd(label=_("Customer"), command=tcts.menu_customer)
         add_cmd(label=_("Close"), command=tcts.menu_close,
                 accelerator="Ctrl+E")
         add_cmd(label=_("Information"), command=tcts.menu_info,

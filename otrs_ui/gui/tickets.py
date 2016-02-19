@@ -326,7 +326,7 @@ class Tickets(ttk.Frame):
             ("Day", _("Day:")), ("Year", _("Year:")),
             ("Hour", _("Hour:")), ("Minute", _("Minute:"))))
         if cfg["OK button"]:
-            self.loader.send_multiprat(cfg, inputs)
+            self.loader.send_form(cfg, inputs)
 
     def menu_owner(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
@@ -347,7 +347,21 @@ class Tickets(ttk.Frame):
         if cfg["OK button"] and cfg.get("NewOwnerID"):
             if not cfg["Body"]:
                 cfg["Body"] = "Owner was changed using OTRS_US %s" % version
-            self.loader.send_multiprat(cfg, inputs)
+            self.loader.send_form(cfg, inputs)
+
+    def menu_customer(self, evt=None):
+        if self.my_tab != self.app_widgets["notebook"].select():
+            return
+        inputs, error = self.loader.load_customers_pattern(self.ticket_id)
+        if not inputs:
+            showerror(_("Change owner"), error)
+        cfg = dict(inputs)
+        DlgDetails(
+            self, _("Customer"), cfg=cfg, focus_on="CustomerID", inputs=(
+                ("CustomerUserID", _("Customer:")),
+                ("CustomerID", _("Customer ID:"))))
+        if cfg["OK button"] and cfg.get("CustomerID"):
+            self.loader.send_form(cfg, inputs)
 
     def menu_close(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
@@ -367,7 +381,7 @@ class Tickets(ttk.Frame):
         if cfg["OK button"]:
             if not cfg["Body"]:
                 cfg["Body"] = "Closed using OTRS_US %s" % version
-            self.loader.send_multiprat(cfg, inputs)
+            self.loader.send_form(cfg, inputs)
 
     def menu_info(self, evt=None):
         if self.my_tab != self.app_widgets["notebook"].select():
@@ -468,7 +482,7 @@ class Tickets(ttk.Frame):
             for i in reversed(add):
                 inputs.insert(pos, i)
             try:
-                self.loader.send_multiprat(cfg, inputs)
+                self.loader.send_form(cfg, inputs)
             except LoginError:
                 showerror(_("Send"), _("The ticket was logged off"))
                 return
@@ -523,7 +537,7 @@ class Tickets(ttk.Frame):
             ("Day", _("Day:")), ("Year", _("Year:")),
             ("Hour", _("Hour:")), ("Minute", _("Minute:"))))
         if cfg["OK button"]:
-            self.loader.send_multiprat(cfg, inputs)
+            self.loader.send_form(cfg, inputs)
             self.menu_reload()
 
     def menu_download(self, evt=None):
