@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.0.3 \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-04 14:30+0200\n"
-"PO-Revision-Date: 2016-02-03 22:04+0200\n"
+"POT-Creation-Date: 2016-02-21 16:00+0200\n"
+"PO-Revision-Date: 2016-02-21 16:06+0200\n"
 "Last-Translator: Serhiy Lysovenko <EMAIL@ADDRESS>\n"
 "Language-Team: UKRAINIAN <nospam@gmail.com>\n"
 "Language: Ukrainian\n"
@@ -13,20 +13,321 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: utf-8\n"
 
+#: ../../otrs_ui/gui/dialogs.py:34 ../../otrs_ui/gui/dialogs.py:249
+msgid "OK"
+msgstr "Гаразд"
+
+#: ../../otrs_ui/gui/dialogs.py:35
+msgid "Cancel"
+msgstr "Скасувати"
+
+#: ../../otrs_ui/gui/dialogs.py:115 ../../otrs_ui/gui/dialogs.py:147
+msgid "Site:"
+msgstr "Сайт:"
+
+#: ../../otrs_ui/gui/dialogs.py:118 ../../otrs_ui/gui/dialogs.py:147
+msgid "Username:"
+msgstr "Користувач:"
+
+#: ../../otrs_ui/gui/dialogs.py:121 ../../otrs_ui/gui/dialogs.py:148
+msgid "Password:"
+msgstr "Пароль:"
+
+#: ../../otrs_ui/gui/dialogs.py:149
+msgid "Refresh time:"
+msgstr "Інтервал оновлення:"
+
+#: ../../otrs_ui/gui/dialogs.py:150
+msgid "Sound command:"
+msgstr "Команда звуку:"
+
+#: ../../otrs_ui/gui/dialogs.py:151
+msgid "Error sound command:"
+msgstr "Команда звуку помилки:"
+
+#: ../../otrs_ui/gui/dialogs.py:152
+msgid "Important sound command:"
+msgstr "Команда звуку важливого:"
+
+#: ../../otrs_ui/gui/dialogs.py:153
+msgid "Download folder:"
+msgstr "Місце завантаження:"
+
+#: ../../otrs_ui/gui/dialogs.py:154
+msgid "Ticket time format:"
+msgstr "Формат часу заявки:"
+
+#: ../../otrs_ui/gui/dialogs.py:155
+msgid "Article time format:"
+msgstr "Формат часу листа:"
+
+#: ../../otrs_ui/gui/dialogs.py:156
+msgid "Time to hold ticket:"
+msgstr "Час утримання заявки:"
+
+#: ../../otrs_ui/gui/tickets.py:143 ../../otrs_ui/gui/tickets.py:240
+#: ../../otrs_ui/gui/tickets.py:283 ../../otrs_ui/gui/tickets.py:431
+#: ../../otrs_ui/gui/tickets.py:469
+msgid "Error"
+msgstr "Помилка"
+
+#: ../../otrs_ui/gui/tickets.py:143
+msgid "Ticket load was failed"
+msgstr "Завантаження заявки не вдалось"
+
+#: ../../otrs_ui/gui/tickets.py:147 ../../otrs_ui/gui/tickets.py:231
+#: ../../otrs_ui/gui/tickets.py:490 ../../otrs_ui/gui/tickets.py:501
+#: ../../otrs_ui/gui/__init__.py:105
+msgid "Send message"
+msgstr "Надіслати повідомлення"
+
+#: ../../otrs_ui/gui/tickets.py:190 ../../otrs_ui/gui/__init__.py:89
+msgid "Lock"
+msgstr "Блокувати"
+
+#: ../../otrs_ui/gui/tickets.py:190 ../../otrs_ui/gui/tickets.py:313
+#: ../../otrs_ui/gui/__init__.py:91
+msgid "Answer"
+msgstr "Відповісти"
+
+#: ../../otrs_ui/gui/tickets.py:190 ../../otrs_ui/gui/tickets.py:371
+#: ../../otrs_ui/gui/tickets.py:375 ../../otrs_ui/gui/__init__.py:99
+msgid "Close"
+msgstr "Закрити"
+
+#: ../../otrs_ui/gui/tickets.py:240
+#, python-format
+msgid "Can't download article %d"
+msgstr "Не можу завантажити листа %d"
+
+#: ../../otrs_ui/gui/tickets.py:249 ../../otrs_ui/gui/tickets.py:251
+#: ../../otrs_ui/gui/__init__.py:45 ../../otrs_ui/gui/__init__.py:73
+msgid "Ticket"
+msgstr "Заявка"
+
+#: ../../otrs_ui/gui/tickets.py:256
+msgid "Ticket Lock"
+msgstr "Блокування заявки"
+
+#: ../../otrs_ui/gui/tickets.py:260
+msgid "You are late. Sorry."
+msgstr "Ви спізнились, співчуваємо"
+
+#: ../../otrs_ui/gui/tickets.py:264
+msgid "The operation was failed"
+msgstr "Операція не вдалась"
+
+#: ../../otrs_ui/gui/tickets.py:267
+msgid "The ticket was successfully locked"
+msgstr "Заявку успішно блоковано"
+
+#: ../../otrs_ui/gui/tickets.py:269
+msgid "The ticket was successfully unlocked"
+msgstr "Заявку успішно розблоковано"
+
+#: ../../otrs_ui/gui/tickets.py:277
+msgid "Change queue"
+msgstr "Змінити чергу"
+
+#: ../../otrs_ui/gui/tickets.py:278
+msgid "Queue:"
+msgstr "Черга:"
+
+#: ../../otrs_ui/gui/tickets.py:283
+msgid "Unexpected error"
+msgstr "Несподівана помилка"
+
+#: ../../otrs_ui/gui/tickets.py:297
+msgid "Answer type"
+msgstr "Тип відповіді"
+
+#: ../../otrs_ui/gui/tickets.py:298
+msgid "Answer type:"
+msgstr "Тип відповіді:"
+
+#: ../../otrs_ui/gui/tickets.py:307 ../../otrs_ui/gui/tickets.py:412
+#: ../../otrs_ui/gui/tickets.py:516 ../../otrs_ui/gui/__init__.py:71
+msgid "Edit"
+msgstr "Редагувати"
+
+#: ../../otrs_ui/gui/tickets.py:321 ../../otrs_ui/gui/__init__.py:95
+msgid "Note"
+msgstr "Нотатка"
+
+#: ../../otrs_ui/gui/tickets.py:322 ../../otrs_ui/gui/tickets.py:341
+#: ../../otrs_ui/gui/tickets.py:376 ../../otrs_ui/gui/tickets.py:452
+#: ../../otrs_ui/gui/tickets.py:534
+msgid "Subject:"
+msgstr "Тема:"
+
+#: ../../otrs_ui/gui/tickets.py:322 ../../otrs_ui/gui/tickets.py:376
+#: ../../otrs_ui/gui/tickets.py:534
+msgid "Message:"
+msgstr "Повідомлення:"
+
+#: ../../otrs_ui/gui/tickets.py:323 ../../otrs_ui/gui/tickets.py:377
+#: ../../otrs_ui/gui/tickets.py:453
+msgid "Time units:"
+msgstr "Одиниці часу:"
+
+#: ../../otrs_ui/gui/tickets.py:324 ../../otrs_ui/gui/tickets.py:343
+#: ../../otrs_ui/gui/tickets.py:378 ../../otrs_ui/gui/tickets.py:535
+msgid "Type of note:"
+msgstr "Тип замітки:"
+
+#: ../../otrs_ui/gui/tickets.py:325 ../../otrs_ui/gui/tickets.py:344
+#: ../../otrs_ui/gui/tickets.py:379 ../../otrs_ui/gui/tickets.py:454
+#: ../../otrs_ui/gui/tickets.py:455 ../../otrs_ui/gui/tickets.py:536
+msgid "Next state:"
+msgstr "Наступний стан:"
+
+#: ../../otrs_ui/gui/tickets.py:325 ../../otrs_ui/gui/tickets.py:344
+#: ../../otrs_ui/gui/tickets.py:455 ../../otrs_ui/gui/tickets.py:536
+msgid "Month:"
+msgstr "Місяць:"
+
+#: ../../otrs_ui/gui/tickets.py:326 ../../otrs_ui/gui/tickets.py:345
+#: ../../otrs_ui/gui/tickets.py:456 ../../otrs_ui/gui/tickets.py:537
+msgid "Day:"
+msgstr "День:"
+
+#: ../../otrs_ui/gui/tickets.py:326 ../../otrs_ui/gui/tickets.py:345
+#: ../../otrs_ui/gui/tickets.py:456 ../../otrs_ui/gui/tickets.py:537
+msgid "Year:"
+msgstr "Рік:"
+
+#: ../../otrs_ui/gui/tickets.py:327 ../../otrs_ui/gui/tickets.py:346
+#: ../../otrs_ui/gui/tickets.py:457 ../../otrs_ui/gui/tickets.py:538
+msgid "Hour:"
+msgstr "Година:"
+
+#: ../../otrs_ui/gui/tickets.py:327 ../../otrs_ui/gui/tickets.py:346
+#: ../../otrs_ui/gui/tickets.py:457 ../../otrs_ui/gui/tickets.py:538
+msgid "Minute:"
+msgstr "Хвилина:"
+
+#: ../../otrs_ui/gui/tickets.py:336 ../../otrs_ui/gui/tickets.py:357
+msgid "Change owner"
+msgstr "Змінити власника"
+
+#: ../../otrs_ui/gui/tickets.py:340 ../../otrs_ui/gui/__init__.py:96
+msgid "Owner"
+msgstr "Власник"
+
+#: ../../otrs_ui/gui/tickets.py:341
+msgid "Comment:"
+msgstr "Коментар:"
+
+#: ../../otrs_ui/gui/tickets.py:342
+msgid "Owner:"
+msgstr "Власник:"
+
+#: ../../otrs_ui/gui/tickets.py:342
+msgid "Old owner:"
+msgstr "Попередній власник:"
+
+#: ../../otrs_ui/gui/tickets.py:360 ../../otrs_ui/gui/__init__.py:98
+msgid "Customer"
+msgstr "Клієнт"
+
+#: ../../otrs_ui/gui/tickets.py:361
+msgid "Customer:"
+msgstr "Клієнт:"
+
+#: ../../otrs_ui/gui/tickets.py:362
+msgid "Customer ID:"
+msgstr "Ідентифікатор клієнта:"
+
+#: ../../otrs_ui/gui/tickets.py:380 ../../otrs_ui/gui/tickets.py:458
+msgid "Requires review:"
+msgstr "Потребує перегляду:"
+
+#: ../../otrs_ui/gui/tickets.py:395
+msgid "Ticket Info"
+msgstr "Інформація про заявку"
+
+#: ../../otrs_ui/gui/tickets.py:405 ../../otrs_ui/gui/__init__.py:93
+msgid "Forward"
+msgstr "Переслати"
+
+#: ../../otrs_ui/gui/tickets.py:426 ../../otrs_ui/gui/__init__.py:81
+msgid "Go to ticket"
+msgstr "Перейти до заявки"
+
+#: ../../otrs_ui/gui/tickets.py:427
+msgid "URL:"
+msgstr "URL:"
+
+#: ../../otrs_ui/gui/tickets.py:431
+msgid "Wrong URL"
+msgstr "Хибна URL"
+
+#: ../../otrs_ui/gui/tickets.py:448 ../../otrs_ui/gui/tickets.py:487
+msgid "Send"
+msgstr "Надіслати"
+
+#: ../../otrs_ui/gui/tickets.py:449 ../../otrs_ui/gui/tickets.py:450
+#: ../../otrs_ui/gui/tickets.py:533
+msgid "To:"
+msgstr "До:"
+
+#: ../../otrs_ui/gui/tickets.py:449 ../../otrs_ui/gui/tickets.py:451
+msgid "Copy:"
+msgstr "Копія:"
+
+#: ../../otrs_ui/gui/tickets.py:450 ../../otrs_ui/gui/tickets.py:451
+msgid "Hidden copy:"
+msgstr "Прихована копія:"
+
+#: ../../otrs_ui/gui/tickets.py:459
+msgid "Article type:"
+msgstr "Тип замітки:"
+
+#: ../../otrs_ui/gui/tickets.py:469
+msgid "Receiver was not found"
+msgstr "Отримувач не вказаний"
+
+#: ../../otrs_ui/gui/tickets.py:487
+msgid "The ticket was logged off"
+msgstr "Заявка вилогувала"
+
+#: ../../otrs_ui/gui/tickets.py:506
+msgid "New email"
+msgstr "Нове повідомлення"
+
+#: ../../otrs_ui/gui/tickets.py:531
+msgid "Merge"
+msgstr "Об'єднати"
+
+#: ../../otrs_ui/gui/tickets.py:532
+msgid "Ticket number:"
+msgstr "Номер заявки:"
+
+#: ../../otrs_ui/gui/tickets.py:533
+msgid "Inform user"
+msgstr "Повідомити користувачу"
+
+#: ../../otrs_ui/gui/tickets.py:558
+msgid "Download"
+msgstr "Завантаження"
+
+#: ../../otrs_ui/gui/tickets.py:559
+msgid "Address:"
+msgstr "Адреса:"
+
+#: ../../otrs_ui/gui/tickets.py:559
+msgid "Path:"
+msgstr "Шлях:"
+
 #: ../../otrs_ui/gui/__init__.py:31
 msgid "OTRS Client Side"
 msgstr "OTRS з боку клієнта"
 
-#: ../../otrs_ui/gui/__init__.py:46
+#: ../../otrs_ui/gui/__init__.py:44
 msgid "Dashboard"
 msgstr "Головна"
 
-#: ../../otrs_ui/gui/__init__.py:48 ../../otrs_ui/gui/__init__.py:73
-#: ../../otrs_ui/gui/tickets.py:232 ../../otrs_ui/gui/tickets.py:234
-msgid "Ticket"
-msgstr "Заявка"
-
-#: ../../otrs_ui/gui/__init__.py:51
+#: ../../otrs_ui/gui/__init__.py:46
 msgid "Search"
 msgstr "Пошук"
 
@@ -34,12 +335,7 @@ msgstr "Пошук"
 msgid "File"
 msgstr "Файл"
 
-#: ../../otrs_ui/gui/__init__.py:71 ../../otrs_ui/gui/tickets.py:286
-#: ../../otrs_ui/gui/tickets.py:376 ../../otrs_ui/gui/tickets.py:476
-msgid "Edit"
-msgstr "Редагувати"
-
-#: ../../otrs_ui/gui/__init__.py:74 ../../otrs_ui/gui/__init__.py:119
+#: ../../otrs_ui/gui/__init__.py:74 ../../otrs_ui/gui/__init__.py:125
 msgid "Settings"
 msgstr "Налаштування"
 
@@ -51,10 +347,6 @@ msgstr "Нова поштова заявка"
 msgid "New phone ticket"
 msgstr "Нова телефонна заявка"
 
-#: ../../otrs_ui/gui/__init__.py:81 ../../otrs_ui/gui/tickets.py:389
-msgid "Go to ticket"
-msgstr "Перейти до заявки"
-
 #: ../../otrs_ui/gui/__init__.py:82
 msgid "Download..."
 msgstr "Завантажити..."
@@ -63,303 +355,50 @@ msgstr "Завантажити..."
 msgid "Quit"
 msgstr "Вихід"
 
-#: ../../otrs_ui/gui/__init__.py:89 ../../otrs_ui/gui/tickets.py:178
-msgid "Lock"
-msgstr "Блокувати"
-
 #: ../../otrs_ui/gui/__init__.py:90
 msgid "Move"
 msgstr "Перемістити"
 
-#: ../../otrs_ui/gui/__init__.py:91 ../../otrs_ui/gui/tickets.py:178
-#: ../../otrs_ui/gui/tickets.py:291
-msgid "Answer"
-msgstr "Відповісти"
-
-#: ../../otrs_ui/gui/__init__.py:93 ../../otrs_ui/gui/tickets.py:369
-msgid "Forward"
-msgstr "Переслати"
-
-#: ../../otrs_ui/gui/__init__.py:95 ../../otrs_ui/gui/tickets.py:299
-msgid "Note"
-msgstr "Нотатка"
-
-#: ../../otrs_ui/gui/__init__.py:96 ../../otrs_ui/gui/tickets.py:318
-msgid "Owner"
-msgstr "Власник"
-
-#: ../../otrs_ui/gui/__init__.py:98 ../../otrs_ui/gui/tickets.py:178
-#: ../../otrs_ui/gui/tickets.py:335 ../../otrs_ui/gui/tickets.py:339
-msgid "Close"
-msgstr "Закрити"
-
-#: ../../otrs_ui/gui/__init__.py:100
+#: ../../otrs_ui/gui/__init__.py:101
 msgid "Information"
 msgstr "Інформація"
 
-#: ../../otrs_ui/gui/__init__.py:102
+#: ../../otrs_ui/gui/__init__.py:103
 msgid "Reload"
 msgstr "Оновити"
 
-#: ../../otrs_ui/gui/__init__.py:104 ../../otrs_ui/gui/tickets.py:139
-#: ../../otrs_ui/gui/tickets.py:218 ../../otrs_ui/gui/tickets.py:450
-#: ../../otrs_ui/gui/tickets.py:460
-msgid "Send message"
-msgstr "Надіслати повідомлення"
-
-#: ../../otrs_ui/gui/__init__.py:106
+#: ../../otrs_ui/gui/__init__.py:107
 msgid "Merge to ticket"
 msgstr "Прив'язати до заявки"
 
-#: ../../otrs_ui/gui/__init__.py:108
+#: ../../otrs_ui/gui/__init__.py:109
 msgid "Copy URL"
 msgstr "Копіювати посилання"
-
-#: ../../otrs_ui/gui/dashboard.py:64
-msgid "Title"
-msgstr "Назва"
-
-#: ../../otrs_ui/gui/dashboard.py:65
-msgid "Modified"
-msgstr "Змінено"
-
-#: ../../otrs_ui/gui/dashboard.py:126 ../../otrs_ui/gui/search.py:70
-msgid "yest."
-msgstr "вчора"
-
-#: ../../otrs_ui/gui/dashboard.py:126 ../../otrs_ui/gui/search.py:70
-msgid "min."
-msgstr "хв."
-
-#: ../../otrs_ui/gui/dashboard.py:126 ../../otrs_ui/gui/search.py:70
-msgid "days"
-msgstr "дні"
-
-#: ../../otrs_ui/gui/dashboard.py:196
-msgid "Login"
-msgstr "Вхід"
 
 #: ../../otrs_ui/gui/search.py:40
 msgid "Find"
 msgstr "Знайти"
 
-#: ../../otrs_ui/gui/tickets.py:135 ../../otrs_ui/gui/tickets.py:429
-msgid "Error"
-msgstr "Помилка"
+#: ../../otrs_ui/gui/search.py:70 ../../otrs_ui/gui/dashboard.py:126
+msgid "yest."
+msgstr "вчора"
 
-#: ../../otrs_ui/gui/tickets.py:135
-msgid "Ticket load was failed"
-msgstr "Завантаження заявки не вдалось"
+#: ../../otrs_ui/gui/search.py:70 ../../otrs_ui/gui/dashboard.py:126
+msgid "min."
+msgstr "хв."
 
-#: ../../otrs_ui/gui/tickets.py:239
-msgid "Ticket Lock"
-msgstr "Блокування заявки"
+#: ../../otrs_ui/gui/search.py:70 ../../otrs_ui/gui/dashboard.py:126
+msgid "days"
+msgstr "дні"
 
-#: ../../otrs_ui/gui/tickets.py:243
-msgid "You are late. Sorry."
-msgstr "Ви спізнились, співчуваємо"
+#: ../../otrs_ui/gui/dashboard.py:67
+msgid "Title"
+msgstr "Назва"
 
-#: ../../otrs_ui/gui/tickets.py:247
-msgid "The operation was failed"
-msgstr "Операція не вдалась"
+#: ../../otrs_ui/gui/dashboard.py:68
+msgid "Modified"
+msgstr "Змінено"
 
-#: ../../otrs_ui/gui/tickets.py:250
-msgid "The ticket was successfully locked"
-msgstr "Заявку успішно блоковано"
-
-#: ../../otrs_ui/gui/tickets.py:252
-msgid "The ticket was successfully unlocked"
-msgstr "Заявку успішно розблоковано"
-
-#: ../../otrs_ui/gui/tickets.py:260
-msgid "Change queue"
-msgstr "Змінити чергу"
-
-#: ../../otrs_ui/gui/tickets.py:261
-msgid "Queue:"
-msgstr "Черга:"
-
-#: ../../otrs_ui/gui/tickets.py:276
-msgid "Answer type"
-msgstr "Тип відповіді"
-
-#: ../../otrs_ui/gui/tickets.py:277
-msgid "Answer type:"
-msgstr "Тип відповіді:"
-
-#: ../../otrs_ui/gui/tickets.py:300 ../../otrs_ui/gui/tickets.py:319
-#: ../../otrs_ui/gui/tickets.py:340 ../../otrs_ui/gui/tickets.py:412
-#: ../../otrs_ui/gui/tickets.py:493
-msgid "Subject:"
-msgstr "Тема:"
-
-#: ../../otrs_ui/gui/tickets.py:300 ../../otrs_ui/gui/tickets.py:340
-#: ../../otrs_ui/gui/tickets.py:493
-msgid "Message:"
-msgstr "Повідомлення:"
-
-#: ../../otrs_ui/gui/tickets.py:301 ../../otrs_ui/gui/tickets.py:341
-#: ../../otrs_ui/gui/tickets.py:413
-msgid "Time units:"
-msgstr "Одиниці часу:"
-
-#: ../../otrs_ui/gui/tickets.py:302 ../../otrs_ui/gui/tickets.py:321
-#: ../../otrs_ui/gui/tickets.py:342 ../../otrs_ui/gui/tickets.py:494
-msgid "Type of note:"
-msgstr "Тип замітки:"
-
-#: ../../otrs_ui/gui/tickets.py:303 ../../otrs_ui/gui/tickets.py:322
-#: ../../otrs_ui/gui/tickets.py:343 ../../otrs_ui/gui/tickets.py:414
-#: ../../otrs_ui/gui/tickets.py:415 ../../otrs_ui/gui/tickets.py:495
-msgid "Next state:"
-msgstr "Наступний стан:"
-
-#: ../../otrs_ui/gui/tickets.py:303 ../../otrs_ui/gui/tickets.py:322
-#: ../../otrs_ui/gui/tickets.py:415 ../../otrs_ui/gui/tickets.py:495
-msgid "Month:"
-msgstr "Місяць:"
-
-#: ../../otrs_ui/gui/tickets.py:304 ../../otrs_ui/gui/tickets.py:323
-#: ../../otrs_ui/gui/tickets.py:416 ../../otrs_ui/gui/tickets.py:496
-msgid "Day:"
-msgstr "День:"
-
-#: ../../otrs_ui/gui/tickets.py:304 ../../otrs_ui/gui/tickets.py:323
-#: ../../otrs_ui/gui/tickets.py:416 ../../otrs_ui/gui/tickets.py:496
-msgid "Year:"
-msgstr "Рік:"
-
-#: ../../otrs_ui/gui/tickets.py:305 ../../otrs_ui/gui/tickets.py:324
-#: ../../otrs_ui/gui/tickets.py:417 ../../otrs_ui/gui/tickets.py:497
-msgid "Hour:"
-msgstr "Година:"
-
-#: ../../otrs_ui/gui/tickets.py:305 ../../otrs_ui/gui/tickets.py:324
-#: ../../otrs_ui/gui/tickets.py:417 ../../otrs_ui/gui/tickets.py:497
-msgid "Minute:"
-msgstr "Хвилина:"
-
-#: ../../otrs_ui/gui/tickets.py:314
-msgid "Change owner"
-msgstr "Змінити власника"
-
-#: ../../otrs_ui/gui/tickets.py:319
-msgid "Comment:"
-msgstr "Коментар:"
-
-#: ../../otrs_ui/gui/tickets.py:320
-msgid "Owner:"
-msgstr "Власник:"
-
-#: ../../otrs_ui/gui/tickets.py:320
-msgid "Old owner:"
-msgstr "Попередній власник:"
-
-#: ../../otrs_ui/gui/tickets.py:344 ../../otrs_ui/gui/tickets.py:418
-msgid "Requires review:"
-msgstr "Потребує перегляду:"
-
-#: ../../otrs_ui/gui/tickets.py:359
-msgid "Ticket Info"
-msgstr "Інформація про заявку"
-
-#: ../../otrs_ui/gui/tickets.py:390
-msgid "URL:"
-msgstr "URL:"
-
-#: ../../otrs_ui/gui/tickets.py:408 ../../otrs_ui/gui/tickets.py:447
-msgid "Send"
-msgstr "Надіслати"
-
-#: ../../otrs_ui/gui/tickets.py:409 ../../otrs_ui/gui/tickets.py:410
-#: ../../otrs_ui/gui/tickets.py:492
-msgid "To:"
-msgstr "До:"
-
-#: ../../otrs_ui/gui/tickets.py:409 ../../otrs_ui/gui/tickets.py:411
-msgid "Copy:"
-msgstr "Копія:"
-
-#: ../../otrs_ui/gui/tickets.py:410 ../../otrs_ui/gui/tickets.py:411
-msgid "Hidden copy:"
-msgstr "Прихована копія:"
-
-#: ../../otrs_ui/gui/tickets.py:419
-msgid "Article type:"
-msgstr "Тип замітки:"
-
-#: ../../otrs_ui/gui/tickets.py:429
-msgid "Receiver was not found"
-msgstr "Отримувач не вказаний"
-
-#: ../../otrs_ui/gui/tickets.py:447
-msgid "The ticket was logged off"
-msgstr "Заявка вилогувала"
-
-#: ../../otrs_ui/gui/tickets.py:466
-msgid "New email"
-msgstr "Нове повідомлення"
-
-#: ../../otrs_ui/gui/tickets.py:490
-msgid "Merge"
-msgstr "Об'єднати"
-
-#: ../../otrs_ui/gui/tickets.py:491
-msgid "Ticket number:"
-msgstr "Номер заявки:"
-
-#: ../../otrs_ui/gui/tickets.py:492
-msgid "Inform user"
-msgstr "Повідомити користувачу"
-
-#: ../../otrs_ui/gui/tickets.py:504
-msgid "Download"
-msgstr "Завантаження"
-
-#: ../../otrs_ui/gui/tickets.py:505
-msgid "Address:"
-msgstr "Адреса:"
-
-#: ../../otrs_ui/gui/tickets.py:505
-msgid "Path:"
-msgstr "Шлях:"
-
-#: ../../otrs_ui/gui/dialogs.py:32 ../../otrs_ui/gui/dialogs.py:273
-msgid "OK"
-msgstr "Гаразд"
-
-#: ../../otrs_ui/gui/dialogs.py:33
-msgid "Cancel"
-msgstr "Скасувати"
-
-#: ../../otrs_ui/gui/dialogs.py:113 ../../otrs_ui/gui/dialogs.py:150
-msgid "Site:"
-msgstr "Сайт:"
-
-#: ../../otrs_ui/gui/dialogs.py:116 ../../otrs_ui/gui/dialogs.py:153
-msgid "Username:"
-msgstr "Користувач:"
-
-#: ../../otrs_ui/gui/dialogs.py:119 ../../otrs_ui/gui/dialogs.py:156
-msgid "Password:"
-msgstr "Пароль:"
-
-#: ../../otrs_ui/gui/dialogs.py:177
-msgid "Refresh time:"
-msgstr "Інтервал оновлення:"
-
-#: ../../otrs_ui/gui/dialogs.py:179
-msgid "Sound command:"
-msgstr "Команда звуку:"
-
-#: ../../otrs_ui/gui/dialogs.py:181
-msgid "Error sound command:"
-msgstr "Команда звуку помилки:"
-
-#: ../../otrs_ui/gui/dialogs.py:183
-msgid "Important sound command:"
-msgstr "Команда звуку важливого:"
-
-#: ../../otrs_ui/gui/dialogs.py:185
-msgid "Download folder:"
-msgstr "Місце завантаження:"
+#: ../../otrs_ui/gui/dashboard.py:192
+msgid "Login"
+msgstr "Вхід"
