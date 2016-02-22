@@ -464,4 +464,3 @@ class Callbacks:
             ("URL", _("Address:")), ("path", _("Path:"))))
         if cfg["OK button"]:
             self.loader.download_file(cfg["URL"], cfg["path"])
-

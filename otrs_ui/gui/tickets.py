@@ -37,7 +37,7 @@ class Tickets(ttk.Frame, Callbacks):
         self.make_binds(frame)
         pw.add(frame)
         pw.pane(frame, weight=1)
-        frame = self.make_text_field()
+        frame = self.make_text_field(appw["config"].get("spell"))
         self.make_binds(frame)
         pw.add(frame)
         pw.pane(frame, weight=2)
@@ -100,12 +100,11 @@ class Tickets(ttk.Frame, Callbacks):
         tree.tag_configure("hightlighted", foreground="red")
         return frame
 
-    def make_text_field(self):
+    def make_text_field(self, spell):
         frame = ttk.Frame(self.pw)
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_rowconfigure(0, weight=1)
-        text = TicText(frame, spell=self.core_cfg.get("spell"),
-                       state="disabled")
+        text = TicText(frame, spell=spell, state="disabled")
         self.text = text
         text.grid(column=0, row=0, sticky="nwes")
         vsb = ttk.Scrollbar(frame, command=self.text.yview, orient="vertical")
@@ -113,4 +112,3 @@ class Tickets(ttk.Frame, Callbacks):
         text["yscrollcommand"] = lambda f, l: autoscroll(vsb, f, l)
         self.text_curinfo = None
         return frame
-
