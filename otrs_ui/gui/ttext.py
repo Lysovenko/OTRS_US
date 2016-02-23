@@ -26,6 +26,7 @@ class TicText(Text):
         self.bind("<Control-c>", self.copy)
         self.bind("<Control-x>", self.cut)
         self.tag_configure("h1", font="Times 16 bold", relief="raised")
+        self.tag_configure("highlight", background="yellow", relief="raised")
         if spell:
             r, self.wd = pipe()
             self.rd, w = pipe()
@@ -62,3 +63,12 @@ class TicText(Text):
             self.tag_remove("misspelled", index, "%s+%dc" % (index, len(word)))
         else:
             self.tag_add("misspelled", index, "%s+%dc" % (index, len(word)))
+
+    def highlight(self, regexp):
+        '''Spellcheck the word preceeding the insertion point'''
+        index = self.search(regexp, "insert", backwards=True, regexp=True)
+        if index == "":
+            return
+        word = self.get(index, "insert")
+        self.tag_add("highlight", index, "%s+%dc" %
+                     (index, min(10, len(word))))

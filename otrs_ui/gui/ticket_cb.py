@@ -37,12 +37,13 @@ class Callbacks:
         self.ticket_info = None
         self.actions_params = {}
         self.queues = {}
+        self.sexpr = None
 
     def go_dasboard(self, evt):
         self.app_widgets["notebook"].select(0)
         self.app_widgets["dashboard"].tree["New"].focus_set()
 
-    def load_ticket(self, ticket_id, force=False, prefered=None):
+    def load_ticket(self, ticket_id, force=False, prefered=None, sexpr=None):
         articles, info, allowed = self.loader.zoom_ticket(ticket_id, force)
         if articles is None:
             showerror(_("Error"), _("Ticket load was failed"))
@@ -50,6 +51,7 @@ class Callbacks:
         self.ticket_id = ticket_id
         self.app_widgets["menu_ticket"].entryconfig(
             _("Send message"), state="disabled")
+        self.sexpr = sexpr
         self.__update_tick_face(prefered, articles, info, allowed)
 
     def __update_tick_face(self, prefered, articles, info, allowed):
@@ -85,6 +87,8 @@ class Callbacks:
                 text.insert("end", *i)
         else:
             text.insert("1.0", snapshot)
+        if self.sexpr:
+            text.highlight(self.sexpr)
         text["state"] = "normal" if article[EDITABLE] else "disabled"
 
     def detect_allowed_actions(self, allowed):

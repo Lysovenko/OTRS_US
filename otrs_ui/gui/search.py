@@ -63,6 +63,7 @@ class Search(ttk.Frame):
             return
         res = self.searcher.search(sexpr)
         if res is not None:
+            self.cur_sexpr = sexpr
             self.fill_tree(res)
 
     def fill_tree(self, data):
@@ -101,7 +102,8 @@ class Search(ttk.Frame):
         iid = evt.widget.focus()
         if iid:
             td = self.tree_data[iid]
-            self.app_widgets["tickets"].load_ticket(td[0], prefered=td[1])
+            self.app_widgets["tickets"].load_ticket(
+                td[0], prefered=td[1], sexpr=self.cur_sexpr)
 
     def main_tic_num(self, cfg):
         iid = self.tree.focus()
