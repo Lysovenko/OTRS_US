@@ -15,6 +15,7 @@
 
 from tkinter import Text
 from os import read, write, pipe, waitpid
+import re
 from subprocess import Popen
 from time import sleep
 
@@ -65,10 +66,16 @@ class TicText(Text):
             self.tag_add("misspelled", index, "%s+%dc" % (index, len(word)))
 
     def highlight(self, regexp):
-        '''Spellcheck the word preceeding the insertion point'''
-        index = self.search(regexp, "insert", backwards=True, regexp=True)
-        if index == "":
-            return
-        word = self.get(index, "insert")
-        self.tag_add("highlight", index, "%s+%dc" %
-                     (index, min(10, len(word))))
+        current = "1.0"
+        while True:
+            index = self.search(
+                regexp, current, forwards=True, regexp=True, stopindex="end")
+            if index == "":
+                return
+            text = self.get(index, "end")
+            m = re.search(regexp, text)
+            if m is None:
+                return
+            hlen = m.end() - m.start()
+            self.tag_add("highlight", index, "%s+%dc" % (index, hlen))
+            current = self.index("%s+%dc" % (index, hlen))
