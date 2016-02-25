@@ -66,16 +66,12 @@ class TicText(Text):
             self.tag_add("misspelled", index, "%s+%dc" % (index, len(word)))
 
     def highlight(self, regexp):
-        current = "1.0"
+        text = self.get("1.0", "end")
+        spos = 0
         while True:
-            index = self.search(
-                regexp, current, forwards=True, regexp=True, stopindex="end")
-            if index == "":
-                return
-            text = self.get(index, "end")
-            m = re.search(regexp, text)
+            m = re.search(regexp, text[spos:], re.I)
             if m is None:
                 return
-            hlen = m.end() - m.start()
-            self.tag_add("highlight", index, "%s+%dc" % (index, hlen))
-            current = self.index("%s+%dc" % (index, hlen))
+            self.tag_add("highlight", "1.0+%dc" % (m.start() + spos),
+                         "1.0+%dc" % (m.end() + spos))
+            spos += m.end()
