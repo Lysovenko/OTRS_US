@@ -63,7 +63,7 @@ class Search(ttk.Frame):
             return
         res = self.searcher.search(sexpr)
         if res is not None:
-            self.cur_sexpr = sexpr
+            self.cur_sexpr = self.searcher.regexp
             self.fill_tree(res)
 
     def fill_tree(self, data):

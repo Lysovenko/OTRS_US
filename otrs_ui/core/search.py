@@ -12,7 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"Search request sender"
+"Searcher"
+import re
 
 
 class Searcher:
@@ -22,10 +23,16 @@ class Searcher:
     def db_search(self, query):
         sql = self.__db.execute
         result = []
-        sql("CREATE TEMPORARY TABLE artsfound (id INT, ticket INT)")
-        sql("INSERT INTO artsfound SELECT id, ticket FROM articles "
-            "WHERE message LIKE '%%%s%%'" %
-            '%'.join(query.replace("'", "''").split()))
+        sre = "%".join(query.replace("'", "''").split())
+        self.regexp = pre = "\\W+".join(query.split())
+        sql("CREATE TEMPORARY TABLE artsfound (id INT, ticket INT, msg TEXT)")
+        sql("INSERT INTO artsfound SELECT id, ticket, message AS msg "
+            "FROM articles WHERE message LIKE '%%%s%%'" % sre)
+        for aid, in sql("SELECT id FROM artsfound", False):
+            msg = sql("select msg from artsfound where id=%d" % aid)[0][0]
+            m = re.search(pre, msg, re.I)
+            if m is None:
+                sql("DELETE FROM artsfound where id=%d" % aid)
         for tid, in sql("SELECT DISTINCT ticket FROM artsfound", False):
             arts = sql("SELECT id FROM artsfound WHERE ticket=%d" % tid, False)
             arts = set(list(zip(*arts))[0])
