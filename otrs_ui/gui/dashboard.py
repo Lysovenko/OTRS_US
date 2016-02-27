@@ -114,12 +114,15 @@ class Dashboard(ttk.Frame):
         if ding:
             snd_cmd = self.app_widgets["core"].call("core cfg").get("snd_cmd")
             imp_cmd = self.app_widgets["core"].call("core cfg").get("snd_imp")
-            if snd_cmd:
-                system(snd_cmd)
             if imp_cmd:
+                for i in ("Reminder", "New", "Open"):
+                    summary[i].difference_update(summary["Important"])
                 summary["Important"].discard(self.runtime.get("now editing"))
                 if summary["Important"]:
                     system(imp_cmd)
+            if snd_cmd and any(
+                    summary[i] for i in ("Reminder", "New", "Open")):
+                system(snd_cmd)
 
     def fill_trees(self, pgl):
         tshow = TimeConv(
