@@ -54,7 +54,7 @@ class Dashboard(ttk.Frame):
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_rowconfigure(0, weight=1)
         self.tree[name] = tree = ttk.Treeview(
-            frame, selectmode="extended", columns=("modified",))
+            frame, selectmode="extended", columns=("owner", "modified"))
         tree.grid(column=0, row=0, sticky="nwes")
         vsb = ttk.Scrollbar(frame, command=tree.yview, orient="vertical")
         vsb.grid(column=1, row=0, sticky="ns")
@@ -66,6 +66,7 @@ class Dashboard(ttk.Frame):
         tree.column("modified", width=70, anchor="center")
         tree.heading("#0", text=_("Title"))
         tree.heading("modified", text=_("Modified"))
+        tree.heading("owner", text=_("Owner"))
         tree.tag_configure("new", foreground="blue", background="gray")
         tree.bind("<FocusIn>", self.activate)
         tree.bind("<Return>", self.enter_ticket)
@@ -131,7 +132,7 @@ class Dashboard(ttk.Frame):
         for name in ("Reminder", "New", "Open"):
             tree = self.tree[name]
             totw = sum(int(tree.column(i, "width"))
-                       for i in ("#0", "modified"))
+                       for i in ("#0", "owner", "modified"))
             tree.column("#0", width=totw-80, anchor="center")
             tree.column("modified", width=80, anchor="center")
             old_focus = tree.focus()
