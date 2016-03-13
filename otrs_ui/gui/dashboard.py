@@ -133,8 +133,13 @@ class Dashboard(ttk.Frame):
             tree = self.tree[name]
             totw = sum(int(tree.column(i, "width"))
                        for i in ("#0", "owner", "modified"))
-            tree.column("#0", width=totw-80, anchor="center")
-            tree.column("modified", width=80, anchor="center")
+            modw = 80
+            titw = 2 * (totw - modw) // 3
+            ownw = totw - modw - titw
+            twm80 = totw - 80
+            tree.column("#0", width=titw, anchor="center")
+            tree.column("owner", width=ownw, anchor="center")
+            tree.column("modified", width=modw, anchor="center")
             old_focus = tree.focus()
             for i in reversed(self.ticket_range.get(name, ())):
                 tree.delete(i)
@@ -152,12 +157,13 @@ class Dashboard(ttk.Frame):
                     image = ""
                 tags = ("new",) if item["marker"] & 1 else ()
                 tc = item.get("mtime", 0)
+                owner = item.get("Owner", "")
                 if tc:
                     tshow.set_modified(tc)
                     tc = tshow.relative()
                 tree.insert(
                     "", "end", r_id(item), text=item["title"], image=image,
-                    tags=tags, values=(tc,))
+                    tags=tags, values=(owner, tc))
             if old_focus in self.ticket_range[name]:
                 tree.focus(old_focus)
             else:
