@@ -131,11 +131,12 @@ class Dashboard(ttk.Frame):
         self.tree_data.clear()
         for name in ("Reminder", "New", "Open"):
             tree = self.tree[name]
+            data = pgl[name]
             totw = sum(int(tree.column(i, "width"))
                        for i in ("#0", "owner", "modified"))
             modw = 80
-            titw = 2 * (totw - modw) // 3
-            ownw = totw - modw - titw
+            ownw = (totw - modw) // 3 if data and "Owner" in data[0] else 1
+            titw = totw - modw - ownw
             twm80 = totw - 80
             tree.column("#0", width=titw, anchor="center")
             tree.column("owner", width=ownw, anchor="center")
@@ -143,7 +144,6 @@ class Dashboard(ttk.Frame):
             old_focus = tree.focus()
             for i in reversed(self.ticket_range.get(name, ())):
                 tree.delete(i)
-            data = pgl[name]
             if data and "mtime" in data[0]:
                 data.sort(reverse=True, key=lambda x: x["mtime"])
             r_id = lambda x: "T%d" % x["TicketID"]
