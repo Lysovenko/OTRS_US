@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: 0.0.3 \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-02-21 16:00+0200\n"
-"PO-Revision-Date: 2016-02-21 16:06+0200\n"
+"PO-Revision-Date: 2016-03-16 20:12+0200\n"
 "Last-Translator: Serhiy Lysovenko <EMAIL@ADDRESS>\n"
 "Language-Team: UKRAINIAN <nospam@gmail.com>\n"
 "Language: Ukrainian\n"
@@ -381,7 +381,7 @@ msgstr "Знайти"
 
 #: ../../otrs_ui/gui/search.py:70 ../../otrs_ui/gui/dashboard.py:126
 msgid "yest."
-msgstr "вчора"
+msgstr "вч."
 
 #: ../../otrs_ui/gui/search.py:70 ../../otrs_ui/gui/dashboard.py:126
 msgid "min."
@@ -389,7 +389,7 @@ msgstr "хв."
 
 #: ../../otrs_ui/gui/search.py:70 ../../otrs_ui/gui/dashboard.py:126
 msgid "days"
-msgstr "дні"
+msgstr "дн."
 
 #: ../../otrs_ui/gui/dashboard.py:67
 msgid "Title"
