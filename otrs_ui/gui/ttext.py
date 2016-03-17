@@ -36,7 +36,7 @@ class TicText(Text):
 
             self.tag_configure("misspelled", foreground="red", underline=True)
             self.bind("<space>", self.Spellcheck)
-        self._words = ['<br/>']
+        self._words = ["<br/>"]
 
     def copy(self, event=None):
         self.clipboard_clear()
@@ -48,18 +48,18 @@ class TicText(Text):
         self.delete("sel.first", "sel.last")
 
     def Spellcheck(self, event):
-        '''Spellcheck the word preceeding the insertion point'''
-        index = self.search(r'\s', "insert", backwards=True, regexp=True)
+        """Spellcheck the word preceeding the insertion point"""
+        index = self.search(r"\s", "insert", backwards=True, regexp=True)
         if index == "":
             index = "1.0"
         else:
             index = self.index("%s+1c" % index)
         word = self.get(index, "insert")
-        write(self.wd, (word + '\n').encode())
+        write(self.wd, (word + "\n").encode())
         sleep(.01)
         spell = read(self.rd, 0x0fffffff)
         rm = len([None for i in spell.splitlines()
-                  if i[:1] == b'#'])
+                  if i[:1] == b"#"])
         if not rm:
             self.tag_remove("misspelled", index, "%s+%dc" % (index, len(word)))
         else:
