@@ -14,13 +14,45 @@
 # limitations under the License.
 "Searcher"
 import re
+from .ptime import TimeUnit
+from time import time
 
 
 class Searcher:
     def __init__(self, core):
         self.__db = core.call("database")
+        self.regexp = ""
 
     def db_search(self, query):
+        if ":" in query:
+            return self.db_by_time(query)
+        return self.db_keywords(query)
+
+    def db_by_time(self, query):
+        try:
+            totime, trange = query.split(":")
+            t = time()
+            st, en = [t - TimeUnit(i) for i in trange.split('-')]
+        except ValueError:
+            return ()
+        totime = totime.strip()
+        if totime not in ("mtime", "", "relevance"):
+            return ()
+        if not totime:
+            totime = "relevance"
+        result = []
+        if st > en:
+            st, en = en, st
+        for tid, num, tit, mt in self.__db.execute(
+                "SELECT id, number, title, mtime FROM tickets "
+                "WHERE %s BETWEEN %d AND %d" % (
+                    totime, st, en)):
+            result.append({
+                "number": num, "TicketID": tid, "title": tit,
+                "mtime": mt, "articles": ()})
+        return result
+
+    def db_keywords(self, query):
         sql = self.__db.execute
         result = []
         sre = "%".join(query.replace("'", "''").split())
