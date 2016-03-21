@@ -9,6 +9,11 @@ For OTRS version: 5.0.3
 * Unpack
 * Should be working
 
+## Preparation to work
+
+In the web-interface set ticket modification time visible.
+
+
 ## Usage
 Just run \_\_main\_\_.py and enter your login and password. Tickets should be appear after some time.
 
