@@ -26,6 +26,7 @@ class TicText(Text):
                       font="Times 14", takefocus=True, **kw)
         self.bind("<Control-c>", self.copy)
         self.bind("<Control-x>", self.cut)
+        self.bind("<Return>", self.newline)
         self.tag_configure("h1", font="Times 16 bold", relief="raised")
         self.tag_configure("highlight", background="yellow", relief="raised")
         if spell:
@@ -36,7 +37,6 @@ class TicText(Text):
 
             self.tag_configure("misspelled", foreground="red", underline=True)
             self.bind("<space>", self.Spellcheck)
-        self._words = ["<br/>"]
 
     def copy(self, event=None):
         self.clipboard_clear()
@@ -75,3 +75,6 @@ class TicText(Text):
             self.tag_add("highlight", "1.0+%dc" % (m.start() + spos),
                          "1.0+%dc" % (m.end() + spos))
             spos += m.end()
+
+    def newline(self, evt):
+        self.insert("insert", "<br/>")
