@@ -217,6 +217,16 @@ class AnswerSender(Page):
         self.load(location, da, di)
 
 
+class QuerySender(Page):
+    def send(self, query, limit):
+        da = urlencode(
+            [("ChallengeToken", self.runt_cfg.get("ChallengeToken")),
+             ("Action", "AdminSelectBox"), ("Subaction", "Select"),
+             ("SQL", query), ("Max", limit),
+             ("ResultFormat", "CSV")]).encode()
+        self.load(self.runt_cfg.get("site"), da)
+
+
 class FileLoader(Page):
     def parse(self, data, page):
         fp = open(self.__save_path, 'wb')

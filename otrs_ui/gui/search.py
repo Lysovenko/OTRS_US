@@ -14,9 +14,11 @@
 "Making the Search widget"
 
 from tkinter import ttk
+from .dialogs import DlgDetails
 from .tickets import autoscroll
 from ..core.search import Searcher
 from ..core.ptime import TimeConv
+from ..core.pgload import QuerySender
 
 
 class Search(ttk.Frame):
@@ -110,3 +112,11 @@ class Search(ttk.Frame):
         if iid:
             td = self.tree_data[iid]
             cfg["MainTicketNumber"] = str(td[2])
+
+    def dbg_send_request(self, req=None):
+        cfg = {"query": ""}
+        DlgDetails(self, _("Go to ticket"),
+                   cfg=cfg, inputs=(("query", _("QUERY:")),))
+        if cfg["OK button"]:
+            pg = QuerySender(self.app_widgets["core"])
+            pg.send(cfg["query"], 40)
