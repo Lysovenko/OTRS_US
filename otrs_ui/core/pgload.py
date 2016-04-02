@@ -38,7 +38,7 @@ class Page:
         self.echo = core.echo
         self.last_url = ""
 
-    def parse(self, data, page):
+    def parse(self, data):
         "Dummy method to be replaced"
         print(data)
 
@@ -66,7 +66,7 @@ class Page:
         self.dump_data(pg, pd)
         if not self.check_login(pd.decode(errors="ignore")):
             raise LoginError(r.get_full_url())
-        return self.parse(pd, pg)
+        return self.parse(pd)
 
     def login(self, who=None, req=None):
         "login and load"
@@ -95,7 +95,7 @@ class Page:
         else:
             self.runt_cfg.pop("Cookies", None)
         self.dump_data(pg, pd)
-        return self.parse(pd, pg)
+        return self.parse(pd)
 
     def check_login(self, pd):
         for i in pd.splitlines():
@@ -131,7 +131,7 @@ class Page:
 
 
 class DashboardPage(Page):
-    def parse(self, data, page):
+    def parse(self, data):
         parser = DashboardParser()
         parser.feed(data.decode(errors="ignore"))
         parser.close()
@@ -139,7 +139,7 @@ class DashboardPage(Page):
 
 
 class TicketsPage(Page):
-    def parse(self, data, page):
+    def parse(self, data):
         parser = TicketsParser()
         parser.feed(data.decode(errors="ignore"))
         parser.close()
@@ -178,7 +178,7 @@ class TicketsPage(Page):
 
 
 class MessagePage(Page):
-    def parse(self, data, page):
+    def parse(self, data):
         parser = MessageParser()
         parser.feed(data.decode(errors="ignore"))
         parser.close()
@@ -189,7 +189,7 @@ class MessagePage(Page):
 
 
 class AnswerPage(Page):
-    def parse(self, data, page):
+    def parse(self, data):
         parser = AnswerParser()
         parser.feed(data.decode(errors="ignore"))
         parser.close()
@@ -209,7 +209,7 @@ class AnswerPage(Page):
 
 
 class AnswerSender(Page):
-    def parse(self, data, page):
+    def parse(self, data):
         return
 
     def send(self, location, data_list):
@@ -226,9 +226,12 @@ class QuerySender(Page):
              ("ResultFormat", "CSV")]).encode()
         self.load(self.runt_cfg.get("site"), da)
 
+    def parse(self, data):
+        print(data.decode())
+
 
 class FileLoader(Page):
-    def parse(self, data, page):
+    def parse(self, data):
         fp = open(self.__save_path, 'wb')
         fp.write(data)
 
