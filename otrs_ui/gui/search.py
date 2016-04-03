@@ -115,7 +115,7 @@ class Search(ttk.Frame):
 
     def dbg_send_request(self, req=None):
         cfg = {"query": ""}
-        DlgDetails(self, _("Go to ticket"),
+        DlgDetails(self, _("Send SQL request"),
                    cfg=cfg, inputs=(("query", _("QUERY:")),))
         if cfg["OK button"]:
             pg = QuerySender(self.app_widgets["core"])
