@@ -144,8 +144,8 @@ class Database:
             return
         self.execute(
             "INSERT INTO articles "
-            "VALUES(%d, %d, %d, '%s', '%s', '', %d, '')" % (
-                id, ticket, ctime, title, sender, flags))
+            "VALUES(%d, %d, %d, %s, %s, '', %d, '')" % (
+                id, ticket, ctime, sql_repr(title), sql_repr(sender), flags))
         return ticket, ctime, title, sender, flags
 
     def articles_description(self, ticket):
