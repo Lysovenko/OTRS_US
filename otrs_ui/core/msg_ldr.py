@@ -174,14 +174,9 @@ class MessageLoader:
         url = urlunsplit(url_beg + (urlencode(params), ""))
         pg = TicketsPage(self.core)
         page = pg.load(url)
-        mail_text = ""
         if page is None:
             return
         mail_header = page.get("mail_header", [])
-        try:
-            mail_text = page["message_text"]
-        except KeyError:
-            pass
         if "mail_src" in page:
             url = urlunsplit(url_beg[:2] + urlsplit(page["mail_src"])[2:])
             self.echo("Get message:", url)
@@ -190,6 +185,8 @@ class MessageLoader:
                 mail_text = pg.load(url)
             except LoginError:
                 mail_text = pg.login()
+        else:
+            mail_text = page["message_text"]
         if mail_header:
             mail_text.insert(0, ("\n",))
         for i in reversed(mail_header):

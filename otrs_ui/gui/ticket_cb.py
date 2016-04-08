@@ -16,6 +16,7 @@ EDITABLE = -1
 from .dialogs import AboutBox, DlgDetails
 from tkinter.messagebox import showerror, showinfo
 from time import ctime
+from traceback import format_exc
 import os
 from ..core import version
 from ..core.msg_ldr import MessageLoader, article_by_url, article_type
@@ -145,9 +146,9 @@ class Callbacks:
                 return
             try:
                 mail_text = self.loader.zoom_article(ca["TicketID"], iid)
-            except AttributeError:
+            except Exception:
                 showerror(_("Error"), _("Can't download article %d") % iid)
-                mail_text = []
+                mail_text = [(format_exc(),)]
             ca.update(((EDITABLE, False), ("article header", ()),
                        ("article text", mail_text)))
             self.show_email(ca)
