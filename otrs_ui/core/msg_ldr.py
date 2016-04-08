@@ -186,7 +186,10 @@ class MessageLoader:
             url = urlunsplit(url_beg[:2] + urlsplit(page["mail_src"])[2:])
             self.echo("Get message:", url)
             pg = MessagePage(self.core)
-            mail_text = pg.load(url)
+            try:
+                mail_text = pg.load(url)
+            except LoginError:
+                mail_text = pg.login()
         if mail_header:
             mail_text.insert(0, ("\n",))
         for i in reversed(mail_header):
