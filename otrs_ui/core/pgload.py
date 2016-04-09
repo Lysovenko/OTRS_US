@@ -227,7 +227,22 @@ class QuerySender(Page):
         self.load(self.runt_cfg.get("site"), da)
 
     def parse(self, data):
-        print(data.decode())
+        rest = []
+        for l in data.decode().splitlines():
+            resr = []
+            empt_i = True
+            for i in re.findall('"(?:[^"]|"")*"|,', l):
+                if i == ",":
+                    if empt_i:
+                        resr.append(None)
+                    empt_i = True
+                else:
+                    empt_i = False
+                    resr.append(i.replace('""', '"')[1:-1])
+            rest.append(tuple(resr))
+        for i in rest:
+            print(i)
+        return rest
 
 
 class FileLoader(Page):
