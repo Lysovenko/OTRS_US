@@ -80,8 +80,7 @@ class Face:
                 (_("New phone ticket"), tcts.menu_new_phone, "Ctrl+H", 1),
                 (_("Go to ticket"), tcts.menu_goto_url, "Ctrl+U", 0),
                 (_("Download..."), tcts.menu_download, None, 1),
-                (_("Dbg Query..."),
-                 self.app_widgets["search"].dbg_send_request, None, 1),
+                (_("Dbg Query..."), tcts.dbg_send_request, None, 1),
                 (_("Quit"), self.on_delete, "Ctrl+Q", 0)):
             mfile.add_command(label=lab, command=cmd,
                               accelerator=acc, underline=ul)

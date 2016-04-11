@@ -224,7 +224,7 @@ class QuerySender(Page):
              ("Action", "AdminSelectBox"), ("Subaction", "Select"),
              ("SQL", query), ("Max", limit),
              ("ResultFormat", "CSV")]).encode()
-        self.load(self.runt_cfg.get("site"), da)
+        return self.load(self.runt_cfg.get("site"), da)
 
     def parse(self, data):
         rest = []
@@ -240,8 +240,6 @@ class QuerySender(Page):
                     empt_i = False
                     resr.append(i.replace('""', '"')[1:-1])
             rest.append(tuple(resr))
-        for i in rest:
-            print(i)
         return rest
 
 

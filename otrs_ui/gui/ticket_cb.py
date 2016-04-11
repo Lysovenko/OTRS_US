@@ -21,6 +21,7 @@ import os
 from ..core import version
 from ..core.msg_ldr import MessageLoader, article_by_url, article_type
 from ..core.pgload import LoginError
+from ..core.pgload import QuerySender
 
 
 class Callbacks:
@@ -469,3 +470,17 @@ class Callbacks:
             ("URL", _("Address:")), ("path", _("Path:"))))
         if cfg["OK button"]:
             self.loader.download_file(cfg["URL"], cfg["path"])
+
+    def dbg_send_request(self, req=None):
+        cfg = {"query": ""}
+        DlgDetails(self, _("Send SQL request"), cfg=cfg,
+                   inputs=(("query", _("QUERY:")),))
+        if cfg["OK button"]:
+            pg = QuerySender(self.app_widgets["core"])
+            otab = pg.send(cfg["query"], 40)
+            text = self.text
+            text["state"] = "normal"
+            text.delete("1.0", "end")
+            for i in otab:
+                text.insert("end", "\t".join(map(str, i)) + "\n")
+            text["state"] = "disabled"

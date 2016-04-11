@@ -112,11 +112,3 @@ class Search(ttk.Frame):
         if iid:
             td = self.tree_data[iid]
             cfg["MainTicketNumber"] = str(td[2])
-
-    def dbg_send_request(self, req=None):
-        cfg = {"query": ""}
-        DlgDetails(self, _("Send SQL request"),
-                   cfg=cfg, inputs=(("query", _("QUERY:")),))
-        if cfg["OK button"]:
-            pg = QuerySender(self.app_widgets["core"])
-            pg.send(cfg["query"], 40)
