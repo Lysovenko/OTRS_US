@@ -24,7 +24,8 @@ ART_TYPE_MASK = 0xf
 TIC_SEEN = 1 << 8
 TIC_UPD = 1
 # TODO: escape more accurately sql datatypes
-sql_repr = lambda x: repr(x).replace("\\'", "''").replace("\\\\", "\\")
+sql_repr = lambda x: 'NULL' if x is None else repr(x).replace(
+    "\\'", "''").replace("\\\\", "\\")
 
 
 class Database:
@@ -96,6 +97,18 @@ class Database:
         self.execute("INSERT INTO tickets "
                      "VALUES(%s, %s, %s, %s, %s, %s, %s, %s)" % instup)
         return True
+
+    def update_tickets(self, updlist):
+        sql = self.execute
+        sql("CREATE TEMPORARY TABLE tmp_tickets(id INT, number INT, mtime INT,"
+            " title VARCHAR)")
+        rearr = ",".join("(%s)" % ",".join(map(sql_repr, i)) for i in updlist)
+        sql("INSERT INTO tmp_tickets VALUES %s" % rearr)
+        updated = sql("SELECT t.id FROM tmp_tickets AS t LEFT JOIN tickets"
+                      " AS ti ON t.id = ti.id "
+                      "WHERE t.mtime > ti.mtime OR ti.mtime IS NULL")
+        print(updated)
+        sql("DROP TABLE tmp_tickets")
 
     def ticket_fields(self, id, *fields):
         rval = self.execute("SELECT %s FROM tickets WHERE id=%d" %

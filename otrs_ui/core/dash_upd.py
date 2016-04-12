@@ -84,14 +84,27 @@ class DashboardUpdater:
             pgl = result
             result = {}
             summary = {"Important": set()}
+            #### START INSERTION ####
+            updlist = []
+            for name in ("Reminder", "New", "Open"):
+                for item in pgl[name]:
+                    tid, = parse_qs(urlsplit(item["href"]).query)["TicketID"]
+                    tid = int(tid)
+                    item["TicketID"] = tid
+                    mtime = unix_time(item.get("Changed", ''),
+                                      self.core_cfg["tct_tm_fmt"])
+                    item["mtime"] = mtime
+                    number = int(item["number"])
+                    title = item["title"]
+                    updlist.append((tid, number, mtime, title))
+            renewed = self.__db.update_tickets(updlist)
+            ##### END INSERTION #####
             for name in ("Reminder", "New", "Open"):
                 summary[name] = set()
                 tarr = []
                 for item in pgl[name]:
-                    tid, = parse_qs(urlsplit(item["href"]).query)["TicketID"]
-                    tid = int(tid)
-                    mtime = unix_time(item.get("Changed", ''),
-                                      self.core_cfg["tct_tm_fmt"])
+                    tid = item["TicketID"]
+                    mtime = item["mtime"]
                     if self.__db.update_ticket(
                             tid, int(item["number"]), mtime,
                             title=item["title"]):
@@ -99,10 +112,7 @@ class DashboardUpdater:
                         if item["marker"] & 2:
                             summary["Important"].add(tid)
                         item["marker"] |= 4
-                    ritem = dict(item)
-                    ritem["TicketID"] = tid
-                    ritem["mtime"] = mtime
-                    tarr.append(ritem)
+                    tarr.append(item)
                 result[name] = tarr
             self.runtime.update(pgl["inputs"])
             return result, summary
