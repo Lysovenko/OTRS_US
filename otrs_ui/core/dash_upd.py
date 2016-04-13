@@ -105,9 +105,10 @@ class DashboardUpdater:
                 for item in pgl[name]:
                     tid = item["TicketID"]
                     mtime = item["mtime"]
-                    if self.__db.update_ticket(
-                            tid, int(item["number"]), mtime,
-                            title=item["title"]):
+                    self.__db.update_ticket(
+                        tid, int(item["number"]), mtime,
+                        title=item["title"])
+                    if tid in renewed:
                         summary[name].add(tid)
                         if item["marker"] & 2:
                             summary["Important"].add(tid)

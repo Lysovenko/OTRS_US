@@ -105,10 +105,19 @@ class Database:
         rearr = ",".join("(%s)" % ",".join(map(sql_repr, i)) for i in updlist)
         sql("INSERT INTO tmp_tickets VALUES %s" % rearr)
         updated = sql("SELECT t.id FROM tmp_tickets AS t LEFT JOIN tickets"
-                      " AS ti ON t.id = ti.id "
-                      "WHERE t.mtime > ti.mtime OR ti.mtime IS NULL")
-        print(updated)
+                      " AS o ON t.id = o.id "
+                      "WHERE t.mtime > o.mtime OR o.mtime IS NULL")
+        sql("CREATE TEMPORARY TABLE upd_tickets (id INT, number INT, "
+            "mtime INT, flags INT, title VARCHAR, allow INT, info TEXT,"
+            " relevance INT)")
+        sql("INSERT INTO upd_tickets SELECT t.id, t.number, t.mtime, CASE WHEN"
+            " o.flags IS NULL THEN 0 WHEN o.mtime < t.mtime THEN o.flags & ~%d"
+            " ELSE o.flags END, t.title, CASE WHEN o.allow IS NULL THEN 0 ELSE"
+            " o.allow END, o.info, %d FROM tmp_tickets AS t LEFT JOIN tickets"
+            " AS o ON t.id = o.id " % (TIC_UPD, int(time())))
         sql("DROP TABLE tmp_tickets")
+        sql("DROP TABLE upd_tickets")
+        return [i for i, in updated]
 
     def ticket_fields(self, id, *fields):
         rval = self.execute("SELECT %s FROM tickets WHERE id=%d" %
