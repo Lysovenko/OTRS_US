@@ -83,8 +83,6 @@ class DashboardUpdater:
                 return result
             pgl = result
             result = {}
-            summary = {"Important": set()}
-            #### START INSERTION ####
             updlist = []
             for name in ("Reminder", "New", "Open"):
                 for item in pgl[name]:
@@ -98,16 +96,12 @@ class DashboardUpdater:
                     title = item["title"]
                     updlist.append((tid, number, mtime, title))
             renewed = self.__db.update_tickets(updlist)
-            ##### END INSERTION #####
+            summary = {"Important": set()}
             for name in ("Reminder", "New", "Open"):
                 summary[name] = set()
                 tarr = []
                 for item in pgl[name]:
                     tid = item["TicketID"]
-                    mtime = item["mtime"]
-                    self.__db.update_ticket(
-                        tid, int(item["number"]), mtime,
-                        title=item["title"])
                     if tid in renewed:
                         summary[name].add(tid)
                         if item["marker"] & 2:

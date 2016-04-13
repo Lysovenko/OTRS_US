@@ -112,10 +112,13 @@ class Database:
             " relevance INT)")
         sql("INSERT INTO upd_tickets SELECT t.id, t.number, t.mtime, CASE WHEN"
             " o.flags IS NULL THEN 0 WHEN o.mtime < t.mtime THEN o.flags & ~%d"
-            " ELSE o.flags END, t.title, CASE WHEN o.allow IS NULL THEN 0 ELSE"
-            " o.allow END, o.info, %d FROM tmp_tickets AS t LEFT JOIN tickets"
-            " AS o ON t.id = o.id " % (TIC_UPD, int(time())))
+            " ELSE o.flags END, t.title, o.allow, o.info, %d FROM tmp_tickets "
+            "AS t LEFT JOIN tickets AS o ON t.id = o.id "
+            % (TIC_UPD, int(time())))
         sql("DROP TABLE tmp_tickets")
+        sql("DELETE FROM tickets WHERE id in (SELECT id FROM upd_tickets)",
+            False)
+        sql("INSERT INTO tickets SELECT * FROM upd_tickets")
         sql("DROP TABLE upd_tickets")
         return [i for i, in updated]
 
