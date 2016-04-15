@@ -101,24 +101,24 @@ class Database:
     def update_tickets(self, updlist):
         sql = self.execute
         sql("CREATE TEMPORARY TABLE tmp_tickets(id INT, number INT, mtime INT,"
-            " title VARCHAR)")
+            " title VARCHAR)", False)
         rearr = ",".join("(%s)" % ",".join(map(sql_repr, i)) for i in updlist)
-        sql("INSERT INTO tmp_tickets VALUES %s" % rearr)
+        sql("INSERT INTO tmp_tickets VALUES %s" % rearr, False)
         updated = sql("SELECT t.id FROM tmp_tickets AS t LEFT JOIN tickets"
                       " AS o ON t.id = o.id "
-                      "WHERE t.mtime > o.mtime OR o.mtime IS NULL")
+                      "WHERE t.mtime > o.mtime OR o.mtime IS NULL", False)
         sql("CREATE TEMPORARY TABLE upd_tickets (id INT, number INT, "
             "mtime INT, flags INT, title VARCHAR, allow INT, info TEXT,"
-            " relevance INT)")
+            " relevance INT)", False)
         sql("INSERT INTO upd_tickets SELECT t.id, t.number, t.mtime, CASE WHEN"
             " o.flags IS NULL THEN 0 WHEN o.mtime < t.mtime THEN o.flags & ~%d"
             " ELSE o.flags END, t.title, o.allow, o.info, %d FROM tmp_tickets "
             "AS t LEFT JOIN tickets AS o ON t.id = o.id "
-            % (TIC_UPD, int(time())))
-        sql("DROP TABLE tmp_tickets")
+            % (TIC_UPD, int(time())), False)
+        sql("DROP TABLE tmp_tickets", False)
         sql("DELETE FROM tickets WHERE id in (SELECT id FROM upd_tickets)",
             False)
-        sql("INSERT INTO tickets SELECT * FROM upd_tickets")
+        sql("INSERT INTO tickets SELECT * FROM upd_tickets", False)
         sql("DROP TABLE upd_tickets")
         return [i for i, in updated]
 

@@ -75,42 +75,41 @@ class DashboardUpdater:
             self.__set_status("Complete")
 
     def get_result(self):
-        if self.get_status() != "Wait":
-            self.__set_status("Ready")
-            result = self.__result
-            self.__result = None
-            if not isinstance(result, dict):
-                return result
-            pgl = result
-            result = {}
-            updlist = []
-            for name in ("Reminder", "New", "Open"):
-                for item in pgl[name]:
-                    tid, = parse_qs(urlsplit(item["href"]).query)["TicketID"]
-                    tid = int(tid)
-                    item["TicketID"] = tid
-                    mtime = unix_time(item.get("Changed", ''),
-                                      self.core_cfg["tct_tm_fmt"])
-                    item["mtime"] = mtime
-                    number = int(item["number"])
-                    title = item["title"]
-                    updlist.append((tid, number, mtime, title))
-            renewed = self.__db.update_tickets(updlist)
-            summary = {"Important": set()}
-            for name in ("Reminder", "New", "Open"):
-                summary[name] = set()
-                tarr = []
-                for item in pgl[name]:
-                    tid = item["TicketID"]
-                    if tid in renewed:
-                        summary[name].add(tid)
-                        if item["marker"] & 2:
-                            summary["Important"].add(tid)
-                        item["marker"] |= 4
-                    tarr.append(item)
-                result[name] = tarr
-            self.runtime.update(pgl["inputs"])
-            return result, summary
+        if self.get_status() == "Wait":
+            return
+        self.__set_status("Ready")
+        result = self.__result
+        self.__result = None
+        if not isinstance(result, dict):
+            return result
+        pgl = result
+        result = {}
+        updlist = []
+        for name in ("Reminder", "New", "Open"):
+            for item in pgl[name]:
+                tid, = parse_qs(urlsplit(item["href"]).query)["TicketID"]
+                tid = int(tid)
+                item["TicketID"] = tid
+                mtime = unix_time(item.get("Changed", ''),
+                                  self.core_cfg["tct_tm_fmt"])
+                item["mtime"] = mtime
+                updlist.append((tid, int(item["number"]),
+                                mtime, item["title"]))
+        renewed = self.__db.update_tickets(updlist)
+        summary = {"Important": set()}
+        for name in ("Reminder", "New", "Open"):
+            summary[name] = set()
+            tarr = []
+            for item in pgl[name]:
+                tid = item["TicketID"]
+                if tid in renewed:
+                    summary[name].add(tid)
+                    if item["marker"] & 2:
+                        summary["Important"].add(tid)
+                tarr.append(item)
+            result[name] = tarr
+        self.runtime.update(pgl["inputs"])
+        return result, summary
 
     def login(self, who):
         self.__who = who
