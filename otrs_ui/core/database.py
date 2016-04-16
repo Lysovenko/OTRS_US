@@ -183,12 +183,12 @@ class Database:
     def article_message(self, id, message=None):
         if message is None:
             arts = self.execute("SELECT message FROM articles "
-                                "WHERE id=%d" % id)
+                                "WHERE id = %d" % id)
             if not arts:
                 return
             return arts[0][0]
-        self.execute("UPDATE articles SET message=%s, flags=flags | %d "
-                     "WHERE id=%d" % (sql_repr(message), ART_TEXT, id))
+        self.execute("UPDATE articles SET message = %s, flags = flags | %d "
+                     "WHERE id = %d" % (sql_repr(message), ART_TEXT, id))
 
     def close(self):
         if self.connection:
@@ -204,5 +204,5 @@ class Database:
         min_relevance = int(time() - still_relevant)
         self.execute(
             "DELETE FROM articles WHERE ticket in (SELECT id FROM tickets "
-            "WHERE relevance<%d)" % min_relevance)
+            "WHERE relevance < %d)" % min_relevance)
         self.execute("DELETE FROM tickets WHERE relevance<%d" % min_relevance)
