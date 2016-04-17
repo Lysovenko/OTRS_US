@@ -472,12 +472,12 @@ class Callbacks:
             self.loader.download_file(cfg["URL"], cfg["path"])
 
     def dbg_send_request(self, req=None):
-        cfg = {"query": ""}
+        cfg = {"query": "", "items": "40"}
         DlgDetails(self, _("Send SQL request"), cfg=cfg,
-                   inputs=(("query", _("QUERY:")),))
+                   inputs=(("query", _("QUERY:")), ("items", _("Items:"))))
         if cfg["OK button"]:
             pg = QuerySender(self.app_widgets["core"])
-            otab = pg.send(cfg["query"], 40)
+            otab = pg.send(cfg["query"], int(cfg["items"]))
             text = self.text
             text["state"] = "normal"
             text.delete("1.0", "end")
