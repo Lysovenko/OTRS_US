@@ -26,6 +26,8 @@ class Searcher:
     def db_search(self, query):
         if ":" in query:
             return self.db_by_time(query)
+        if query.startswith(">"):
+            return self.external_db_query(query[1:])
         return self.db_keywords(query)
 
     def db_by_time(self, query):
@@ -75,6 +77,10 @@ class Searcher:
                 "number": num, "TicketID": tid, "title": tit,
                 "mtime": mt, "articles": arts})
         sql("DROP TABLE artsfound")
+        return result
+
+    def external_db_query(self, query):
+        result = []
         return result
 
     search = db_search
