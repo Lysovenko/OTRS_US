@@ -85,14 +85,17 @@ class Searcher:
         result = []
         sre = "%".join(query.replace("'", "''").split())
         qs = QuerySender(self.__core)
-        for tn, tid, title, mt in qs.send(
-                "SELECT t.tn, t.id, t.title, t.change_time FROM ticket AS t "
-                "WHERE t.title LIKE '%%%s%%' ORDER BY t.change_time DESC"
+        for tn, tid, title, mt, arts in qs.send(
+                "SELECT t.tn, t.id, t.title, t.change_time, group_concat(a.id)"
+                " FROM ticket AS t INNER JOIN article AS a ON a.ticket_id = "
+                "t.id WHERE a.a_body LIKE '%%%s%%' group by t.id ORDER BY "
+                "t.change_time DESC"
                 % sre, 100)[1:]:
             print(tn, tid, title, mt)
             result.append({
                 "number": int(tn), "TicketID": int(tid), "title": title,
-                "mtime": unix_time(mt, "%Y-%m-%d %H:%M:%S"), "articles": ()})
+                "mtime": unix_time(mt, "%Y-%m-%d %H:%M:%S"),
+                "articles": set(map(int, arts.split(",")))})
         return result
 
     search = db_search
