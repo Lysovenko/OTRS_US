@@ -14,13 +14,15 @@
 # limitations under the License.
 "Searcher"
 import re
-from .ptime import TimeUnit
+from .ptime import TimeUnit, unix_time
+from .pgload import QuerySender
 from time import time
 
 
 class Searcher:
     def __init__(self, core):
         self.__db = core.call("database")
+        self.__core = core
         self.regexp = ""
 
     def db_search(self, query):
@@ -81,6 +83,16 @@ class Searcher:
 
     def external_db_query(self, query):
         result = []
+        sre = "%".join(query.replace("'", "''").split())
+        qs = QuerySender(self.__core)
+        for tn, tid, title, mt in qs.send(
+                "SELECT t.tn, t.id, t.title, t.change_time FROM ticket AS t "
+                "WHERE t.title LIKE '%%%s%%' ORDER BY t.change_time DESC"
+                % sre, 100)[1:]:
+            print(tn, tid, title, mt)
+            result.append({
+                "number": int(tn), "TicketID": int(tid), "title": title,
+                "mtime": unix_time(mt, "%Y-%m-%d %H:%M:%S"), "articles": ()})
         return result
 
     search = db_search
