@@ -14,18 +14,38 @@
 # limitations under the License.
 "Searcher"
 import re
+from threading import Thread, Lock
+from time import time
 from .ptime import TimeUnit, unix_time
 from .pgload import QuerySender
-from time import time
 
 
 class Searcher:
     def __init__(self, core):
+        self.__st_lock = Lock()
         self.__db = core.call("database")
         self.__core = core
+        self.__status = "Ready"
+        self.__result = None
         self.regexp = ""
 
-    def db_search(self, query):
+    def get_status(self):
+        self.__st_lock.acquire()
+        status = self.__status
+        self.__st_lock.release()
+        return status
+
+    def __set_status(self, status):
+        self.__st_lock.acquire()
+        self.__status = status
+        self.__st_lock.release()
+
+    def get_result(self):
+        res = self.__result
+        self.__result = None
+        return res
+
+    def search(self, query):
         if ":" in query:
             return self.db_by_time(query)
         if query.startswith(">"):
@@ -97,5 +117,3 @@ class Searcher:
                 "mtime": unix_time(mt, "%Y-%m-%d %H:%M:%S"),
                 "articles": set(map(int, arts.split(",")))})
         return result
-
-    search = db_search
