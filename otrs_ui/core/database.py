@@ -16,7 +16,7 @@
 import atexit
 from os import makedirs, name
 from os.path import isdir, expanduser, join
-import sqlite3 as sql
+from sqlite3 import connect, Error, sqlite_version_info
 from time import time
 ART_SEEN = 1 << 8
 ART_TEXT = 1 << 5
@@ -45,8 +45,8 @@ class Database:
         path = join(path, filename)
         self.connection = None
         try:
-            self.connection = sql.connect(path)
-        except sql.Error as e:
+            self.connection = connect(path)
+        except Error as e:
             return
         tables = {
             "tickets": "id INT, number INT, mtime INT, flags INT, "
@@ -100,10 +100,16 @@ class Database:
 
     def update_tickets(self, updlist):
         sql = self.execute
-        sql("CREATE TEMPORARY TABLE tmp_tickets(id INT, number INT, mtime INT,"
-            " title VARCHAR)", False)
-        rearr = ",".join("(%s)" % ",".join(map(sql_repr, i)) for i in updlist)
-        sql("INSERT INTO tmp_tickets VALUES %s" % rearr, False)
+        sql("CREATE TEMPORARY TABLE tmp_tickets(id INT, number INT,"
+            " mtime INT, title VARCHAR)", False)
+        if sqlite_version_info >= (3, 7, 11):
+            rearr = ",".join(
+                "(%s)" % ",".join(map(sql_repr, i)) for i in updlist)
+            sql("INSERT INTO tmp_tickets VALUES %s" % rearr, False)
+        else:
+            for s in updlist:
+                sql("INSERT INTO tmp_tickets VALUES (%s)" %
+                    ",".join(map(sql_repr, s)), False)
         updated = sql("SELECT t.id FROM tmp_tickets AS t LEFT JOIN tickets"
                       " AS o ON t.id = o.id "
                       "WHERE t.mtime > o.mtime OR o.mtime IS NULL", False)

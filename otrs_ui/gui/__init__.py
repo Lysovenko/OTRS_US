@@ -75,13 +75,16 @@ class Face:
         self.app_widgets["menubar"] = menubar
         self.app_widgets["menu_ticket"] = mticket
         tcts = self.app_widgets["tickets"]
-        for lab, cmd, acc, ul in (
-                (_("New email ticket"), tcts.menu_new_email, "Ctrl+N", 0),
-                (_("New phone ticket"), tcts.menu_new_phone, "Ctrl+H", 1),
-                (_("Go to ticket"), tcts.menu_goto_url, "Ctrl+U", 0),
-                (_("Download..."), tcts.menu_download, None, 1),
-                (_("Dbg Query..."), tcts.dbg_send_request, None, 1),
-                (_("Quit"), self.on_delete, "Ctrl+Q", 0)):
+        file_items = [
+            (_("New email ticket"), tcts.menu_new_email, "Ctrl+N", 0),
+            (_("New phone ticket"), tcts.menu_new_phone, "Ctrl+H", 1),
+            (_("Go to ticket"), tcts.menu_goto_url, "Ctrl+U", 0),
+            (_("Download..."), tcts.menu_download, None, 1),
+            (_("Quit"), self.on_delete, "Ctrl+Q", 0)]
+        if self.core.call("core cfg").get("echo"):
+            file_items.insert(-1, (_("Dbg Query..."),
+                                   tcts.dbg_send_request, None, 1))
+        for lab, cmd, acc, ul in file_items:
             mfile.add_command(label=lab, command=cmd,
                               accelerator=acc, underline=ul)
         self.root.bind_all("<Control-q>", lambda x: self.on_delete())
