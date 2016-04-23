@@ -112,3 +112,6 @@ class Search(ttk.Frame):
         if iid:
             td = self.tree_data[iid]
             cfg["MainTicketNumber"] = str(td[2])
+
+    def update(self):
+        pass
