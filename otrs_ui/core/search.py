@@ -43,9 +43,11 @@ class Searcher:
     def get_result(self):
         res = self.__result
         self.__result = None
+        self.__set_status("Ready")
         return res
 
     def search(self, query):
+        self.__set_status("Wait")
         if ":" in query:
             return self.db_by_time(query)
         if query.startswith(">"):
@@ -53,6 +55,7 @@ class Searcher:
         return self.db_keywords(query)
 
     def db_by_time(self, query):
+        self.__set_status("Ready")
         try:
             totime, trange = query.split(":")
             t = time()
@@ -77,6 +80,7 @@ class Searcher:
         return result
 
     def db_keywords(self, query):
+        self.__set_status("Ready")
         sql = self.__db.execute
         result = []
         sre = "%".join(query.replace("'", "''").split())
