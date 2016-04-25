@@ -67,7 +67,9 @@ class Dashboard(ttk.Frame):
         tree.heading("#0", text=_("Title"))
         tree.heading("modified", text=_("Modified"))
         tree.heading("owner", text=_("Owner"))
-        tree.tag_configure("new", foreground="blue", background="gray")
+        self.config.setdefault("tg_new", {
+            "foreground": "blue", "background": "gray"})
+        tree.tag_configure("new", **self.config["tg_new"])
         tree.bind("<FocusIn>", self.activate)
         tree.bind("<Return>", self.enter_ticket)
         tree.bind("<Double-Button-1>", self.enter_ticket)
