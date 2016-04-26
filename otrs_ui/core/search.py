@@ -51,20 +51,26 @@ class Searcher:
         if ":" in query:
             return self.db_by_time(query)
         if query.startswith(">"):
-            return self.external_db_query(query[1:])
-        return self.db_keywords(query)
+            t = Thread(target=self.external_db_query, args=(query[1:],))
+            t.daemon = True
+            t.start()
+            return
+        self.db_keywords(query)
 
     def db_by_time(self, query):
-        self.__set_status("Ready")
         try:
             totime, trange = query.split(":")
             t = time()
             st, en = [t - TimeUnit(i) for i in trange.split('-')]
         except ValueError:
-            return ()
+            self.__result = ()
+            self.__set_status("Complete")
+            return
         totime = totime.strip()
         if totime not in ("mtime", "", "relevance"):
-            return ()
+            self.__result = ()
+            self.__set_status("Complete")
+            return
         if not totime:
             totime = "relevance"
         result = []
@@ -77,10 +83,10 @@ class Searcher:
             result.append({
                 "number": num, "TicketID": tid, "title": tit,
                 "mtime": mt, "articles": ()})
-        return result
+        self.__result = result
+        self.__set_status("Complete")
 
     def db_keywords(self, query):
-        self.__set_status("Ready")
         sql = self.__db.execute
         result = []
         sre = "%".join(query.replace("'", "''").split())
@@ -103,7 +109,8 @@ class Searcher:
                 "number": num, "TicketID": tid, "title": tit,
                 "mtime": mt, "articles": arts})
         sql("DROP TABLE artsfound")
-        return result
+        self.__result = result
+        self.__set_status("Complete")
 
     def external_db_query(self, query):
         result = []
@@ -120,4 +127,5 @@ class Searcher:
                 "number": int(tn), "TicketID": int(tid), "title": title,
                 "mtime": unix_time(mt, "%Y-%m-%d %H:%M:%S"),
                 "articles": set(map(int, arts.split(",")))})
-        return result
+        self.__result = result
+        self.__set_status("Complete")

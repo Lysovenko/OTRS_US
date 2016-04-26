@@ -63,10 +63,19 @@ class Search(ttk.Frame):
         sexpr = self.entry.get()
         if not sexpr:
             return
-        res = self.searcher.search(sexpr)
-        if res is not None:
-            self.cur_sexpr = self.searcher.regexp
-            self.fill_tree(res)
+        self.searcher.search(sexpr)
+        self.update()
+
+    def update(self):
+        sstatus = self.searcher.get_status()
+        if sstatus == "Wait":
+            self.app_widgets["root"].after(1000, self.update)
+            return
+        if sstatus == "Complete":
+            res = self.searcher.get_result()
+            if res is not None:
+                self.cur_sexpr = self.searcher.regexp
+                self.fill_tree(res)
 
     def fill_tree(self, data):
         tshow = TimeConv(
@@ -112,6 +121,3 @@ class Search(ttk.Frame):
         if iid:
             td = self.tree_data[iid]
             cfg["MainTicketNumber"] = str(td[2])
-
-    def update(self):
-        pass
