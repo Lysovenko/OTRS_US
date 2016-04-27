@@ -47,6 +47,8 @@ class Searcher:
         return res
 
     def search(self, query):
+        if self.get_status() != "Ready":
+            return
         self.__set_status("Wait")
         if ":" in query:
             return self.db_by_time(query)
