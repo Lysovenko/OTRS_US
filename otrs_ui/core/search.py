@@ -124,7 +124,6 @@ class Searcher:
                 "t.id WHERE a.a_body LIKE '%%%s%%' group by t.id ORDER BY "
                 "t.change_time DESC"
                 % sre, 100)[1:]:
-            print(tn, tid, title, mt)
             result.append({
                 "number": int(tn), "TicketID": int(tid), "title": title,
                 "mtime": unix_time(mt, "%Y-%m-%d %H:%M:%S"),

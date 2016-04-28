@@ -60,6 +60,7 @@ class Search(ttk.Frame):
         tree.bind("<Double-Button-1>", self.enter_ticket)
 
     def search(self, evt=None):
+        self.__elapsed = 0
         sexpr = self.entry.get()
         if not sexpr:
             return
@@ -69,9 +70,13 @@ class Search(ttk.Frame):
     def update(self):
         sstatus = self.searcher.get_status()
         if sstatus == "Wait":
+            self.app_widgets["core"].call(
+                "print_status", "Search... (%d)" % self.__elapsed)
             self.app_widgets["root"].after(1000, self.update)
+            self.__elapsed += 1
             return
         if sstatus == "Complete":
+            self.app_widgets["core"].call("print_status", "Search complete")
             res = self.searcher.get_result()
             if res is not None:
                 self.cur_sexpr = self.searcher.regexp
