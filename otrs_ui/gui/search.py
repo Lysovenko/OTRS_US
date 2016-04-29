@@ -71,12 +71,15 @@ class Search(ttk.Frame):
         sstatus = self.searcher.get_status()
         if sstatus == "Wait":
             self.app_widgets["core"].call(
-                "print_status", "Search... (%d)" % self.__elapsed)
+                "print_status", _("Search... (%d)") % self.__elapsed)
             self.app_widgets["root"].after(1000, self.update)
             self.__elapsed += 1
             return
+        if sstatus in ("LoginError", "URLError"):
+            res = self.searcher.get_result()
+            self.app_widgets["core"].call("print_status", str(res))
         if sstatus == "Complete":
-            self.app_widgets["core"].call("print_status", "Search complete")
+            self.app_widgets["core"].call("print_status", _("Search complete"))
             res = self.searcher.get_result()
             if res is not None:
                 self.cur_sexpr = self.searcher.regexp

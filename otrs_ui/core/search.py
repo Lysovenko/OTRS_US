@@ -16,8 +16,9 @@
 import re
 from threading import Thread, Lock
 from time import time
+from urllib.error import URLError
 from .ptime import TimeUnit, unix_time
-from .pgload import QuerySender
+from .pgload import QuerySender, LoginError
 
 
 class Searcher:
@@ -118,15 +119,28 @@ class Searcher:
         result = []
         sre = "%".join(query.replace("'", "''").split())
         qs = QuerySender(self.__core)
-        for tn, tid, title, mt, arts in qs.send(
-                "SELECT t.tn, t.id, t.title, t.change_time, group_concat(a.id)"
-                " FROM ticket AS t INNER JOIN article AS a ON a.ticket_id = "
-                "t.id WHERE a.a_body LIKE '%%%s%%' group by t.id ORDER BY "
-                "t.change_time DESC"
-                % sre, 100)[1:]:
-            result.append({
-                "number": int(tn), "TicketID": int(tid), "title": title,
-                "mtime": unix_time(mt, "%Y-%m-%d %H:%M:%S"),
-                "articles": set(map(int, arts.split(",")))})
+        try:
+            for tn, tid, title, mt, arts in qs.send(
+                    "SELECT t.tn, t.id, t.title, t.change_time, "
+                    "group_concat(a.id) FROM ticket AS t "
+                    "INNER JOIN article AS a ON a.ticket_id = t.id "
+                    "WHERE a.a_body LIKE '%%%s%%' "
+                    "group by t.id ORDER BY t.change_time DESC"
+                    % sre, 100)[1:]:
+                result.append({
+                    "number": int(tn), "TicketID": int(tid), "title": title,
+                    "mtime": unix_time(mt, "%Y-%m-%d %H:%M:%S"),
+                    "articles": set(map(int, arts.split(",")))})
+        except LoginError:
+            self.__set_status("LoginError")
+            return
+        except URLError as err:
+            self.__result = err
+            self.__set_status("URLError")
+            return
+        except Exception as err:
+            self.__result = "%s: %s" % (str(type(err)), str(err))
+            self.__set_status("URLError")
+            return
         self.__result = result
         self.__set_status("Complete")
