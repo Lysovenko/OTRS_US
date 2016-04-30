@@ -77,7 +77,8 @@ class Search(ttk.Frame):
             return
         if sstatus in ("LoginError", "URLError"):
             res = self.searcher.get_result()
-            self.app_widgets["core"].call("print_status", str(res))
+            self.app_widgets["core"].call("print_status",
+                                          _("Search failed: %s") % str(res))
         if sstatus == "Complete":
             self.app_widgets["core"].call("print_status", _("Search complete"))
             res = self.searcher.get_result()
