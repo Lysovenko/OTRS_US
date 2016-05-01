@@ -51,13 +51,13 @@ class Searcher:
         if self.get_status() != "Ready":
             return
         self.__set_status("Wait")
-        if ":" in query:
-            return self.db_by_time(query)
         if query.startswith(">"):
             t = Thread(target=self.external_db_query, args=(query[1:],))
             t.daemon = True
             t.start()
             return
+        if ":" in query:
+            return self.db_by_time(query)
         self.db_keywords(query)
 
     def db_by_time(self, query):
@@ -116,21 +116,28 @@ class Searcher:
         self.__set_status("Complete")
 
     def external_db_query(self, query):
-        result = []
-        sre = "%".join(query.replace("'", "''").split())
+        self.__core.echo("Query is:\t", query)
+        if query.startswith("c:"):
+            sre = query[2:].replace("'", "''")
+            db_query = """SELECT tn, id, title, change_time, '' FROM ticket
+            WHERE customer_user_id='%s' ORDER BY change_time DESC""" % sre
+        else:
+            sre = "%".join(query.replace("'", "''").split())
+            db_query = """SELECT t.tn, t.id, t.title, t.change_time,
+            group_concat(a.id) FROM ticket AS t
+            INNER JOIN article AS a ON a.ticket_id = t.id
+            WHERE a.a_body LIKE '%%%s%%'
+            group by t.id ORDER BY t.change_time DESC""" % sre
+        self.__core.echo("SQL Query is:\t", db_query)
         qs = QuerySender(self.__core)
+        result = []
         try:
-            for tn, tid, title, mt, arts in qs.send(
-                    "SELECT t.tn, t.id, t.title, t.change_time, "
-                    "group_concat(a.id) FROM ticket AS t "
-                    "INNER JOIN article AS a ON a.ticket_id = t.id "
-                    "WHERE a.a_body LIKE '%%%s%%' "
-                    "group by t.id ORDER BY t.change_time DESC"
-                    % sre, 100)[1:]:
+            for tn, tid, title, mt, arts in qs.send(db_query, 100)[1:]:
+                arts = set(map(int, arts.split(","))) if arts else ()
                 result.append({
                     "number": int(tn), "TicketID": int(tid), "title": title,
                     "mtime": unix_time(mt, "%Y-%m-%d %H:%M:%S"),
-                    "articles": set(map(int, arts.split(",")))})
+                    "articles": arts})
         except LoginError:
             self.__set_status("LoginError")
             return

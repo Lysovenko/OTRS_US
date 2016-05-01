@@ -233,6 +233,8 @@ class QuerySender(Page):
             empt_i = True
             for i in re.findall('"(?:[^"]|"")*"|,', l):
                 if i == ",":
+                    if not resr:
+                        resr.append(None)
                     if empt_i:
                         resr.append(None)
                     empt_i = True

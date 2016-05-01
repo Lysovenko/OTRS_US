@@ -472,6 +472,7 @@ class Callbacks:
             self.loader.download_file(cfg["URL"], cfg["path"])
 
     def dbg_send_request(self, req=None):
+        from pprint import pformat
         cfg = {"query": "", "items": "40"}
         DlgDetails(self, _("Send SQL request"), cfg=cfg,
                    inputs=(("query", _("QUERY:")), ("items", _("Items:"))))
@@ -482,5 +483,5 @@ class Callbacks:
             text["state"] = "normal"
             text.delete("1.0", "end")
             for i in otab:
-                text.insert("end", "\t".join(map(str, i)) + "\n")
+                text.insert("end", pformat(i) + "\n")
             text["state"] = "disabled"
