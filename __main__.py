@@ -14,5 +14,22 @@
 # limitations under the License.
 
 
-from otrs_us.tk import start_gui
-start_gui()
+from argparse import ArgumentParser
+parser = ArgumentParser(description="OTRS US")
+from sys import argv
+faces = "tk", "t", "curses", "c"
+face = argv[1].lower() if len(argv) > 1 and argv[1].lower() in faces else None
+if face in ("tk", "t", None):
+    try:
+        from otrs_us.tk import start_gui
+        start_gui()
+        exit()
+    except (ImportError, RuntimeError):
+        pass
+if face in ("curses", "c", None):
+    try:
+        from otrs_us.curses import start_cue
+        start_cue()
+        exit()
+    except ImportError:
+        pass

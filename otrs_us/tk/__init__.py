@@ -14,7 +14,7 @@
 "Making the GUI of the application"
 
 from tkinter import Tk, Menu, PhotoImage, ttk, StringVar, messagebox, \
-    BooleanVar
+    BooleanVar, TclError
 from tkinter.filedialog import askdirectory
 from os.path import isdir, join, dirname, pardir
 from os import makedirs
@@ -147,6 +147,9 @@ def start_gui():
             gettext.install("otrs_us", localedir=ldir)
         else:
             gettext.install("otrs_us")
-    root = Tk()
+    try:
+        root = Tk()
+    except TclError as err:
+        raise RuntimeError(err)
     f = Face(root, get_core())
     root.mainloop()
