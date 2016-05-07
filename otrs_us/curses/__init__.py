@@ -33,7 +33,14 @@ def main(scr):
     panels = [new_panel(i) for i in wins]
     update_panels()
     doupdate()
-    scr.getch()
+    x = 0
+    while x != ord('q'):
+        x = scr.getch()
+        wn = wins[0]
+        wn.addstr(1, 1, "%x" % x)
+        wn.addstr(2, 1, repr([
+            i for i in dir(wn) if not i.startswith('__')])[:w-3])
+        wins[0].refresh()
 
 
 def start_cue():
