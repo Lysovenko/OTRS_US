@@ -15,7 +15,7 @@
 
 from curses import (
     wrapper, ALL_MOUSE_EVENTS, KEY_MOUSE, mousemask, getmouse, echo, A_BOLD,
-    newwin, doupdate)
+    newwin, doupdate, def_prog_mode, endwin, reset_prog_mode)
 from curses.panel import new_panel, update_panels
 from curses.textpad import Textbox, rectangle
 
@@ -40,6 +40,10 @@ def main(scr):
         wn.addstr(1, 1, "%x" % x)
         wn.addstr(2, 1, repr([
             i for i in dir(wn) if not i.startswith('__')])[:w-3])
+        def_prog_mode()
+        endwin()
+        print(dir(wn))
+        reset_prog_mode()
         wins[0].refresh()
 
 
