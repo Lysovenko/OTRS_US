@@ -24,11 +24,13 @@ class TicText(Text):
     def __init__(self, parent, spell=None, **kw):
         Text.__init__(self, parent, wrap="word",
                       font="Times 14", takefocus=True, **kw)
+        self.tg_regexp = re.compile("<[^>]*>")
         self.bind("<Control-c>", self.copy)
         self.bind("<Control-x>", self.cut)
         self.bind("<Return>", self.newline)
         self.tag_configure("h1", font="Times 16 bold", relief="raised")
         self.tag_configure("highlight", background="yellow", relief="raised")
+        self.tag_configure("html_tag", foreground="blue")
         if spell:
             r, self.wd = pipe()
             self.rd, w = pipe()
@@ -67,14 +69,15 @@ class TicText(Text):
 
     def highlight(self, regexp):
         text = self.get("1.0", "end")
-        spos = 0
-        while True:
-            m = re.search(regexp, text[spos:], re.I)
-            if m is None:
-                return
-            self.tag_add("highlight", "1.0+%dc" % (m.start() + spos),
-                         "1.0+%dc" % (m.end() + spos))
-            spos += m.end()
+        for m in re.finditer(regexp, text, re.I):
+            self.tag_add("highlight", "1.0+%dc" % m.start(),
+                         "1.0+%dc" % m.end())
+
+    def hitags(self, event=None):
+        for i in self.tg_regexp.finditer(self.get("1.0", "end")):
+            self.tag_add("html_tag", "1.0+%dc" % i.start(),
+                         "1.0+%dc" % i.end())
 
     def newline(self, evt):
         self.insert("insert", "<br/>")
+        self.hitags()
