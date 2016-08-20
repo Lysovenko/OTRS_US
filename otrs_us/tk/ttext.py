@@ -18,6 +18,25 @@ from os import read, write, pipe, waitpid
 import re
 from subprocess import Popen
 from time import sleep
+from idlelib.Delegator import Delegator
+from idlelib.ColorDelegator import ColorDelegator
+from idlelib.Percolator import Percolator
+
+
+def make_pat():
+    kw = r"(?P<KEYWORD>&.*?;)"
+    builtin = r"(?P<BUILTIN><[^!>].*?>)"
+    comment = r"(?P<COMMENT><!--.*?-->)"
+    return kw + "|" + builtin + "|" + comment
+
+
+class HtmlColorDelegator(ColorDelegator):
+
+    def __init__(self):
+        Delegator.__init__(self)
+        self.prog = re.compile(make_pat(), re.S)
+        self.idprog = re.compile(r"\s+(\w+)", re.S)
+        self.LoadTagDefs()
 
 
 class TicText(Text):
@@ -39,6 +58,8 @@ class TicText(Text):
 
             self.tag_configure("misspelled", foreground="red", underline=True)
             self.bind("<space>", self.Spellcheck)
+        self.percolator = Percolator(self)
+        self.percolator.insertfilter(HtmlColorDelegator())
 
     def copy(self, event=None):
         self.clipboard_clear()
@@ -73,11 +94,5 @@ class TicText(Text):
             self.tag_add("highlight", "1.0+%dc" % m.start(),
                          "1.0+%dc" % m.end())
 
-    def hitags(self, event=None):
-        for i in self.tg_regexp.finditer(self.get("1.0", "end")):
-            self.tag_add("html_tag", "1.0+%dc" % i.start(),
-                         "1.0+%dc" % i.end())
-
     def newline(self, evt):
         self.insert("insert", "<br/>")
-        self.hitags()
