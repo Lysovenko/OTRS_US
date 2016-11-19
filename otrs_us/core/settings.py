@@ -16,6 +16,10 @@
 import atexit
 from os import makedirs, name
 from os.path import isdir, expanduser, join
+try:
+    from Crypto.Cipher import AES
+except ImportError:
+    AES = None
 from hashlib import md5
 from sys import version
 from base64 import b64encode, b64decode
@@ -57,25 +61,84 @@ class Config(dict):
         self.hash = md5(repr(self).encode()).digest()
 
 
-class Password(str):
-    def __new__(self, enc_pwd, encoded=True):
-        if not encoded:
-            return str.__new__(self, enc_pwd)
-        try:
-            lep = list(b64decode(enc_pwd, b"@$"))
-        except ValueError:
-            return str.__new__(self, enc_pwd)
-        k = list(md5(version.encode()).digest())
+class Password:
+    def __init__(self, epasswd):
+        self.__passphrased = epasswd.startswith("*")
+        self.__plain = None
+        if not self.__passphrased:
+            self.__epassword = b64decode(epasswd, b"@$")
+            self.__hash = md5(version.encode()).digest()
+            ds = self.decrypt_xor(self.__epassword)
+            try:
+                self.__plain = ds.decode()
+            except (UnicodeDecodeError):
+                pass
+        else:
+            self.__epassword = b64decode(epasswd[1:], b"@$")
+            self.__hash = None
+
+    def encrypt_xor(self):
+        k = list(self.__hash)
         lk = len(k)
-        rb = [j ^ k[i % lk] for i, j in enumerate(lep)]
+        lep = list(self.__plain.encode())
+        return bytes(j ^ k[i % lk] for i, j in enumerate(lep))
+
+    def decrypt_xor(self, crypted):
+        if self.__hash is None:
+            return None
+        k = list(self.__hash)
+        lk = len(k)
+        return bytes(j ^ k[i % lk] for i, j in enumerate(crypted))
+
+    def encrypt_AES(self):
+        lep = self.__plain.encode()
+        lp = len(lep)
+        lep = eval("b'\\x%02x'" % lp) + lep + self.__hash[(lp + 1) % 16:]
+        coder = AES.new(self.__hash)
+        return coder.encrypt(lep)
+
+    def decrypt_AES(self, crypted):
+        coder = AES.new(self.__hash)
+        lep = coder.decrypt(crypted)
+        lp = lep[0]
+        if lp >= len(crypted):
+            return None
+        if self.__hash.endswith(lep[1 + lp:]):
+            return lep[1:1 + lp]
+        return None
+
+    def require_passphrse(self):
+        return self.__passphrased and self.__plain is None
+
+    def try_passphrase(self, passphrase):
+        self.__hash = md5(passphrase.encode()).digest()
+        if AES is None:
+            ds = self.decrypt_xor(self.__epassword)
+        else:
+            ds = self.decrypt_AES(self.__epassword)
         try:
-            return str.__new__(self, bytes(rb).decode())
-        except UnicodeDecodeError:
-            return str.__new__(self, "")
+            self.__plain = ds.decode()
+        except (UnicodeDecodeError, AttributeError):
+            self.__plain = None
+
+    def set_passphrase(self, passphrase):
+        self.__hash = md5(passphrase.encode()).digest()
+        self.__passphrased = True
+
+    def __str__(self):
+        if self.__plain:
+            return self.__plain
+        else:
+            return ""
 
     def __repr__(self):
-        k = list(md5(version.encode()).digest())
-        lk = len(k)
-        lep = list(self.encode())
-        rb = [j ^ k[i % lk] for i, j in enumerate(lep)]
-        return repr(b64encode(bytes(rb), b"@$").decode())
+        if self.__passphrased:
+            cryptor = self.encrypt_xor if AES is None else self.encrypt_AES
+            return repr("*" + b64encode(cryptor(), b"@$").decode())
+        else:
+            return repr(b64encode(self.encrypt_xor(), b"@$").decode())
+
+    def clear(self):
+        self.__hash = None
+        self.__plain = None
+        self.__passphrased = None

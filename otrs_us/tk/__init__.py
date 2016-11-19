@@ -23,7 +23,7 @@ from ..core import get_core
 from .tickets import Tickets
 from .dashboard import Dashboard
 from .search import Search
-from .dialogs import DlgSettings
+from .dialogs import DlgSettings, DlgDetails
 
 
 class Face:
@@ -72,6 +72,8 @@ class Face:
         menubar.add_cascade(
             menu=mticket, label=_("Ticket"), state="disabled")
         medit.add_command(label=_("Settings"), command=self.ask_settings)
+        medit.add_command(label=_("Set Passphrase"),
+                          command=self.set_passphrase)
         self.app_widgets["menubar"] = menubar
         self.app_widgets["menu_ticket"] = mticket
         tcts = self.app_widgets["tickets"]
@@ -134,6 +136,18 @@ class Face:
                 self.root.after(
                     int(core_cfg["refresh_time"] * 1e3),
                     self.app_widgets["dashboard"].update)
+
+    def set_passphrase(self):
+        passwd = self.core.call("core cfg").get("password")
+        cfg = {"*passphrase1": "", "*passphrase2": ""}
+        DlgDetails(self.root, _("Passphrase"), cfg=cfg,
+                   inputs=(("*passphrase1", _("Passphrase:")),
+                           ("*passphrase2", _("Repeat passphrase:"))))
+        if cfg["OK button"]:
+            if cfg["*passphrase1"] == cfg["*passphrase2"]:
+                passwd.set_passphrase(cfg["*passphrase2"])
+            else:
+                showerror(_("Set Passphrase"), _("Passphrases are not same"))
 
 
 def start_gui():

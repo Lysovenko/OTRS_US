@@ -109,7 +109,7 @@ class DlgLogin(Dialog):
         self.login = StringVar()
         self.login.set(cfg.get("user", ""))
         self.password = StringVar()
-        self.password.set(cfg.get("password", ""))
+        self.password.set(str(cfg.get("password", "")))
         site = Entry(master, width=15, textvariable=self.site)
         site.grid(column=1, row=0, sticky="e")
         Label(master, text=_("Site:")).grid(column=0, row=0, sticky="w")
@@ -199,6 +199,8 @@ class DlgDetails(Dialog):
             svars[nam] = sv = StringVar()
             sv.set(val)
             entries[nam] = en = Entry(master, width=30, textvariable=sv)
+            if nam.startswith("*"):
+                en["show"] = "*"
             en.grid(column=1, row=pos, sticky="e")
             Label(master, text=lab).grid(column=0, row=pos, sticky="w")
         start_pos = len(inputs)
@@ -225,7 +227,7 @@ class DlgDetails(Dialog):
 
     def apply(self):
         cfg = self.config
-        self.config["OK button"] = True
+        cfg["OK button"] = True
         for nam, val in self.stringvars.items():
             cfg[nam] = val.get()
         for nam, val in self.comboboxes.items():

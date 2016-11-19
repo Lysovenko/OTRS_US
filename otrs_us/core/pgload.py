@@ -75,7 +75,7 @@ class Page:
         if req is None:
             req = self.last_url
         user = who["user"]
-        passwd = who["password"]
+        passwd = str(who["password"])
         site = who["site"]
         r = Request(
             site, urlencode(

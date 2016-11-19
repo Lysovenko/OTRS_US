@@ -21,7 +21,7 @@ from tkinter.messagebox import showerror
 from .tickets import autoscroll
 from ..core.dash_upd import DashboardUpdater
 from ..core.ptime import TimeConv
-from .dialogs import DlgLogin
+from .dialogs import DlgLogin, DlgDetails
 
 
 class Dashboard(ttk.Frame):
@@ -80,6 +80,7 @@ class Dashboard(ttk.Frame):
         core_cfg = core.call("core cfg")
         runt_cfg = core.call("runtime cfg")
         status = self.updater.get_status()
+        self.passphrase_check(core_cfg.get("password"))
         self.echo("\033[0;7m%s\033[0m>>> %s: %s" % (
             strftime("%H:%M:%S"), status, self.updater.get_info()))
         if status == "Wait":
@@ -222,3 +223,14 @@ class Dashboard(ttk.Frame):
         snd_cmd = self.app_widgets["core"].call("core cfg").get("snd_err")
         if snd_cmd:
             system(snd_cmd)
+
+    def passphrase_check(self, passwd):
+        while passwd.require_passphrse():
+            cfg = {"*passphrase": ""}
+            DlgDetails(self, _("Passphrase"), cfg=cfg,
+                       inputs=(("*passphrase", _("Passphrase:")),))
+            if cfg["OK button"]:
+                passwd.try_passphrase(cfg["*passphrase"])
+            else:
+                passwd.clear()
+                break
