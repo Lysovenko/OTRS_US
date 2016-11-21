@@ -132,7 +132,7 @@ class DlgLogin(Dialog):
         self.config["remember_passwd"] = self.to_remember.get()
         self.config["site"] = self.site.get()
         self.config["user"] = self.login.get()
-        self.config["password"] = Password(self.password.get(), False)
+        self.config["password"].set_password(self.password.get())
         self.config["OK button"] = True
 
 
@@ -165,9 +165,9 @@ class DlgSettings(Dialog):
     def apply(self):
         "On ok button pressed"
         for i in ("snd_cmd", "snd_imp", "snd_err", "dld_fldr", "site", "user",
-                  "password", "tct_tm_fmt", "art_tm_fmt"):
+                  "tct_tm_fmt", "art_tm_fmt"):
             self.config[i] = self.strvars[i].get()
-        self.config["password"] = Password(self.config["password"], False)
+        self.config["password"].set_password(self.strvars["password"].get())
         self.config["OK button"] = True
 
     def validate(self):

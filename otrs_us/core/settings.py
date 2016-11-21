@@ -125,6 +125,9 @@ class Password:
         self.__hash = md5(passphrase.encode()).digest()
         self.__passphrased = True
 
+    def set_password(self, passwoord):
+        self.__plain = passwoord
+
     def __str__(self):
         if self.__plain:
             return self.__plain
