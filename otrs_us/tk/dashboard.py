@@ -188,7 +188,11 @@ class Dashboard(ttk.Frame):
     def enter_ticket(self, evt):
         iid = evt.widget.focus()
         if iid:
-            self.app_widgets["tickets"].load_ticket(self.tree_data[iid][0])
+            try:
+                self.app_widgets["tickets"].load_ticket(self.tree_data[iid][0])
+            except KeyError:
+                showerror(_("Bad ticket id"),
+                          _("It is no ticket with id %s") % iid)
 
     def login(self, dialog=False):
         core = self.app_widgets["core"]

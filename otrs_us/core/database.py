@@ -65,7 +65,10 @@ class Database:
 
     def execute(self, command, commit=True):
         cursor = self.connection.cursor()
-        cursor.execute(command)
+        try:
+            cursor.execute(command)
+        except Error:
+            raise Error(command)
         if commit:
             self.connection.commit()
         return cursor.fetchall()

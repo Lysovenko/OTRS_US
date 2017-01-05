@@ -95,7 +95,11 @@ class DashboardUpdater:
                 item["mtime"] = mtime
                 updlist.append((tid, int(item["number"]),
                                 mtime, item["title"]))
-        renewed = self.__db.update_tickets(updlist)
+        try:
+            renewed = self.__db.update_tickets(updlist)
+        except Exception as err:
+            print_exc()
+            return
         summary = {"Important": set()}
         for name in ("Reminder", "New", "Open"):
             summary[name] = set()
