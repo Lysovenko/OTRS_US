@@ -100,6 +100,8 @@ class Dashboard(ttk.Frame):
             if res is not None:
                 self.fill_trees(res[0])
                 self.show_status(res[1])
+            else:
+                self.on_url_error("In some reason res is None")
             self.login_failed = 0
         if status in ("URLError", "Empty"):
             self.on_url_error(self.updater.get_result())
