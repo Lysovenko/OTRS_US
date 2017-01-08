@@ -195,6 +195,9 @@ class Dashboard(ttk.Frame):
             except KeyError:
                 showerror(_("Bad ticket id"),
                           _("It is no ticket with id %s") % iid)
+            except ConnectionError:
+                showerror(_("Connection error"),
+                          _("Connection problems occured"))
 
     def login(self, dialog=False):
         core = self.app_widgets["core"]
