@@ -118,6 +118,8 @@ class Callbacks:
         for i in reversed(self.articles_range):
             tree.delete(i)
         self.articles_range = list(articles)
+        if not self.articles_range:
+            return
         self.articles_range.sort(key=lambda x: articles[x]["ctime"])
         for art_id in self.articles_range:
             item = articles[art_id]
@@ -125,8 +127,8 @@ class Callbacks:
             tags = (article_type(item["Flags"]),)
             tags += ("hightlighted",) if art_id in selected else ()
             tree.insert(
-                "", "end", art_id, text=item["Title"],
-                values=(item["Sender"], ctime(item["ctime"]),
+                "", "end", art_id, text=item["Title"].replace('"', "_"),
+                values=(item["Sender"].replace('"', '_'), ctime(item["ctime"]),
                         "%x" % item["Flags"]), tags=tags)
         self.tree_data = articles
         self.app_widgets["notebook"].select(self)
