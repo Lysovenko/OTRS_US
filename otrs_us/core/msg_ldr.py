@@ -30,7 +30,10 @@ ARTICLE_TYPES = (
     "system-email-internal", "system-email-notification-ext",
     "system-email-notification-int", "system-note-external",
     "system-note-internal", "system-note-report")
-article_type = lambda flag: ARTICLE_TYPES[flag & ART_TYPE_MASK]
+
+
+def article_type(flag):
+    return ARTICLE_TYPES[flag & ART_TYPE_MASK]
 
 
 def article_by_url(url):
@@ -149,7 +152,11 @@ class MessageLoader:
                 sender = item["From"]
                 ctime = unix_time(item["Created"], self.cfg["art_tm_fmt"])
                 rcs = item["row"].split()
-                flags = ARTICLE_TYPES.index(rcs[0])
+                try:
+                    flags = ARTICLE_TYPES.index(rcs[0])
+                except ValueError:
+                    self.echo("Wrong Article type: %s" % rcs[0])
+                    flags = 0
                 if "UnreadArticles" not in rcs:
                     flags |= ART_SEEN
                 flags = self.__db.article_description(
