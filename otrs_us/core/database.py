@@ -24,8 +24,12 @@ ART_TYPE_MASK = 0xf
 TIC_SEEN = 1 << 8
 TIC_UPD = 1
 # TODO: escape more accurately sql datatypes
-sql_repr = lambda x: 'NULL' if x is None else repr(x).replace(
-    "\\'", "''").replace("\\\\", "\\")
+
+
+def sql_repr(x):
+    if x is None:
+        return "NULL"
+    return repr(x).replace("\\'", "''").replace("\\\\", "\\")
 
 
 class Database:
@@ -103,8 +107,8 @@ class Database:
 
     def update_tickets(self, updlist):
         sql = self.execute
-        sql("CREATE TEMPORARY TABLE tmp_tickets(id INT, number INT,"
-            " mtime INT, title VARCHAR)", False)
+        sql("CREATE TEMPORARY TABLE IF NOT EXISTS "
+            "tmp_tickets(id INT, number INT, mtime INT, title VARCHAR)", False)
         if sqlite_version_info >= (3, 7, 11):
             rearr = ",".join(
                 "(%s)" % ",".join(map(sql_repr, i)) for i in updlist)
@@ -116,9 +120,9 @@ class Database:
         updated = sql("SELECT t.id FROM tmp_tickets AS t LEFT JOIN tickets"
                       " AS o ON t.id = o.id "
                       "WHERE t.mtime > o.mtime OR o.mtime IS NULL", False)
-        sql("CREATE TEMPORARY TABLE upd_tickets (id INT, number INT, "
-            "mtime INT, flags INT, title VARCHAR, allow INT, info TEXT,"
-            " relevance INT)", False)
+        sql("CREATE TEMPORARY TABLE IF NOT EXISTS "
+            "upd_tickets (id INT, number INT, mtime INT, flags INT, "
+            "title VARCHAR, allow INT, info TEXT, relevance INT)", False)
         sql("INSERT INTO upd_tickets SELECT t.id, t.number, t.mtime, CASE WHEN"
             " o.flags IS NULL THEN 0 WHEN o.mtime < t.mtime THEN o.flags & ~%d"
             " ELSE o.flags END, t.title, o.allow, o.info, %d FROM tmp_tickets "
